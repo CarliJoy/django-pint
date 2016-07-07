@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+	<form action="." method="POST">
+		{% csrf_token %}
+		{{form}}
+		<input type="submit" name="Submit">
+	</form>
+
+	{% if result %}
+		<h2>{{result}}</h2>
+	{% endif %}
+{% endblock content %}
+

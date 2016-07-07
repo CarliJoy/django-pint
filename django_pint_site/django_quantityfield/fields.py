@@ -1,8 +1,14 @@
-from pint import Quantity, UnitRegistry
+
 
 from django.db import models
 
+from django import forms
+
 from . import ureg
+
+Quantity = ureg.Quantity
+
+from .widgets import QuantityWidget
 
 
 def parse_quantity(value):
@@ -49,5 +55,27 @@ class QuantityField(models.CharField):
 
 		return parse_quantity(value)
 
+	def get_prep_lookup(self, lookup_type, value):
+		if lookup_type in ['lt', 'gt', 'lte', 'gte']:
+			if isinstance(value, Quantity):
+				return value.magnitude
+			return value
 
-		
+	def formfield(self, **kwargs):
+		defaults = {'form_class':QuantityFormField}
+		defaults.update(kwargs)
+		return super(QuantityField, self).formfield(**defaults)
+
+
+class QuantityFormField(forms.CharField):
+	"""docstring for QuantityFormField"""
+
+	def __init__(self, *args, **kwargs):
+		units = kwargs.pop('units', None)
+		kwargs.update({'widget': QuantityWidget(allowed_types=units)})
+		super(QuantityFormField, self).__init__(*args, **kwargs)
+
+	def clean(self, value):
+		if isinstance(value, list):
+			return parse_quantity(",".join(value))
+		return value
