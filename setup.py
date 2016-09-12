@@ -16,13 +16,13 @@ setup(name='django-pint',
       author_email="blrharling@gmail.com",
       description=("Quantity Field for Django using pint library"
                    "for automated unit conversions"),
-      long_description=open(os.path.join(PACKAGE_DIR, 'README.md')).read(),
+      #long_description=open(os.path.join(PACKAGE_DIR, 'README.md')).read(),
       license='MIT',
       packages=find_packages(exclude=["sandbox*", "tests*"]),
       include_package_data=True,
       install_requires=[
-          'django>=1.7,<1.10',
-          'pint',
+          'django>=1.5,<1.10',
+          'pint==0.7.2',
           ],
       # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=['Environment :: Web Environment',
