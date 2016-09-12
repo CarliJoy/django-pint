@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'django_quantityfield',
-    'quantityfield_tests'
+    'quantityfield',
+    'example_app'
 ]
 
 MIDDLEWARE_CLASSES = [

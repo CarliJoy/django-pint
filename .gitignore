@@ -1,2 +1,7 @@
 /venv
 *.pyc
+*.egg-info
+.tox
+dist/*
+.coverage
+__pycache__

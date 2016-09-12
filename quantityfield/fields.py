@@ -10,6 +10,8 @@ Quantity = ureg.Quantity
 
 from .widgets import QuantityWidget
 
+from django.utils.six import python_2_unicode_compatible
+
 
 def parse_quantity(value):
 	quantity, units = value.split(',')
@@ -28,9 +30,12 @@ class QuantityField(models.CharField):
 
 		# if we've not hit an exception here, we should be all good
 		self.base_units = base_units
-
 		kwargs['max_length'] = 120
-		super(QuantityField, self).__init__(self, *args, **kwargs)
+		super(QuantityField, self).__init__(*args, **kwargs)
+
+	@property
+	def units(self):
+		return self.base_units
 
 	def deconstruct(self):
 		name, path, args, kwargs = super(QuantityField, self).deconstruct()
@@ -39,7 +44,15 @@ class QuantityField(models.CharField):
 		return name, path, args, kwargs
 
 	def get_prep_value(self, value):
-		return "%d,%s" % (value.magnitude, value.units)
+		# we store the value in the base units defined for this field
+		if isinstance(value, Quantity):
+			to_save = value.to(self.base_units)
+			return "%d,%s" % (to_save.magnitude, self.base_units)
+		return "%d,%s" % (value, self.base_units)
+
+	def value_to_string(self, obj):
+		value = self.value_from_object(obj)
+		return self.get_prep_value(value)
 
 	def from_db_value(self, value, expression, connection, context):
 		if value is None:
