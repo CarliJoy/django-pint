@@ -1,4 +1,6 @@
 
+[![Build Status](https://travis-ci.org/bharling/django-pint.svg?branch=master)](https://travis-ci.org/bharling/django-pint)
+
 Django Quantity Field
 ================
 
