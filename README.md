@@ -1,8 +1,8 @@
 
 [![Build Status](https://travis-ci.org/bharling/django-pint.svg?branch=master)](https://travis-ci.org/bharling/django-pint)
 [![Coverage Status](https://coveralls.io/repos/github/bharling/django-pint/badge.svg?branch=master)](https://coveralls.io/github/bharling/django-pint?branch=master)
-[![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)]
-[![PyPI](https://img.shields.io/pypi/v/django-ping.svg?maxAge=2592000?style=plastic)]
+[![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)]()
+[![PyPI](https://img.shields.io/pypi/v/django-ping.svg?maxAge=2592000?style=plastic)]()
 
 Django Quantity Field
 ================
@@ -64,3 +64,7 @@ Use the inbuilt form field and widget to allow input of quantity values in diffe
         weight = QuantityFormField(base_units='gram', unit_choices=['gram', 'ounce', 'milligram'])
 
 The form will render a float input and a select widget to choose the units. Whenever cleaned_data is presented from the above form the weight field value will be a Quantity with the units set to grams ( values are converted from the units input by the user ).
+
+For comparative lookups, query values will be coerced into the correct units when comparing values, this means that comparing 1 ounce to 1 tonne should yield the correct results.
+
+    less_than_a_tonne = HayBale.objects.filter(weight__lt=Quantity(2000 * ureg.pound))
