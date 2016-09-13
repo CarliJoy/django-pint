@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
-	<form action="." method="POST">
+	<form action="" method="get">
 		{% csrf_token %}
 		{{form}}
 		<input type="submit" name="Submit">
 	</form>
 
-	{% if result %}
-		<h2>{{result}}</h2>
+	{% if value %}
+		<strong>In grams: {{value}}</strong>
 	{% endif %}
 {% endblock content %}
 

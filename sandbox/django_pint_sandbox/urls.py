@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 
-from quantityfield_tests.views import QuantityFormView
+from example_app.views import QuantityFormView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

@@ -53,7 +53,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'django_pint_site.urls'
+ROOT_URLCONF = 'django_pint_sandbox.urls'
 
 TEMPLATES = [
     {
@@ -71,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'django_pint_site.wsgi.application'
+WSGI_APPLICATION = 'django_pint_sandbox.wsgi.application'
 
 
 # Database
