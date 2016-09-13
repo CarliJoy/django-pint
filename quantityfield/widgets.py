@@ -11,11 +11,14 @@ class QuantityWidget(MultiWidget):
 		allowed_types = allowed_types or dir(ureg)			
 		return [(x, x) for x in allowed_types]
 
-	def __init__(self, attrs=None, allowed_types=None):
+	def __init__(self, attrs=None, base_units=None, allowed_types=None):
 		choices = self.get_choices(allowed_types)
+		self.base_units = base_units
 		attrs = attrs or {}
 		attrs.setdefault('step', 'any')
-		widgets = (NumberInput(attrs=attrs),
+
+		widgets = (
+					NumberInput(attrs=attrs),
 					Select(attrs=attrs, choices=choices)
 				)
 
@@ -23,8 +26,8 @@ class QuantityWidget(MultiWidget):
 
 	def decompress(self, value):
 		if value:
-			return value.split(',')
-		return [None, None]
+			return [value, self.base_units]
+		return [None, self.base_units]
 
 
 

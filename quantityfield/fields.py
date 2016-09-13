@@ -12,14 +12,7 @@ from .widgets import QuantityWidget
 
 from django.utils.six import python_2_unicode_compatible
 
-
-def parse_quantity(value):
-	quantity, units = value.split(',')
-	return ureg('%(quantity)s * %(units)s' % locals())
-
-
-
-class QuantityField(models.CharField):
+class QuantityField(models.FloatField):
 	"""A Django Model Field that resolves to a pint Quantity object"""
 	def __init__(self, base_units=None, *args, **kwargs):
 		if not base_units:
@@ -30,7 +23,6 @@ class QuantityField(models.CharField):
 
 		# if we've not hit an exception here, we should be all good
 		self.base_units = base_units
-		kwargs['max_length'] = 120
 		super(QuantityField, self).__init__(*args, **kwargs)
 
 	@property
@@ -40,15 +32,17 @@ class QuantityField(models.CharField):
 	def deconstruct(self):
 		name, path, args, kwargs = super(QuantityField, self).deconstruct()
 		kwargs['base_units'] = self.base_units
-		kwargs['max_length'] = 120
 		return name, path, args, kwargs
 
 	def get_prep_value(self, value):
 		# we store the value in the base units defined for this field
+		if value==None:
+			return None
+
 		if isinstance(value, Quantity):
 			to_save = value.to(self.base_units)
-			return "%d,%s" % (to_save.magnitude, self.base_units)
-		return "%d,%s" % (value, self.base_units)
+			return float(to_save.magnitude)
+		return value
 
 	def value_to_string(self, obj):
 		value = self.value_from_object(obj)
@@ -57,7 +51,7 @@ class QuantityField(models.CharField):
 	def from_db_value(self, value, expression, connection, context):
 		if value is None:
 			return value
-		return parse_quantity(value)
+		return Quantity(value * getattr(ureg, self.base_units))
 
 	def to_python(self, value):
 		if isinstance(value, Quantity):
@@ -66,29 +60,40 @@ class QuantityField(models.CharField):
 		if value is None:
 			return None
 
-		return parse_quantity(value)
+		return Quantity(value * getattr(ureg, self.base_units))
 
 	def get_prep_lookup(self, lookup_type, value):
+
 		if lookup_type in ['lt', 'gt', 'lte', 'gte']:
 			if isinstance(value, Quantity):
-				return value.magnitude
+				v = value.to(self.base_units)
+				return v.magnitude
 			return value
 
 	def formfield(self, **kwargs):
-		defaults = {'form_class':QuantityFormField}
+		defaults = {'form_class':QuantityFormField, 'base_units':self.base_units}
 		defaults.update(kwargs)
 		return super(QuantityField, self).formfield(**defaults)
 
 
-class QuantityFormField(forms.CharField):
-	"""docstring for QuantityFormField"""
+class QuantityFormField(forms.FloatField):
+	"""This formfield allows a user to choose which units they
+		wish to use to enter a value, but the value is yielded in
+		the base_units
+	"""
 
 	def __init__(self, *args, **kwargs):
-		units = kwargs.pop('units', None)
-		kwargs.update({'widget': QuantityWidget(allowed_types=units)})
+		self.base_units = kwargs.pop('base_units', None)
+		if not self.base_units:
+			raise ValueError('QuantityFormField requires a base_units kwarg of a single unit type (eg: grams)')
+		self.units = kwargs.pop('units', [self.base_units])
+		kwargs.update({'widget': QuantityWidget(allowed_types=self.units)})
 		super(QuantityFormField, self).__init__(*args, **kwargs)
 
 	def clean(self, value):
 		if isinstance(value, list):
-			return parse_quantity(",".join(value))
-		return value
+			if value[0] is None:
+				return None
+			q = Quantity(value[0] * getattr(ureg, value[1]))
+			return q.to(self.base_units)
+		return Quantity(value * getattr(ureg, self.base_units))
