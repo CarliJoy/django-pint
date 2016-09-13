@@ -115,6 +115,6 @@ class QuantityFormField(forms.FloatField):
 				return None
 			if not units in self.units:
 				raise ValidationError('%(units)s is not a valid choice' % locals())
-			q = Quantity(value[0] * getattr(ureg, value[1]))
+			q = Quantity(float(val) * getattr(ureg, units))
 			return q.to(self.base_units)
 		return Quantity(value * getattr(ureg, self.base_units))
