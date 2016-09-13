@@ -1,8 +1,8 @@
 
 [![Build Status](https://travis-ci.org/bharling/django-pint.svg?branch=master)](https://travis-ci.org/bharling/django-pint)
 [![Coverage Status](https://coveralls.io/repos/github/bharling/django-pint/badge.svg?branch=master)](https://coveralls.io/github/bharling/django-pint?branch=master)
-[![PyPi version](https://pypip.in/v/$REPO/badge.png)](https://crate.io/packages/$REPO/)
-[![PyPi downloads](https://pypip.in/d/$REPO/badge.png)](https://crate.io/packages/$REPO/)
+[![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)]
+[![PyPI](https://img.shields.io/pypi/v/django-ping.svg?maxAge=2592000?style=plastic)]
 
 Django Quantity Field
 ================
