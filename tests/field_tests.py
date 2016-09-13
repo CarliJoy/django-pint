@@ -9,7 +9,7 @@ from django.db import transaction
 
 from tests.dummyapp.models import HayBale, EmptyHayBale
 
-from pint import DimensionalityError
+from pint import DimensionalityError, UndefinedUnitError
 
 
 class TestFieldCreate(TestCase):

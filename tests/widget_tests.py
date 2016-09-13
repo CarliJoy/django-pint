@@ -13,17 +13,21 @@ from tests.dummyapp.models import HayBale, EmptyHayBale
 
 from django import forms
 
+from pint import DimensionalityError, UndefinedUnitError
+
 
 class HayBaleForm(forms.ModelForm):
+	weight = QuantityFormField(base_units='gram', unit_choices=['ounce','gram'])
+
 	class Meta:
 		model = HayBale
 		exclude = []
-		widgets = {
-			'weight':QuantityWidget(base_units='gram', allowed_types=['ounce','gram'])
-		}
 
 class NullableWeightForm(forms.Form):
 	weight = QuantityFormField(base_units='gram', required=False)
+
+class UnitChoicesForm(forms.Form):
+	distance = QuantityFormField(base_units='kilometer', unit_choices=['mile', 'kilometer', 'yard', 'feet'])
 
 
 class TestWidgets(TestCase):
@@ -53,6 +57,30 @@ class TestWidgets(TestCase):
 	def test_quantityfield_can_be_null(self):
 		form = NullableWeightForm(data={'weight_0':None, 'weight_1':None})
 		self.assertTrue(form.is_valid())
+
+	def test_validate_units(self):
+		form = UnitChoicesForm(data={'distance_0':100, 'distance_1':'ounce'})
+		self.assertFalse(form.is_valid())
+
+	def test_base_units_is_included_by_default(self):
+		field = QuantityFormField(base_units="mile", unit_choices=['meters', 'feet'])
+		self.assertIn('mile', field.units)
+
+	def test_form_field_displays_unit_choices(self):
+		form = UnitChoicesForm()
+		self.assertListEqual(
+			[('mile', 'mile'), ('kilometer', 'kilometer'), ('yard', 'yard'), ('feet', 'feet')],
+			form.fields['distance'].widget.widgets[1].choices
+		)
+
+	def test_unit_choices_must_be_valid_units(self):
+		with self.assertRaises(UndefinedUnitError):
+			field = QuantityFormField(base_units="mile", unit_choices=['gunzu'])
+
+	def test_unit_choices_must_match_base_dimensionality(self):
+		with self.assertRaises(DimensionalityError):
+			field = QuantityFormField(base_units='gram', unit_choices=['meter', 'ounces'])
+
 
 		
 			

@@ -12,6 +12,10 @@ from .widgets import QuantityWidget
 
 from django.utils.six import python_2_unicode_compatible
 
+from django.core.exceptions import ValidationError
+
+from pint import DimensionalityError, UndefinedUnitError
+
 class QuantityField(models.FloatField):
 	"""A Django Model Field that resolves to a pint Quantity object"""
 	def __init__(self, base_units=None, *args, **kwargs):
@@ -86,14 +90,31 @@ class QuantityFormField(forms.FloatField):
 		self.base_units = kwargs.pop('base_units', None)
 		if not self.base_units:
 			raise ValueError('QuantityFormField requires a base_units kwarg of a single unit type (eg: grams)')
-		self.units = kwargs.pop('units', [self.base_units])
+		self.units = kwargs.pop('unit_choices', [self.base_units])
+		if self.base_units not in self.units:
+			self.units.append(self.base_units)
+
+
+		base_unit = getattr(ureg, self.base_units)
+
+		for _unit in self.units:
+			unit = getattr(ureg, _unit)
+			if unit.dimensionality != base_unit.dimensionality:
+				raise DimensionalityError(base_unit, unit)
+
+
+
 		kwargs.update({'widget': QuantityWidget(allowed_types=self.units)})
 		super(QuantityFormField, self).__init__(*args, **kwargs)
 
 	def clean(self, value):
 		if isinstance(value, list):
-			if value[0] is None:
+			val = value[0]
+			units = value[1]
+			if val is None:
 				return None
+			if not units in self.units:
+				raise ValidationError('%(units)s is not a valid choice' % locals())
 			q = Quantity(value[0] * getattr(ureg, value[1]))
 			return q.to(self.base_units)
 		return Quantity(value * getattr(ureg, self.base_units))
