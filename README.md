@@ -12,6 +12,11 @@ Compatibility
 
 Requires django >= 1.8, and python 2.7/3.2/3.3/3.4
 
+Installation
+------------
+
+    pip install django-pint
+
 
 Simple Example
 -----------------------
