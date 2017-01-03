@@ -1,4 +1,4 @@
-
+import re
 
 from django.forms.widgets import MultiWidget, Select, NumberInput
 
@@ -23,10 +23,12 @@ class QuantityWidget(MultiWidget):
 				)
 
 		super(QuantityWidget, self).__init__(widgets, attrs)
-
-	def decompress(self, value):
-		if value:
-			return [value, self.base_units]
+        
+    def decompress(self, value):
+        non_decimal = re.compile(r'[^\d.]+')
+        if value:
+            number_value = non_decimal.sub('', str(value))
+            return [number_value, self.base_units]
 		return [None, self.base_units]
 
 
