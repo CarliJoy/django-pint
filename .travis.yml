@@ -15,6 +15,10 @@ python:
     - "3.6"
     - "nightly"
 
+script:
+  coverage run runtests.py
+
+
 install:
   - travis_retry pip install $DJANGO
   - travis_retry pip install coveralls
