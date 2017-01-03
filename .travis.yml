@@ -17,7 +17,7 @@ python:
 install:
   - travis_retry pip install $DJANGO
   - travis_retry pip install coveralls
-  - travis_retry pip install -r requirements.txt
+  - travis_retry pip install -r test_requirements.txt
   
 after_success:
     - coveralls
