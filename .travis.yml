@@ -1,5 +1,6 @@
 language: python
 sudo: false
+cache: pip
 
 env:
   - DJANGO='https://github.com/django/django/archive/master.tar.gz'
