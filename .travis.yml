@@ -1,18 +1,23 @@
 language: python
-python: 2.7
 sudo: false
 
 env:
-    - TOX_ENV=py27-django18
-    - TOX_ENV=py27-django19
-    - TOX_ENV=py27-django10
-    - TOX_ENV=py33-django18
-    - TOX_ENV=py34-django18
-    - TOX_ENV=py34-django19
-    - TOX_ENV=py34-django10
+  - DJANGO='https://github.com/django/django/archive/master.tar.gz'
+  - DJANGO='django>=1.10.0,<1.11.0'
+  - DJANGO='django>=1.9.0,<1.10.0'
+  - DJANGO='django>=1.8.0,<1.9.0'
+
+python:
+    - "2.7"
+    - "3.4"
+    - "3.5"
+    - "3.6"
+    - "nightly"
 
 install:
-  - pip install tox
-
-script:
-  - tox -e $TOX_ENV
+  - travis_retry pip install $DJANGO
+  - travis_retry pip install coveralls
+  - travis_retry pip install -r requirements.txt
+  
+after_success:
+    - coveralls
