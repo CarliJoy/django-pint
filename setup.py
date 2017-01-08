@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 import os
 
-__version__ = '0.3'
+__version__ = '0.4'
 
 PACKAGE_DIR = os.path.abspath(os.path.dirname(__file__))
 os.chdir(PACKAGE_DIR)
