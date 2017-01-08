@@ -89,7 +89,12 @@ class TestWidgets(TestCase):
         form = HayBaleForm(instance = bale)
         html = str(form)
         self.assertIn(
-            '<input id="id_weight_0" name="weight_0" step="any" type="number" value="20" /><select id="id_weight_1" name="weight_1" step="any">\n<option value="ounce">ounce</option>\n<option value="gram">gram</option>\n</select>',
+            '<input id="id_weight_0" name="weight_0" step="any" type="number" value="20" />',
+            html
+        )
+
+        self.assertIn(
+            '<option value="ounce">ounce</option>', 
             html
         )
 
