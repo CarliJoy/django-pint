@@ -104,8 +104,13 @@ class QuantityFormField(forms.FloatField):
 
 
 
-		kwargs.update({'widget': QuantityWidget(allowed_types=self.units)})
+		kwargs.update({'widget': QuantityWidget(base_units=self.base_units, allowed_types=self.units)})
 		super(QuantityFormField, self).__init__(*args, **kwargs)
+
+
+	def prepare_value(self, value):
+        return value.to(self.base_units)
+        
 
 	def clean(self, value):
 		if isinstance(value, list):
