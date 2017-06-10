@@ -109,7 +109,11 @@ class QuantityFormField(forms.FloatField):
 
 
 	def prepare_value(self, value):
-        return value.to(self.base_units)
+
+		if value is None:
+			return value
+
+		return value.to(self.base_units)
         
 
 	def clean(self, value):
