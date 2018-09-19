@@ -2,15 +2,17 @@ import re
 
 from django.forms.widgets import MultiWidget, Select, NumberInput
 
-from . import ureg
+from . import ureg as default_ureg
 
 
 class QuantityWidget(MultiWidget):
+    def __init__(self, *args, **kwargs):
+        self.ureg = kwargs.pop('ureg', default_ureg)
 
     def get_choices(self, allowed_types=None):
-        allowed_types = allowed_types or dir(ureg)
+        allowed_types = allowed_types or dir(self.ureg)
         return [(x, x) for x in allowed_types]
-        
+
     def __init__(self, attrs=None, base_units=None, allowed_types=None):
         choices = self.get_choices(allowed_types)
         self.base_units = base_units

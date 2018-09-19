@@ -68,3 +68,17 @@ The form will render a float input and a select widget to choose the units. When
 For comparative lookups, query values will be coerced into the correct units when comparing values, this means that comparing 1 ounce to 1 tonne should yield the correct results.
 
     less_than_a_tonne = HayBale.objects.filter(weight__lt=Quantity(2000 * ureg.pound))
+
+You can also use a custom Pint unit registry:
+
+    # app/models.py
+    
+    from django.db import models
+    from quantityfield.fields import QuantityField
+    from pint import UnitRegistry
+
+    my_ureg = UnitRegistry()
+    my_ureg.define(...)
+    
+    class HayBale(models.Model):
+        custom_unit = QuantityField('tonne', ureg=my_ureg)

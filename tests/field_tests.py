@@ -7,7 +7,7 @@ Quantity = ureg.Quantity
 
 from django.db import transaction
 
-from tests.dummyapp.models import HayBale, EmptyHayBale
+from tests.dummyapp.models import HayBale, EmptyHayBale, CustomUregHayBale, custom_ureg
 
 from pint import DimensionalityError, UndefinedUnitError
 
@@ -34,6 +34,8 @@ class TestFieldSave(TestCase):
 		self.lightest = HayBale.objects.create(weight=1, name="lightest")
 		self.heaviest = HayBale.objects.create(weight=1000, name="heaviest")
 		EmptyHayBale.objects.create(name="Empty")
+		CustomUregHayBale.objects.create(custom=5)
+		CustomUregHayBale.objects.create(custom=5 * custom_ureg.kilocustom)
 
 	def test_stores_value_in_base_units(self):
 		item = HayBale.objects.get(name='ounce')
@@ -97,8 +99,10 @@ class TestFieldSave(TestCase):
 		HayBale.objects.all().delete()
 		EmptyHayBale.objects.all().delete()
 
+	def test_custom_ureg(self):
+		obj = CustomUregHayBale.objects.first()
+		self.assertIsInstance(obj.custom, custom_ureg.Quantity)
+		self.assertEqual(str(obj.custom), '5.0 custom')
 
-
-
-		
-		
+		obj = CustomUregHayBale.objects.last()
+		self.assertEqual(str(obj.custom), '5000.0 custom')

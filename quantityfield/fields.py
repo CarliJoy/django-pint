@@ -4,9 +4,7 @@ from django.db import models
 
 from django import forms
 
-from . import ureg
-
-Quantity = ureg.Quantity
+from . import ureg as default_ureg
 
 from .widgets import QuantityWidget
 
@@ -22,8 +20,10 @@ class QuantityField(models.FloatField):
 		if not base_units:
 			raise ValueError('QuantityField must be defined with base units, eg: "gram"')
 
+		self.ureg = kwargs.pop('ureg', default_ureg)
+
 		# we do this as a way of raising an exception if some crazy unit was supplied.
-		unit = getattr(ureg, base_units)
+		unit = getattr(self.ureg, base_units)
 
 		# if we've not hit an exception here, we should be all good
 		self.base_units = base_units
@@ -36,6 +36,7 @@ class QuantityField(models.FloatField):
 	def deconstruct(self):
 		name, path, args, kwargs = super(QuantityField, self).deconstruct()
 		kwargs['base_units'] = self.base_units
+		kwargs['ureg'] = self.ureg
 		return name, path, args, kwargs
 
 	def get_prep_value(self, value):
@@ -43,7 +44,7 @@ class QuantityField(models.FloatField):
 		if value==None:
 			return None
 
-		if isinstance(value, Quantity):
+		if isinstance(value, self.ureg.Quantity):
 			to_save = value.to(self.base_units)
 			return float(to_save.magnitude)
 		return value
@@ -55,27 +56,27 @@ class QuantityField(models.FloatField):
 	def from_db_value(self, value, expression, connection, context):
 		if value is None:
 			return value
-		return Quantity(value * getattr(ureg, self.base_units))
+		return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
 
 	def to_python(self, value):
-		if isinstance(value, Quantity):
+		if isinstance(value, self.ureg.Quantity):
 			return value
 
 		if value is None:
 			return None
 
-		return Quantity(value * getattr(ureg, self.base_units))
+		return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
 
 	def get_prep_lookup(self, lookup_type, value):
 
 		if lookup_type in ['lt', 'gt', 'lte', 'gte']:
-			if isinstance(value, Quantity):
+			if isinstance(value, self.ureg.Quantity):
 				v = value.to(self.base_units)
 				return v.magnitude
 			return value
 
 	def formfield(self, **kwargs):
-		defaults = {'form_class':QuantityFormField, 'base_units':self.base_units}
+		defaults = {'form_class':QuantityFormField, 'ureg': self.ureg, 'base_units':self.base_units}
 		defaults.update(kwargs)
 		return super(QuantityField, self).formfield(**defaults)
 
@@ -87,6 +88,7 @@ class QuantityFormField(forms.FloatField):
 	"""
 
 	def __init__(self, *args, **kwargs):
+		self.ureg = kwargs.pop('ureg', default_ureg)
 		self.base_units = kwargs.pop('base_units', None)
 		if not self.base_units:
 			raise ValueError('QuantityFormField requires a base_units kwarg of a single unit type (eg: grams)')
@@ -95,10 +97,10 @@ class QuantityFormField(forms.FloatField):
 			self.units.append(self.base_units)
 
 
-		base_unit = getattr(ureg, self.base_units)
+		base_unit = getattr(self.ureg, self.base_units)
 
 		for _unit in self.units:
-			unit = getattr(ureg, _unit)
+			unit = getattr(self.ureg, _unit)
 			if unit.dimensionality != base_unit.dimensionality:
 				raise DimensionalityError(base_unit, unit)
 
@@ -115,6 +117,6 @@ class QuantityFormField(forms.FloatField):
 				return None
 			if not units in self.units:
 				raise ValidationError('%(units)s is not a valid choice' % locals())
-			q = Quantity(float(val) * getattr(ureg, units))
+			q = self.ureg.Quantity(float(val) * getattr(self.ureg, units))
 			return q.to(self.base_units)
-		return Quantity(value * getattr(ureg, self.base_units))
+		return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
