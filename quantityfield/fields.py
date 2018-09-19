@@ -14,7 +14,19 @@ from django.core.exceptions import ValidationError
 
 from pint import DimensionalityError, UndefinedUnitError
 
-class QuantityField(models.FloatField):
+
+def safe_to_int(value):
+	float_value = float(value)
+	int_value = int(value)
+	if round(abs(int_value - float_value), 10) == 0:
+		return int_value
+	else:
+		raise ValueError('Possible loss of precision converting value to integer: %s' % value)
+
+
+class QuantityFieldMixin(object):
+	to_number_type = NotImplemented
+
 	"""A Django Model Field that resolves to a pint Quantity object"""
 	def __init__(self, base_units=None, *args, **kwargs):
 		if not base_units:
@@ -27,14 +39,14 @@ class QuantityField(models.FloatField):
 
 		# if we've not hit an exception here, we should be all good
 		self.base_units = base_units
-		super(QuantityField, self).__init__(*args, **kwargs)
+		super(QuantityFieldMixin, self).__init__(*args, **kwargs)
 
 	@property
 	def units(self):
 		return self.base_units
 
 	def deconstruct(self):
-		name, path, args, kwargs = super(QuantityField, self).deconstruct()
+		name, path, args, kwargs = super(QuantityFieldMixin, self).deconstruct()
 		kwargs['base_units'] = self.base_units
 		kwargs['ureg'] = self.ureg
 		return name, path, args, kwargs
@@ -46,7 +58,7 @@ class QuantityField(models.FloatField):
 
 		if isinstance(value, self.ureg.Quantity):
 			to_save = value.to(self.base_units)
-			return float(to_save.magnitude)
+			return self.to_number_type(to_save.magnitude)
 		return value
 
 	def value_to_string(self, obj):
@@ -76,16 +88,17 @@ class QuantityField(models.FloatField):
 			return value
 
 	def formfield(self, **kwargs):
-		defaults = {'form_class':QuantityFormField, 'ureg': self.ureg, 'base_units':self.base_units}
+		defaults = {'form_class': self.form_field_class, 'ureg': self.ureg, 'base_units':self.base_units}
 		defaults.update(kwargs)
-		return super(QuantityField, self).formfield(**defaults)
+		return super(QuantityFieldMixin, self).formfield(**defaults)
 
 
-class QuantityFormField(forms.FloatField):
+class QuantityFormFieldMixin(object):
 	"""This formfield allows a user to choose which units they
 		wish to use to enter a value, but the value is yielded in
 		the base_units
 	"""
+	to_number_type = NotImplemented
 
 	def __init__(self, *args, **kwargs):
 		self.ureg = kwargs.pop('ureg', default_ureg)
@@ -107,7 +120,7 @@ class QuantityFormField(forms.FloatField):
 
 
 		kwargs.update({'widget': QuantityWidget(allowed_types=self.units)})
-		super(QuantityFormField, self).__init__(*args, **kwargs)
+		super(QuantityFormFieldMixin, self).__init__(*args, **kwargs)
 
 	def clean(self, value):
 		if isinstance(value, list):
@@ -117,6 +130,26 @@ class QuantityFormField(forms.FloatField):
 				return None
 			if not units in self.units:
 				raise ValidationError('%(units)s is not a valid choice' % locals())
-			q = self.ureg.Quantity(float(val) * getattr(self.ureg, units))
+			q = self.ureg.Quantity(self.to_number_type(val) * getattr(self.ureg, units))
 			return q.to(self.base_units)
 		return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
+
+
+
+class QuantityFormField(QuantityFormFieldMixin, forms.FloatField):
+	to_number_type = float
+
+class QuantityField(QuantityFieldMixin, models.FloatField):
+	form_field_class = QuantityFormField
+	to_number_type = float
+
+class IntegerQuantityFormField(QuantityFormFieldMixin, forms.IntegerField):
+	to_number_type = staticmethod(safe_to_int)
+
+class IntegerQuantityField(QuantityFieldMixin, models.IntegerField):
+	form_field_class = IntegerQuantityFormField
+	to_number_type = staticmethod(safe_to_int)
+
+class BigIntegerQuantityField(QuantityFieldMixin, models.BigIntegerField):
+	form_field_class = IntegerQuantityFormField
+	to_number_type = staticmethod(safe_to_int)

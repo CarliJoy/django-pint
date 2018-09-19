@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.test import TestCase
 
 from quantityfield.fields import QuantityField
@@ -29,7 +30,7 @@ class TestFieldCreate(TestCase):
 class TestFieldSave(TestCase):
 
 	def setUp(self):
-		HayBale.objects.create(weight=100, name="grams")
+		HayBale.objects.create(weight=100, weight_int=100, weight_bigint=100, name="grams")
 		HayBale.objects.create(weight=Quantity(10*ureg.ounce), name="ounce")
 		self.lightest = HayBale.objects.create(weight=1, name="lightest")
 		self.heaviest = HayBale.objects.create(weight=1000, name="heaviest")
@@ -41,6 +42,14 @@ class TestFieldSave(TestCase):
 		item = HayBale.objects.get(name='ounce')
 		self.assertEqual(item.weight.units, 'gram')
 		self.assertAlmostEqual(item.weight.magnitude, 283.49523125)
+
+	def test_store_integer_loss_of_precision(self):
+		with transaction.atomic():
+			with self.assertRaisesRegex(ValueError, "loss of precision"):
+				HayBale(name='x', weight=0, weight_int=Quantity(10*ureg.ounce)).save()
+		with transaction.atomic():
+			with self.assertRaisesRegex(ValueError, "loss of precision"):
+				HayBale(name='x', weight=0, weight_bigint=Quantity(10*ureg.ounce)).save()
 
 	def test_fails_with_incompatible_units(self):
 		# we have to wrap this in a transaction 
@@ -63,6 +72,8 @@ class TestFieldSave(TestCase):
 		obj = HayBale.objects.first()
 		self.assertIsInstance(obj.weight, Quantity)
 		self.assertEqual(str(obj.weight), '100.0 gram')
+		self.assertEqual(str(obj.weight_int), '100 gram')
+		self.assertEqual(str(obj.weight_bigint), '100 gram')
 
 	def test_value_conversion(self):
 		obj = HayBale.objects.first()

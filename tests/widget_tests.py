@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from quantityfield.fields import QuantityField, QuantityFormField
+from quantityfield.fields import QuantityField, QuantityFormField, IntegerQuantityFormField
 from quantityfield.widgets import QuantityWidget
 
 
@@ -18,10 +18,11 @@ from pint import DimensionalityError, UndefinedUnitError
 
 class HayBaleForm(forms.ModelForm):
     weight = QuantityFormField(base_units='gram', unit_choices=['ounce','gram'])
+    weight_int = IntegerQuantityFormField(base_units='gram', unit_choices=['ounce','gram'])
 
     class Meta:
         model = HayBale
-        exclude = []
+        exclude = ['weight_bigint']
 
 class NullableWeightForm(forms.Form):
     weight = QuantityFormField(base_units='gram', required=False)
@@ -40,12 +41,12 @@ class TestWidgets(TestCase):
         form = HayBaleForm(initial={'weight':Quantity(100 * ureg.gram), 'name':'test'})
 
     def test_clean_yields_quantity(self):
-        form = HayBaleForm(data={'weight_0':100.0, 'weight_1':'gram', 'name':'test'})
+        form = HayBaleForm(data={'weight_0':100.0, 'weight_1':'gram', 'weight_int_0':100, 'weight_int_1':'gram', 'name':'test'})
         self.assertTrue(form.is_valid())
         self.assertIsInstance(form.cleaned_data['weight'], Quantity)
 
     def test_clean_yields_quantity_in_correct_units(self):
-        form = HayBaleForm(data={'weight_0':1.0, 'weight_1':'ounce', 'name':'test'})
+        form = HayBaleForm(data={'weight_0':1.0, 'weight_1':'ounce', 'weight_int_0':1, 'weight_int_1':'ounce', 'name':'test'})
         self.assertTrue(form.is_valid())
         self.assertEqual(str(form.cleaned_data['weight'].units), 'gram')
         self.assertAlmostEqual(form.cleaned_data['weight'].magnitude, 28.349523125)

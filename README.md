@@ -32,7 +32,7 @@ Best way to illustrate is with an example
     class HayBale(models.Model):
 	    weight = QuantityField('tonne')
 
-Quantities are stored and retrieved like any other field
+Quantities are stored as float (Django FloatField) and retrieved like any other field
 
     >> bale = HayBale.objects.create(weight=1.2)
     >> bale = HayBale.objects.first()
@@ -46,6 +46,8 @@ Quantities are stored and retrieved like any other field
 	<Quantity(1200, 'kilogram')>
 	>> bale.weight.to('pound')
 	<Quantity(2645.55, 'pound')>
+
+If your base unit is atomic (i.e. can be represented by an integer), you may also use `IntegerQuantityField` and `BigIntegerQuantityField`.
 
 You can also pass Quantity objects to be stored in models. These are automatically converted to the units defined for the field ( but can be converted to something else when retrieved of course ).
 
