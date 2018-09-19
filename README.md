@@ -76,10 +76,10 @@ You can also use a custom Pint unit registry:
     # app/models.py
     
     from django.db import models
+    from quantityfield import DeconstructibleUnitRegistry
     from quantityfield.fields import QuantityField
-    from pint import UnitRegistry
 
-    my_ureg = UnitRegistry()
+    my_ureg = DeconstructibleUnitRegistry()
     my_ureg.define(...)
     
     class HayBale(models.Model):
