@@ -52,7 +52,7 @@ class QuantityField(models.FloatField):
 		value = self.value_from_object(obj)
 		return self.get_prep_value(value)
 
-	def from_db_value(self, value, expression, connection, context):
+	def from_db_value(self, value, *args, **kwargs):
 		if value is None:
 			return value
 		return Quantity(value * getattr(ureg, self.base_units))
