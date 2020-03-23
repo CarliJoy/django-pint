@@ -10,8 +10,6 @@ Quantity = ureg.Quantity
 
 from .widgets import QuantityWidget
 
-from django.utils.six import python_2_unicode_compatible
-
 from django.core.exceptions import ValidationError
 
 from pint import DimensionalityError, UndefinedUnitError
