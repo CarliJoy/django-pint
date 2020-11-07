@@ -13,7 +13,7 @@ A Small django field extension allowing you to store quantities in certain units
 Compatibility
 -------------
 
-Requires django >= 1.8, and python 2.7/3.2/3.3/3.4
+Requires django >= 2.2, and python 3.6/3.7/3.8/3.9
 
 Installation
 ------------
