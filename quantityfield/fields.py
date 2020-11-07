@@ -9,7 +9,7 @@ from .widgets import QuantityWidget
 
 from django.core.exceptions import ValidationError
 
-from pint import DimensionalityError, UndefinedUnitError
+from pint import DimensionalityError, UndefinedUnitError, Quantity
 
 
 def safe_to_int(value):
@@ -136,10 +136,10 @@ class QuantityFormFieldMixin(object):
 
     def prepare_value(self, value):
 
-        if value is None:
+        if isinstance(value, Quantity):
+            return value.to(self.base_units)
+        else:
             return value
-
-        return value.to(self.base_units)
 
     def clean(self, value):
         if isinstance(value, list):
