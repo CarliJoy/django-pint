@@ -65,7 +65,7 @@ class QuantityFieldMixin(object):
 		value = self.value_from_object(obj)
 		return self.get_prep_value(value)
 
-	def from_db_value(self, value, expression, connection, context):
+	def from_db_value(self, value, *args, **kwargs):
 		if value is None:
 			return value
 		return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
@@ -128,6 +128,8 @@ class QuantityFormFieldMixin(object):
 			units = value[1]
 			if val is None:
 				return None
+			if val == '':
+				val = float('nan')
 			if not units in self.units:
 				raise ValidationError('%(units)s is not a valid choice' % locals())
 			q = self.ureg.Quantity(self.to_number_type(val) * getattr(self.ureg, units))
