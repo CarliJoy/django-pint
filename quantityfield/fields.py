@@ -119,8 +119,17 @@ class QuantityFormFieldMixin(object):
 
 
 
-		kwargs.update({'widget': QuantityWidget(allowed_types=self.units)})
+		kwargs.update({'widget': QuantityWidget(base_units=self.base_units, allowed_types=self.units)})
 		super(QuantityFormFieldMixin, self).__init__(*args, **kwargs)
+
+
+	def prepare_value(self, value):
+
+		if value is None:
+			return value
+
+		return value.to(self.base_units)
+
 
 	def clean(self, value):
 		if isinstance(value, list):
