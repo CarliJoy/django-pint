@@ -8,15 +8,10 @@ from quantityfield.fields import QuantityField
 
 
 class Megalith(models.Model):
-	"""A very big stone"""
+    """A very big stone"""
 
-	stone_type = models.CharField(max_length=20, default="Granite")
-	weight = QuantityField('tonnes')
+    stone_type = models.CharField(max_length=20, default="Granite")
+    weight = QuantityField("tonnes")
 
-	def __str__(self):
-		return 'A {} megalith weighing {}'.format(
-			self.stone_type, self.weight
-		)
-
-
-
+    def __str__(self):
+        return "A {} megalith weighing {}".format(self.stone_type, self.weight)

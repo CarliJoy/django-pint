@@ -18,7 +18,4 @@ from django.contrib import admin
 
 from example_app.views import QuantityFormView
 
-urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^$', QuantityFormView.as_view())
-]
+urlpatterns = [url(r"^admin/", admin.site.urls), url(r"^$", QuantityFormView.as_view())]

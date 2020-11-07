@@ -3,6 +3,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/bharling/django-pint/badge.svg?branch=master)](https://coveralls.io/github/bharling/django-pint?branch=master)
 [![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)]()
 [![PyPI](https://img.shields.io/pypi/v/django-ping.svg?maxAge=2592000?style=plastic)]()
+[![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 Django Quantity Field
 ================

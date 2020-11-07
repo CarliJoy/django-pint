@@ -7,21 +7,21 @@ from django.conf import settings
 if not settings.configured:
     settings.configure(
         DATABASES={
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
+            "default": {
+                "ENGINE": "django.db.backends.sqlite3",
             }
         },
         INSTALLED_APPS=[
-            'django.contrib.auth',
-            'django.contrib.admin',
-            'django.contrib.contenttypes',
-            'django.contrib.sessions',
-            'django.contrib.sites',
-            'django.contrib.flatpages',
-            'quantityfield',
-            'tests.dummyapp'
-            ],
-        NOSE_ARGS=['-s','--with-spec'],
+            "django.contrib.auth",
+            "django.contrib.admin",
+            "django.contrib.contenttypes",
+            "django.contrib.sessions",
+            "django.contrib.sites",
+            "django.contrib.flatpages",
+            "quantityfield",
+            "tests.dummyapp",
+        ],
+        NOSE_ARGS=["-s", "--with-spec"],
     )
 
 from django_nose import NoseTestSuiteRunner
@@ -29,7 +29,7 @@ from django_nose import NoseTestSuiteRunner
 
 def run_tests(*test_args):
     if not test_args:
-        test_args = ['tests']
+        test_args = ["tests"]
 
     test_runner = NoseTestSuiteRunner(verbosity=1)
     num_failures = test_runner.run_tests(test_args)
@@ -37,7 +37,7 @@ def run_tests(*test_args):
         sys.exit(num_failures)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = OptionParser()
     (options, args) = parser.parse_args()
     run_tests(*args)

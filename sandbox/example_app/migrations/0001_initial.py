@@ -10,16 +10,23 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Megalith',
+            name="Megalith",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('stone_type', models.CharField(default='Granite', max_length=20)),
-                ('weight', quantityfield.fields.QuantityField(base_units='tonnes')),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("stone_type", models.CharField(default="Granite", max_length=20)),
+                ("weight", quantityfield.fields.QuantityField(base_units="tonnes")),
             ],
         ),
     ]

@@ -4,4 +4,4 @@ from django.apps import AppConfig
 
 
 class QuantityfieldTestsConfig(AppConfig):
-    name = 'quantityfield_tests'
+    name = "quantityfield_tests"
