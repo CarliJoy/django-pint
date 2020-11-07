@@ -8,7 +8,7 @@ from . import ureg as default_ureg
 
 from .widgets import QuantityWidget
 
-from django.utils.six import python_2_unicode_compatible
+
 
 from django.core.exceptions import ValidationError
 
