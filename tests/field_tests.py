@@ -20,7 +20,7 @@ class TestFieldCreate(TestCase):
         self.assertEqual(test_grams.units, ureg.gram)
 
     def test_fails_with_unknown_units(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(UndefinedUnitError):
             test_crazy_units = QuantityField("zinghie")
 
     def test_base_units_is_required(self):
