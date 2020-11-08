@@ -86,3 +86,4 @@ You can also use a custom Pint unit registry:
         custom_unit = QuantityField('tonne', ureg=my_ureg)
 
 Note that in order to use Django's migrations with a custom unit registry, all unit info must be passed to the UnitRegistry constructor via the textfile method shown above. Calls to `.define(...)` aren't considered by Django's migration framework.
+
