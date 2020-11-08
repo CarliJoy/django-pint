@@ -3,7 +3,8 @@ sudo: false
 cache: pip
 
 env:
-  - DJANGO='https://github.com/django/django/archive/master.tar.gz'
+# Do not check the most up to date version as it seem to be in compatible with django_nose
+#  - DJANGO='https://github.com/django/django/archive/master.tar.gz'
   - DJANGO='django>=2.2.0,<2.3.0'
   - DJANGO='django>=3.0.0,<3.1.0'
   - DJANGO='django>=3.1.0,<3.2.0'
