@@ -1,0 +1,2 @@
+class PrecisionLoss(ValueError):
+    pass

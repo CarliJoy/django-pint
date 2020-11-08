@@ -1,15 +1,14 @@
 from django.db import models
-
 from django import forms
+from django.utils import formats
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+
+from pint import DimensionalityError, Quantity
+from quantityfield.exceptions import PrecisionLoss
 
 from . import ureg as default_ureg
-
 from .widgets import QuantityWidget
-
-
-from django.core.exceptions import ValidationError
-
-from pint import DimensionalityError, UndefinedUnitError, Quantity
 
 
 def safe_to_int(value):
@@ -18,8 +17,8 @@ def safe_to_int(value):
     if round(abs(int_value - float_value), 10) == 0:
         return int_value
     else:
-        raise ValueError(
-            "Possible loss of precision converting value to integer: %s" % value
+        raise PrecisionLoss(
+            _("Possible loss of precision converting value to integer: %s") % value
         )
 
 
@@ -55,7 +54,7 @@ class QuantityFieldMixin(object):
 
     def get_prep_value(self, value):
         # we store the value in the base units defined for this field
-        if value == None:
+        if value is None:
             return None
 
         if isinstance(value, self.ureg.Quantity):
@@ -125,12 +124,9 @@ class QuantityFormFieldMixin(object):
             if unit.dimensionality != base_unit.dimensionality:
                 raise DimensionalityError(base_unit, unit)
 
-        kwargs.update(
-            {
-                "widget": QuantityWidget(
-                    base_units=self.base_units, allowed_types=self.units
-                )
-            }
+        kwargs["widget"] = kwargs.get(
+            "widget",
+            QuantityWidget(base_units=self.base_units, allowed_types=self.units),
         )
         super(QuantityFormFieldMixin, self).__init__(*args, **kwargs)
 
@@ -142,18 +138,41 @@ class QuantityFormFieldMixin(object):
             return value
 
     def clean(self, value):
-        if isinstance(value, list):
+        """
+        General idea, first try to extract the correct number like done in the other classes and
+        then follow the same procedure as in the django default field
+        """
+        if isinstance(value, list) or isinstance(value, tuple):
             val = value[0]
             units = value[1]
-            if val is None:
-                return None
-            if val == "":
-                val = float("nan")
-            if not units in self.units:
-                raise ValidationError("%(units)s is not a valid choice" % locals())
-            q = self.ureg.Quantity(self.to_number_type(val) * getattr(self.ureg, units))
-            return q.to(self.base_units)
-        return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
+        else:
+            # If no multi widget is used
+            val = value
+            units = self.base_units
+
+        if val in self.empty_values:
+            # Make sure the correct functions are called also in case of empty values
+            self.validate(None)
+            self.run_validators(None)
+            return None
+
+        if units not in self.units:
+            raise ValidationError("%(units)s is not a valid choice" % locals())
+
+        if self.localize:
+            val = formats.sanitize_separators(value)
+
+        try:
+            val = self.to_number_type(val)
+        except PrecisionLoss as e:
+            raise ValidationError(str(e), code="precision_loss")
+        except (ValueError, TypeError):
+            raise ValidationError(self.error_messages["invalid"], code="invalid")
+
+        val = self.ureg.Quantity(val * getattr(self.ureg, units)).to(self.base_units)
+        self.validate(val.magnitude)
+        self.run_validators(val)
+        return val
 
 
 class QuantityFormField(QuantityFormFieldMixin, forms.FloatField):

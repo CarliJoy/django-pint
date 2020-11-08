@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.forms import NumberInput
 from django.test import TestCase
 
 from quantityfield.fields import (
@@ -25,6 +27,19 @@ class HayBaleForm(forms.ModelForm):
     weight = QuantityFormField(base_units="gram", unit_choices=["ounce", "gram"])
     weight_int = IntegerQuantityFormField(
         base_units="gram", unit_choices=["ounce", "gram"]
+    )
+
+    class Meta:
+        model = HayBale
+        exclude = ["weight_bigint"]
+
+
+class HayBaleFormDefaultWidgets(forms.ModelForm):
+    weight = QuantityFormField(
+        base_units="gram", unit_choices=["ounce", "gram"], widget=NumberInput
+    )
+    weight_int = IntegerQuantityFormField(
+        base_units="gram", unit_choices=["ounce", "gram"], widget=NumberInput
     )
 
     class Meta:
@@ -96,7 +111,7 @@ class TestWidgets(TestCase):
         field = QuantityFormField(base_units="mile", unit_choices=["meters", "feet"])
         self.assertIn("mile", field.units)
 
-    def test_form_field_displays_unit_choices(self):
+    def test_widget_field_displays_unit_choices(self):
         form = UnitChoicesForm()
         self.assertListEqual(
             [
@@ -128,3 +143,83 @@ class TestWidgets(TestCase):
         )
 
         self.assertIn('<option value="ounce">ounce</option>', html)
+
+    def test_widget_valid_inputs_with_units(self):
+        form = HayBaleForm(
+            data={
+                "name": "testing",
+                "weight_0": "10.3",
+                "weight_1": "gram",
+                "weight_int_0": "10",
+                "weight_int_1": "gram",
+            }
+        )
+        self.assertTrue(form.is_valid())
+        self.assertAlmostEqual(form.cleaned_data["weight"].magnitude, 10.3)
+        self.assertEqual(form.cleaned_data["weight_int"].magnitude, 10)
+        self.assertEqual(str(form.cleaned_data["weight"].units), "gram")
+        self.assertEqual(str(form.cleaned_data["weight_int"].units), "gram")
+
+    def test_widget_invalid_float(self):
+        form = HayBaleForm(
+            data={
+                "name": "testing",
+                "weight_0": "a",
+                "weight_1": "gram",
+                "weight_int_0": "10",
+                "weight_int_1": "gram",
+            }
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("weight", form.errors)
+
+    def test_widget_missing_required_input(self):
+        form = HayBaleForm(
+            data={
+                "name": "testing",
+                "weight_int_0": "10",
+                "weight_int_1": "gram",
+            }
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("weight", form.errors)
+
+    def test_widget_empty_value_for_required_input(self):
+        form = HayBaleForm(
+            data={
+                "name": "testing",
+                "weight_0": "",
+                "weight_1": "gram",
+                "weight_int_0": "10",
+                "weight_int_1": "gram",
+            }
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("weight", form.errors)
+
+    def test_widget_none_value_set_for_required_input(self):
+        form = HayBaleForm(
+            data={
+                "name": "testing",
+                "weight_0": None,
+                "weight_1": "gram",
+                "weight_int_0": "10",
+                "weight_int_1": "gram",
+            }
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn("weight", form.errors)
+
+    def test_widget_single_inputs_with_units(self):
+        form = HayBaleFormDefaultWidgets(
+            data={
+                "name": "testing",
+                "weight": "10.3",
+                "weight_int": "10",
+            }
+        )
+        self.assertTrue(form.is_valid())
+        self.assertAlmostEqual(form.cleaned_data["weight"].magnitude, 10.3)
+        self.assertEqual(form.cleaned_data["weight_int"].magnitude, 10)
+        self.assertEqual(str(form.cleaned_data["weight"].units), "gram")
+        self.assertEqual(str(form.cleaned_data["weight_int"].units), "gram")
