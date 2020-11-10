@@ -1,17 +1,11 @@
 from django.db import transaction
 from django.test import TestCase
-
-from quantityfield.fields import QuantityField
-
+from pint import DimensionalityError, UndefinedUnitError
 from quantityfield import ureg
-
-Quantity = ureg.Quantity
-
-from django.db import transaction
-
+from quantityfield.fields import QuantityField
 from tests.dummyapp.models import HayBale, EmptyHayBale, CustomUregHayBale, custom_ureg
 
-from pint import DimensionalityError, UndefinedUnitError
+Quantity = ureg.Quantity
 
 
 class TestFieldCreate(TestCase):
