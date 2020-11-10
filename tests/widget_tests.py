@@ -223,3 +223,14 @@ class TestWidgets(TestCase):
         self.assertEqual(form.cleaned_data["weight_int"].magnitude, 10)
         self.assertEqual(str(form.cleaned_data["weight"].units), "gram")
         self.assertEqual(str(form.cleaned_data["weight_int"].units), "gram")
+
+    def test_widget_int_precision_loss(self):
+        form = HayBaleFormDefaultWidgets(
+            data={
+                "name": "testing",
+                "weight": "10",
+                "weight_int": "10.3",
+            }
+        )
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.has_error('weight_int', 'precision_loss'))

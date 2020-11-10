@@ -12,8 +12,14 @@ from .widgets import QuantityWidget
 
 
 def safe_to_int(value):
+    """
+    Check if a value is an int otherwise warn that it can't be converted
+    :param value:
+    :return:
+    """
     float_value = float(value)
-    int_value = int(value)
+    int_value = int(float_value)
+    # We round to compensate for possible float rounding errors
     if round(abs(int_value - float_value), 10) == 0:
         return int_value
     else:
