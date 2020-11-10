@@ -60,12 +60,9 @@ class TestFieldSave(TestCase):
         # fixing a unit test problem
         # http://stackoverflow.com/questions/21458387/transactionmanagementerror-you-cant-execute-queries-until-the-end-of-the-atom
         metres = Quantity(100 * ureg.meter)
-        try:
-            with transaction.atomic():
+        with transaction.atomic():
+            with self.assertRaises(DimensionalityError):
                 HayBale.objects.create(weight=metres, name="Should Fail")
-            self.assertTrue(0, "Was able to create weight with metres")
-        except DimensionalityError:
-            pass
 
     def test_accepts_null(self):
         empty = EmptyHayBale.objects.first()
