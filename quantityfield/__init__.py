@@ -1,7 +1,7 @@
 __version__ = "0.4"
 
-from pint import UnitRegistry
 from django.utils.deconstruct import deconstructible
+from pint import UnitRegistry
 
 
 @deconstructible

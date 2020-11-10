@@ -1,22 +1,15 @@
-from django.core.exceptions import ValidationError
 from django.forms import NumberInput
 from django.test import TestCase
-
+from quantityfield import ureg
 from quantityfield.fields import (
-    QuantityField,
     QuantityFormField,
     IntegerQuantityFormField,
 )
 from quantityfield.widgets import QuantityWidget
 
-
-from quantityfield import ureg
-
 Quantity = ureg.Quantity
 
-from django.db import transaction
-
-from tests.dummyapp.models import HayBale, EmptyHayBale
+from tests.dummyapp.models import HayBale
 
 from django import forms
 
@@ -233,4 +226,4 @@ class TestWidgets(TestCase):
             }
         )
         self.assertFalse(form.is_valid())
-        self.assertTrue(form.has_error('weight_int', 'precision_loss'))
+        self.assertTrue(form.has_error("weight_int", "precision_loss"))
