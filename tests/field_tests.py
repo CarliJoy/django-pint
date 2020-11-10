@@ -64,9 +64,16 @@ class TestFieldSave(TestCase):
             with self.assertRaises(DimensionalityError):
                 HayBale.objects.create(weight=metres, name="Should Fail")
 
-    def test_accepts_null(self):
+    def test_accepts_auto_null(self):
         empty = EmptyHayBale.objects.first()
-        self.assertEqual(empty.weight, None)
+        self.assertIsNone(empty.weight, None)
+
+    def test_accepts_assigned_null(self):
+        new = EmptyHayBale()
+        new.weight = None
+        new.name = "Test"
+        new.save()
+        self.assertIsNone(new.weight)
 
     def test_value_stored_as_quantity(self):
         obj = HayBale.objects.first()
