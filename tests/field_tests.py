@@ -1,3 +1,6 @@
+import json
+
+from django.core.serializers import serialize
 from django.db import transaction
 from django.test import TestCase
 from pint import DimensionalityError, UndefinedUnitError
@@ -116,3 +119,15 @@ class TestFieldSave(TestCase):
 
         obj = CustomUregHayBale.objects.last()
         self.assertEqual(str(obj.custom), "5000.0 custom")
+
+    def test_serialisation(self):
+        serialized = serialize(
+            "json",
+            [
+                HayBale.objects.first(),
+            ],
+        )
+        deserialized = json.loads(serialized)
+        obj = deserialized[0]["fields"]
+        self.assertEqual(obj["weight"], "100.0")
+        self.assertEqual(obj["weight_int"], "100")

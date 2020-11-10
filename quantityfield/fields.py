@@ -1,9 +1,8 @@
-from django.db import models
 from django import forms
-from django.utils import formats
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils import formats
 from django.utils.translation import gettext_lazy as _
-
 from pint import DimensionalityError, Quantity
 from quantityfield.exceptions import PrecisionLoss
 
@@ -68,9 +67,9 @@ class QuantityFieldMixin(object):
             return self.to_number_type(to_save.magnitude)
         return value
 
-    def value_to_string(self, obj):
+    def value_to_string(self, obj) -> str:
         value = self.value_from_object(obj)
-        return self.get_prep_value(value)
+        return str(self.get_prep_value(value))
 
     def from_db_value(self, value, *args, **kwargs):
         if value is None:
