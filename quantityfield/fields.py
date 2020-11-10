@@ -62,6 +62,13 @@ class QuantityFieldMixin(object):
         if value is None:
             return None
 
+        # Check if not the DeconstructibleUnitRegistry from this module but the default
+        # UnitRegistery from pint was used
+        if isinstance(value, Quantity) and not isinstance(value, self.ureg.Quantity):
+            # Could be fatal if different unit registers are used but we assume the same is used within one project
+            # so we might need to implement a check if the UnitRegisters do match
+            value = value.magnitude * self.ureg(str(value.units))
+
         if isinstance(value, self.ureg.Quantity):
             to_save = value.to(self.base_units)
             return self.to_number_type(to_save.magnitude)

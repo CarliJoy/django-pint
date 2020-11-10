@@ -3,7 +3,7 @@ import json
 from django.core.serializers import serialize
 from django.db import transaction
 from django.test import TestCase
-from pint import DimensionalityError, UndefinedUnitError
+from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
 from quantityfield import ureg
 from quantityfield.fields import QuantityField
 from tests.dummyapp.models import HayBale, EmptyHayBale, CustomUregHayBale, custom_ureg
@@ -71,6 +71,25 @@ class TestFieldSave(TestCase):
         new.name = "Test"
         new.save()
         self.assertIsNone(new.weight)
+
+    def test_accepts_assigned_float(self):
+        new = EmptyHayBale(name="FloatTest")
+        new.weight = 707
+        new.save()
+        obj: EmptyHayBale = EmptyHayBale.objects.last()
+        self.assertEqual(obj.name, "FloatTest")
+        self.assertEqual(obj.weight.units, "gram")
+        self.assertEqual(obj.weight.magnitude, 707)
+
+    def test_accepts_default_pint_unit(self):
+        new = EmptyHayBale(name="DefaultPintUnitTest")
+        units = UnitRegistry()
+        new.weight = 5 * units.kilogram
+        new.save()
+        obj: EmptyHayBale = EmptyHayBale.objects.last()
+        self.assertEqual(obj.name, "DefaultPintUnitTest")
+        self.assertEqual(obj.weight.units, "gram")
+        self.assertEqual(obj.weight.magnitude, 5000)
 
     def test_value_stored_as_quantity(self):
         obj = HayBale.objects.first()
