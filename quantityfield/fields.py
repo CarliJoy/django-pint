@@ -80,6 +80,11 @@ class QuantityFieldMixin(object):
 
         return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
 
+    # TODO: Add tests, understand, add super call if required
+    """
+    # This code is untested and not documented. It also does not call the super method
+    Therefore it is commented out for the moment (even so it is likely required)
+
     def get_prep_lookup(self, lookup_type, value):
 
         if lookup_type in ["lt", "gt", "lte", "gte"]:
@@ -87,6 +92,7 @@ class QuantityFieldMixin(object):
                 v = value.to(self.base_units)
                 return v.magnitude
             return value
+    """
 
     def formfield(self, **kwargs):
         defaults = {
