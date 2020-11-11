@@ -1,3 +1,5 @@
+import warnings
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -67,6 +69,11 @@ class QuantityFieldMixin(object):
         if isinstance(value, Quantity) and not isinstance(value, self.ureg.Quantity):
             # Could be fatal if different unit registers are used but we assume the same is used within one project
             # so we might need to implement a check if the UnitRegisters do match
+            warnings.warn(
+                "Trying to set value from a different unit register for quantityfield. "
+                "We assume the naming is equal but best use the same register as for creating the quantityfield.",
+                RuntimeWarning,
+            )
             value = value.magnitude * self.ureg(str(value.units))
 
         if isinstance(value, self.ureg.Quantity):

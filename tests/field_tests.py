@@ -1,4 +1,5 @@
 import json
+import warnings
 
 from django.core.serializers import serialize
 from django.db import transaction
@@ -85,9 +86,23 @@ class TestFieldSave(TestCase):
         new = EmptyHayBale(name="DefaultPintUnitTest")
         units = UnitRegistry()
         new.weight = 5 * units.kilogram
-        new.save()
+        # Different Registers so we expect a warning!
+        with self.assertWarns(RuntimeWarning):
+            new.save()
         obj: EmptyHayBale = EmptyHayBale.objects.last()
         self.assertEqual(obj.name, "DefaultPintUnitTest")
+        self.assertEqual(obj.weight.units, "gram")
+        self.assertEqual(obj.weight.magnitude, 5000)
+
+    def test_accepts_default_app_unit(self):
+        new = EmptyHayBale(name="DefaultAppUnitTest")
+        new.weight = 5 * ureg.kilogram
+        # Make sure that the correct argument does not raise a warning
+        with warnings.catch_warnings(record=True) as w:
+            new.save()
+        assert len(w) == 0
+        obj: EmptyHayBale = EmptyHayBale.objects.last()
+        self.assertEqual(obj.name, "DefaultAppUnitTest")
         self.assertEqual(obj.weight.units, "gram")
         self.assertEqual(obj.weight.magnitude, 5000)
 
