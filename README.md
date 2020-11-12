@@ -9,6 +9,11 @@ Django Quantity Field
 
 A Small django field extension allowing you to store quantities in certain units and perform conversions easily. Uses [pint](https://github.com/hgrecco/pint) behind the scenes. Also contains a form field class and form widget that allows a user to choose alternative units to input data. The cleaned_data will output the value in the base_units defined for the field, eg: you specify you want to store a value in grams but will allow users to input either grams or ounces.
 
+New Maintainers Welcome
+-----------------------
+
+Had no idea how many people would end up using this library, great to see but I've nowhere near enough time to maintain it unfortunately. If you'd like to take this project on I'd be honored and grateful.
+
 Compatibility
 -------------
 
