@@ -8,26 +8,24 @@
 """
 
 import django
-from django.core import management
+
 
 def pytest_configure(config):
     from django.conf import settings
+
     settings.configure(
         DATABASES={
-            "default": {
-                "ENGINE": "django.db.backends.sqlite3",
-                'NAME': ':memory:'
-            }
+            "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
         },
-        SECRET_KEY='not very secret in tests',
+        SECRET_KEY="not very secret in tests",
         USE_I18N=True,
         USE_L10N=True,
         # Use common Middleware
         MIDDLEWARE=(
-            'django.middleware.common.CommonMiddleware',
-            'django.contrib.sessions.middleware.SessionMiddleware',
-            'django.contrib.auth.middleware.AuthenticationMiddleware',
-            'django.contrib.messages.middleware.MessageMiddleware',
+            "django.middleware.common.CommonMiddleware",
+            "django.contrib.sessions.middleware.SessionMiddleware",
+            "django.contrib.auth.middleware.AuthenticationMiddleware",
+            "django.contrib.messages.middleware.MessageMiddleware",
         ),
         INSTALLED_APPS=[
             "django.contrib.auth",

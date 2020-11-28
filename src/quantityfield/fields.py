@@ -43,7 +43,7 @@ class QuantityFieldMixin(object):
         self.ureg = kwargs.pop("ureg", default_ureg)
 
         # we do this as a way of raising an exception if some crazy unit was supplied.
-        unit = getattr(self.ureg, base_units)
+        unit = getattr(self.ureg, base_units)  # noqa: F841
 
         # if we've not hit an exception here, we should be all good
         self.base_units = base_units
@@ -67,11 +67,13 @@ class QuantityFieldMixin(object):
         # Check if not the DeconstructibleUnitRegistry from this module but the default
         # UnitRegistery from pint was used
         if isinstance(value, Quantity) and not isinstance(value, self.ureg.Quantity):
-            # Could be fatal if different unit registers are used but we assume the same is used within one project
+            # Could be fatal if different unit registers are used but we assume
+            # the same is used within one project
             # so we might need to implement a check if the UnitRegisters do match
             warnings.warn(
                 "Trying to set value from a different unit register for quantityfield. "
-                "We assume the naming is equal but best use the same register as for creating the quantityfield.",
+                "We assume the naming is equal but best use the same register as for"
+                " creating the quantityfield.",
                 RuntimeWarning,
             )
             value = value.magnitude * self.ureg(str(value.units))
@@ -136,7 +138,8 @@ class QuantityFormFieldMixin(object):
         self.base_units = kwargs.pop("base_units", None)
         if not self.base_units:
             raise ValueError(
-                "QuantityFormField requires a base_units kwarg of a single unit type (eg: grams)"
+                "QuantityFormField requires a base_units kwarg of a "
+                "single unit type (eg: grams)"
             )
         self.units = kwargs.pop("unit_choices", [self.base_units])
         if self.base_units not in self.units:
@@ -164,8 +167,8 @@ class QuantityFormFieldMixin(object):
 
     def clean(self, value):
         """
-        General idea, first try to extract the correct number like done in the other classes and
-        then follow the same procedure as in the django default field
+        General idea, first try to extract the correct number like done in the other
+        classes and then follow the same procedure as in the django default field
         """
         if isinstance(value, list) or isinstance(value, tuple):
             val = value[0]

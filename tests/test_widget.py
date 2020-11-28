@@ -1,5 +1,7 @@
-from django.forms import NumberInput
+# flake8: noqa: F841
+from django import forms
 from django.test import TestCase
+from pint import DimensionalityError, UndefinedUnitError
 from quantityfield import ureg
 from quantityfield.fields import (
     QuantityFormField,
@@ -7,13 +9,10 @@ from quantityfield.fields import (
 )
 from quantityfield.widgets import QuantityWidget
 
-Quantity = ureg.Quantity
-
 from tests.dummyapp.models import HayBale
 
-from django import forms
 
-from pint import DimensionalityError, UndefinedUnitError
+Quantity = ureg.Quantity
 
 
 class HayBaleForm(forms.ModelForm):
@@ -29,10 +28,10 @@ class HayBaleForm(forms.ModelForm):
 
 class HayBaleFormDefaultWidgets(forms.ModelForm):
     weight = QuantityFormField(
-        base_units="gram", unit_choices=["ounce", "gram"], widget=NumberInput
+        base_units="gram", unit_choices=["ounce", "gram"], widget=forms.NumberInput
     )
     weight_int = IntegerQuantityFormField(
-        base_units="gram", unit_choices=["ounce", "gram"], widget=NumberInput
+        base_units="gram", unit_choices=["ounce", "gram"], widget=forms.NumberInput
     )
 
     class Meta:
@@ -90,7 +89,7 @@ class TestWidgets(TestCase):
 
     def test_base_units_is_required_for_form_field(self):
         with self.assertRaises(ValueError):
-            field = QuantityFormField()
+            field = QuantityFormField()  # noqa: F841
 
     def test_quantityfield_can_be_null(self):
         form = NullableWeightForm(data={"weight_0": None, "weight_1": None})
@@ -118,20 +117,23 @@ class TestWidgets(TestCase):
 
     def test_unit_choices_must_be_valid_units(self):
         with self.assertRaises(UndefinedUnitError):
-            field = QuantityFormField(base_units="mile", unit_choices=["gunzu"])
+            field = QuantityFormField(
+                base_units="mile", unit_choices=["gunzu"]
+            )  # noqa: F841
 
     def test_unit_choices_must_match_base_dimensionality(self):
         with self.assertRaises(DimensionalityError):
             field = QuantityFormField(
                 base_units="gram", unit_choices=["meter", "ounces"]
-            )
+            ) # noqa: F841
 
     def test_widget_display(self):
         bale = HayBale.objects.create(name="Fritz", weight=20)
         form = HayBaleForm(instance=bale)
         html = str(form)
         self.assertIn(
-            '<input type="number" name="weight_int_0" step="any" required id="id_weight_int_0">',
+            '<input type="number" name="weight_int_0" step="any" '
+            'required id="id_weight_int_0">',
             html,
         )
 

@@ -20,11 +20,12 @@ class TestFieldCreate(TestCase):
 
     def test_fails_with_unknown_units(self):
         with self.assertRaises(UndefinedUnitError):
-            test_crazy_units = QuantityField("zinghie")
+            test_crazy_units = QuantityField("zinghie")  # noqa: F841
 
     def test_base_units_is_required(self):
         with self.assertRaises(ValueError):
-            no_units = QuantityField()
+            no_units = QuantityField()  # noqa: F841
+
 
 @pytest.mark.django_db
 class TestFieldSave(TestCase):
