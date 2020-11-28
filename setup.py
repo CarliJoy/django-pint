@@ -1,38 +1,23 @@
-#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+"""
+    Setup file for django_pint.
+    Use setup.cfg to configure your project.
 
-from setuptools import setup, find_packages
-import os
+    This file was generated with PyScaffold 3.2.3.
+    PyScaffold helps you to put up the scaffold of your new Python project.
+    Learn more under: https://pyscaffold.org/
+"""
+import sys
 
-__version__ = "0.4"
+from pkg_resources import VersionConflict, require
+from setuptools import setup
 
-PACKAGE_DIR = os.path.abspath(os.path.dirname(__file__))
-os.chdir(PACKAGE_DIR)
+try:
+    require('setuptools>=38.3')
+except VersionConflict:
+    print("Error: version of setuptools is too old (<38.3)!")
+    sys.exit(1)
 
 
-setup(
-    name="django-pint",
-    version=__version__,
-    url="https://github.com/bharling/django-pint",
-    author="Ben Harling",
-    author_email="blrharling@gmail.com",
-    description=(
-        "Quantity Field for Django using pint library " "for automated unit conversions"
-    ),
-    long_description=open(os.path.join(PACKAGE_DIR, "README.md")).read(),
-    license="MIT",
-    packages=find_packages(exclude=["sandbox*", "tests*"]),
-    include_package_data=True,
-    install_requires=[
-        "django>=1.8",
-        "pint>=0.7.2",
-    ],
-    # See http://pypi.python.org/pypi?%3Aaction=list_classifiers
-    classifiers=[
-        "Environment :: Web Environment",
-        "Framework :: Django",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: BSD License",
-        "Operating System :: Unix",
-        "Programming Language :: Python",
-    ],
-)
+if __name__ == "__main__":
+    setup(use_pyscaffold=True)
