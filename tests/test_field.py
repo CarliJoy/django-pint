@@ -4,6 +4,7 @@ import warnings
 from django.core.serializers import serialize
 from django.db import transaction
 from django.test import TestCase
+import pytest
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
 from quantityfield import ureg
 from quantityfield.fields import QuantityField
@@ -25,7 +26,7 @@ class TestFieldCreate(TestCase):
         with self.assertRaises(ValueError):
             no_units = QuantityField()
 
-
+@pytest.mark.django_db
 class TestFieldSave(TestCase):
     def setUp(self):
         HayBale.objects.create(

@@ -8,6 +8,7 @@ Version 0.4
 - Ported code to work with current version of Django (2.2., 3.0, 3.2) and Python (3.6 - 3.9)
 - added test for merge requests
 - use `black`_ to format code
+- using pytest instead of deprecated django-nose
 - Allow custom ureg and integer unit field (`merge request #11 from jonashaag`_)
 - pass base_unit from field to widget (`merge request #5 from cornelv`_)
 - now using PyScaffold for versioned release
