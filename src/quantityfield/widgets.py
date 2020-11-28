@@ -1,6 +1,6 @@
-import re
+from django.forms.widgets import MultiWidget, NumberInput, Select
 
-from django.forms.widgets import MultiWidget, Select, NumberInput
+import re
 
 from . import ureg as default_ureg
 

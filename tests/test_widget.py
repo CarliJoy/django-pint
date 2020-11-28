@@ -1,16 +1,13 @@
 # flake8: noqa: F841
 from django import forms
 from django.test import TestCase
+
 from pint import DimensionalityError, UndefinedUnitError
+
 from quantityfield import ureg
-from quantityfield.fields import (
-    QuantityFormField,
-    IntegerQuantityFormField,
-)
+from quantityfield.fields import IntegerQuantityFormField, QuantityFormField
 from quantityfield.widgets import QuantityWidget
-
 from tests.dummyapp.models import HayBale
-
 
 Quantity = ureg.Quantity
 
@@ -125,7 +122,7 @@ class TestWidgets(TestCase):
         with self.assertRaises(DimensionalityError):
             field = QuantityFormField(
                 base_units="gram", unit_choices=["meter", "ounces"]
-            ) # noqa: F841
+            )  # noqa: F841
 
     def test_widget_display(self):
         bale = HayBale.objects.create(name="Fritz", weight=20)

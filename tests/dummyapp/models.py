@@ -1,9 +1,11 @@
 from django.db import models
+
 from pint import UnitRegistry
+
 from quantityfield.fields import (
-    QuantityField,
-    IntegerQuantityField,
     BigIntegerQuantityField,
+    IntegerQuantityField,
+    QuantityField,
 )
 
 custom_ureg = UnitRegistry()

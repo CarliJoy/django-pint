@@ -1,14 +1,16 @@
-import json
-import warnings
+import pytest
 
 from django.core.serializers import serialize
 from django.db import transaction
 from django.test import TestCase
-import pytest
+
+import json
+import warnings
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
+
 from quantityfield import ureg
 from quantityfield.fields import QuantityField
-from tests.dummyapp.models import HayBale, EmptyHayBale, CustomUregHayBale, custom_ureg
+from tests.dummyapp.models import CustomUregHayBale, EmptyHayBale, HayBale, custom_ureg
 
 Quantity = ureg.Quantity
 
