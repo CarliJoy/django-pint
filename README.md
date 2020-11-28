@@ -2,8 +2,11 @@
 [![Build Status](https://api.travis-ci.com/CarliJoy/django-pint.svg?branch=master)](https://travis-ci.com/github/CarliJoy/django-pint)
 [![Coverage Status](https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_40.svg)](https://coveralls.io/github/CarliJoy/django-pint)
 [![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
+[![Python Versions](https://img.shields.io/pypi/pyversions/django-pint.svg)](https://pypi.org/project/django-pint/)
 [![PyPI](https://img.shields.io/pypi/v/django-ping.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
+[![Wheel Build](https://img.shields.io/pypi/wheel/django-pint.svg)](https://pypi.org/project/django-pint/)
 [![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # Django Quantity Field
 
@@ -26,10 +29,10 @@ Requires django >= 2.2, and python 3.6/3.7/3.8/3.9
 Best way to illustrate is with an example
 
     # app/models.py
-    
+
     from django.db import models
     from quantityfield.fields import QuantityField
-    
+
     class HayBale(models.Model):
 	    weight = QuantityField('tonne')
 
@@ -75,15 +78,14 @@ For comparative lookups, query values will be coerced into the correct units whe
 You can also use a custom Pint unit registry:
 
     # app/models.py
-    
+
     from django.db import models
     from quantityfield import DeconstructibleUnitRegistry
     from quantityfield.fields import QuantityField
 
     my_ureg = DeconstructibleUnitRegistry('your_units.txt')
-    
+
     class HayBale(models.Model):
         custom_unit = QuantityField('tonne', ureg=my_ureg)
 
 Note that in order to use Django's migrations with a custom unit registry, all unit info must be passed to the UnitRegistry constructor via the textfile method shown above. Calls to `.define(...)` aren't considered by Django's migration framework.
-
