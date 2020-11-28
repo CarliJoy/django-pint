@@ -7,6 +7,7 @@
 [![Wheel Build](https://img.shields.io/pypi/wheel/django-pint.svg)](https://pypi.org/project/django-pint/)
 [![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Documentation Status](https://readthedocs.org/projects/django-pint/badge/?version=latest)](https://django-pint.readthedocs.io/en/latest/?badge=latest)
 
 # Django Quantity Field
 
