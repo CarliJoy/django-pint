@@ -2,7 +2,7 @@
 Changelog
 =========
 
-Version 0.4
+Version 0.5
 ===========
 - Change of Maintainer to `Carli* Freudenberg`_
 - Ported code to work with current version of Django (2.2., 3.0, 3.2) and Python (3.6 - 3.9)
