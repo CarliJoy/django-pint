@@ -41,6 +41,7 @@ coverage.xml
 build/*
 dist/*
 sdist/*
+docs/README.rst
 docs/api/*
 docs/_rst/*
 docs/_build/*

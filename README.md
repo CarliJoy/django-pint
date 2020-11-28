@@ -1,33 +1,28 @@
 
-[![Build Status](https://travis-ci.org/bharling/django-pint.svg?branch=master)](https://travis-ci.org/bharling/django-pint)
-[![Coverage Status](https://coveralls.io/repos/github/bharling/django-pint/badge.svg?branch=master)](https://coveralls.io/github/bharling/django-pint?branch=master)
-[![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)]()
-[![PyPI](https://img.shields.io/pypi/v/django-ping.svg?maxAge=2592000?style=plastic)]()
+[![Build Status](https://api.travis-ci.com/CarliJoy/django-pint.svg?branch=master)](https://travis-ci.com/github/CarliJoy/django-pint)
+[![Coverage Status](https://s3.amazonaws.com/assets.coveralls.io/badges/coveralls_40.svg)](https://coveralls.io/github/CarliJoy/django-pint)
+[![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
+[![PyPI](https://img.shields.io/pypi/v/django-ping.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
 [![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-Django Quantity Field
-================
+# Django Quantity Field
+
 
 A Small django field extension allowing you to store quantities in certain units and perform conversions easily. Uses [pint](https://github.com/hgrecco/pint) behind the scenes. Also contains a form field class and form widget that allows a user to choose alternative units to input data. The cleaned_data will output the value in the base_units defined for the field, eg: you specify you want to store a value in grams but will allow users to input either grams or ounces.
 
-New Maintainers Welcome
------------------------
+## Compatibility
 
-Had no idea how many people would end up using this library, great to see but I've nowhere near enough time to maintain it unfortunately. If you'd like to take this project on I'd be honored and grateful.
-
-Compatibility
--------------
 
 Requires django >= 2.2, and python 3.6/3.7/3.8/3.9
 
-Installation
-------------
+## Installation
+
 
     pip install django-pint
 
 
-Simple Example
------------------------
+## Simple Example
+
 Best way to illustrate is with an example
 
     # app/models.py
