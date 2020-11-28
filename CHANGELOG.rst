@@ -13,6 +13,8 @@ Version 0.4
 - pass base_unit from field to widget (`merge request #5 from cornelv`_)
 - now using PyScaffold for versioned release
 - added documentation and uploaded to readthedocs.org
+- using pre-commit (also in CI)
+- improved travis ci builds
 - Created Changelog file
 
 Version 0.4
