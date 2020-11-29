@@ -70,9 +70,14 @@ Use the inbuilt form field and widget to allow input of quantity values in diffe
     class HayBaleForm(forms.Form):
         weight = QuantityFormField(base_units='gram', unit_choices=['gram', 'ounce', 'milligram'])
 
-The form will render a float input and a select widget to choose the units. Whenever cleaned_data is presented from the above form the weight field value will be a Quantity with the units set to grams ( values are converted from the units input by the user ).
+The form will render a float input and a select widget to choose the units.
+Whenever cleaned_data is presented from the above form the weight field value will be a
+Quantity with the units set to grams (values are converted from the units input by the user ).
+You also can add the `unit_choices` directly to the `ModelField`. It will be propagated
+correctly.
 
-For comparative lookups, query values will be coerced into the correct units when comparing values, this means that comparing 1 ounce to 1 tonne should yield the correct results.
+For comparative lookups, query values will be coerced into the correct units when comparing values,
+this means that comparing 1 ounce to 1 tonne should yield the correct results.
 
     less_than_a_tonne = HayBale.objects.filter(weight__lt=Quantity(2000 * ureg.pound))
 
