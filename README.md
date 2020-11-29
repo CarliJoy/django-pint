@@ -1,6 +1,6 @@
 
 [![Build Status](https://api.travis-ci.com/CarliJoy/django-pint.svg?branch=master)](https://travis-ci.com/github/CarliJoy/django-pint)
-[![codecov](https://codecov.io/gh/CarliJoy/django-pint/branch/staging/graph/badge.svg?token=I3M4CLILXE)](https://codecov.io/gh/CarliJoy/django-pint)
+[![codecov](https://codecov.io/gh/CarliJoy/django-pint/branch/master/graph/badge.svg?token=I3M4CLILXE)](https://codecov.io/gh/CarliJoy/django-pint)
 [![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-pint.svg)](https://pypi.org/project/django-pint/)
 [![PyPI](https://img.shields.io/pypi/v/django-ping.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
