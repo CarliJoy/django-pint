@@ -7,6 +7,7 @@ language: python
 cache:
   - directories:
       - $HOME/.cache/pre-commit
+      - $TRAVIS_BUILD_DIR/.eggs
   - pip
 
 stages:
@@ -26,16 +27,16 @@ jobs:
         env: DJANGO="none"
 
       - { stage: test, python: "3.6", env: DJANGO=2.2 }
-      #- { stage: test, python: "3.6", env: DJANGO=3.0 }
-      #- { stage: test, python: "3.6", env: DJANGO=3.1 }
+      - { stage: test, python: "3.6", env: DJANGO=3.0 }
+      - { stage: test, python: "3.6", env: DJANGO=3.1 }
 
-      #- { stage: test, python: "3.7", env: DJANGO=2.2 }
-      #- { stage: test, python: "3.7", env: DJANGO=3.0 }
-      #- { stage: test, python: "3.7", env: DJANGO=3.1 }
+      - { stage: test, python: "3.7", env: DJANGO=2.2 }
+      - { stage: test, python: "3.7", env: DJANGO=3.0 }
+      - { stage: test, python: "3.7", env: DJANGO=3.1 }
 
-      #- { stage: test, python: "3.8", env: DJANGO=2.2 }
-      #- { stage: test, python: "3.8", env: DJANGO=3.0 }
-      #- { stage: test, python: "3.8", env: DJANGO=3.1 }
+      - { stage: test, python: "3.8", env: DJANGO=2.2 }
+      - { stage: test, python: "3.8", env: DJANGO=3.0 }
+      - { stage: test, python: "3.8", env: DJANGO=3.1 }
 
       - { stage: test, python: "3.9", env: DJANGO=3.1 }
       - { stage: deploy, python: "3.9", env: STAGE="release", script: skip, install: skip }
