@@ -4,8 +4,8 @@ from django.test import TestCase
 
 from pint import DimensionalityError, UndefinedUnitError
 
-from quantityfield import ureg
 from quantityfield.fields import IntegerQuantityFormField, QuantityFormField
+from quantityfield.units import ureg
 from quantityfield.widgets import QuantityWidget
 from tests.dummyapp.models import HayBale
 

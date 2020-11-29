@@ -1,0 +1,3 @@
+from .settings import DJANGO_PINT_UNIT_REGISTER
+
+ureg = DJANGO_PINT_UNIT_REGISTER

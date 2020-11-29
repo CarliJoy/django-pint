@@ -9,9 +9,15 @@
 
 import django
 
+from pint import UnitRegistry
+
 
 def pytest_configure(config):
     from django.conf import settings
+
+    custom_ureg = UnitRegistry()
+    custom_ureg.define("custom = [custom]")
+    custom_ureg.define("kilocustom = 1000 * custom")
 
     settings.configure(
         DATABASES={
@@ -37,5 +43,6 @@ def pytest_configure(config):
             "quantityfield",
             "tests.dummyapp",
         ],
+        DJANGO_PINT_UNIT_REGISTER=custom_ureg,
     )
     django.setup()

@@ -9,7 +9,7 @@ from pint import DimensionalityError, Quantity
 
 from quantityfield.exceptions import PrecisionLoss
 
-from . import ureg as default_ureg
+from .units import ureg
 from .widgets import QuantityWidget
 
 
@@ -41,7 +41,7 @@ class QuantityFieldMixin(object):
                 'QuantityField must be defined with base units, eg: "gram"'
             )
 
-        self.ureg = kwargs.pop("ureg", default_ureg)
+        self.ureg = ureg
 
         # we do this as a way of raising an exception if some crazy unit was supplied.
         unit = getattr(self.ureg, base_units)  # noqa: F841
@@ -57,7 +57,6 @@ class QuantityFieldMixin(object):
     def deconstruct(self):
         name, path, args, kwargs = super(QuantityFieldMixin, self).deconstruct()
         kwargs["base_units"] = self.base_units
-        kwargs["ureg"] = self.ureg
         return name, path, args, kwargs
 
     def get_prep_value(self, value):
@@ -119,7 +118,6 @@ class QuantityFieldMixin(object):
     def formfield(self, **kwargs):
         defaults = {
             "form_class": self.form_field_class,
-            "ureg": self.ureg,
             "base_units": self.base_units,
         }
         defaults.update(kwargs)
@@ -135,7 +133,7 @@ class QuantityFormFieldMixin(object):
     to_number_type = NotImplemented
 
     def __init__(self, *args, **kwargs):
-        self.ureg = kwargs.pop("ureg", default_ureg)
+        self.ureg = ureg
         self.base_units = kwargs.pop("base_units", None)
         if not self.base_units:
             raise ValueError(

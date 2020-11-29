@@ -4,6 +4,8 @@ Changelog
 
 Version 0.5
 ===========
+- API Change: Units are now defined project wide in settings and not by defining ureg
+  for Fields
 - Change of Maintainer to `Carli* Freudenberg`_
 - Ported code to work with current version of Django (2.2., 3.0, 3.2) and Python (3.6 - 3.9)
 - added test for merge requests

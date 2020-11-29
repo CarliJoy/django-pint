@@ -8,9 +8,9 @@ import json
 import warnings
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
 
-from quantityfield import ureg
 from quantityfield.fields import QuantityField
-from tests.dummyapp.models import CustomUregHayBale, EmptyHayBale, HayBale, custom_ureg
+from quantityfield.units import ureg
+from tests.dummyapp.models import CustomUregHayBale, EmptyHayBale, HayBale
 
 Quantity = ureg.Quantity
 
@@ -40,7 +40,7 @@ class TestFieldSave(TestCase):
         self.heaviest = HayBale.objects.create(weight=1000, name="heaviest")
         EmptyHayBale.objects.create(name="Empty")
         CustomUregHayBale.objects.create(custom=5)
-        CustomUregHayBale.objects.create(custom=5 * custom_ureg.kilocustom)
+        CustomUregHayBale.objects.create(custom=5 * ureg.kilocustom)
 
     def test_stores_value_in_base_units(self):
         item = HayBale.objects.get(name="ounce")
@@ -152,7 +152,7 @@ class TestFieldSave(TestCase):
 
     def test_custom_ureg(self):
         obj = CustomUregHayBale.objects.first()
-        self.assertIsInstance(obj.custom, custom_ureg.Quantity)
+        self.assertIsInstance(obj.custom, ureg.Quantity)
         self.assertEqual(str(obj.custom), "5.0 custom")
 
         obj = CustomUregHayBale.objects.last()

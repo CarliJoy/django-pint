@@ -2,12 +2,12 @@ from django.forms.widgets import MultiWidget, NumberInput, Select
 
 import re
 
-from . import ureg as default_ureg
+from .units import ureg
 
 
 class QuantityWidget(MultiWidget):
-    def __init__(self, *, attrs=None, base_units=None, allowed_types=None, **kwargs):
-        self.ureg = kwargs.pop("ureg", default_ureg)
+    def __init__(self, *, attrs=None, base_units=None, allowed_types=None):
+        self.ureg = ureg
         choices = self.get_choices(allowed_types)
         self.base_units = base_units
         attrs = attrs or {}
