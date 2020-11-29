@@ -1,0 +1,7 @@
+Django>=2.2
+m2r2>=0.2.5
+pint>=0.16
+recommonmark>=0.6.0
+six>=1.15.0
+Sphinx>=3.3.1
+sphinx-rtd-theme>=0.5.0
