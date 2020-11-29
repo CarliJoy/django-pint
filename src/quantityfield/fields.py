@@ -35,8 +35,8 @@ class QuantityFieldMixin(object):
 
     """A Django Model Field that resolves to a pint Quantity object"""
 
-    def __init__(self, base_units=None, *args, **kwargs):
-        if not base_units:
+    def __init__(self, base_units: str, *args, **kwargs):
+        if not isinstance(base_units, str):
             raise ValueError(
                 'QuantityField must be defined with base units, eg: "gram"'
             )
@@ -135,7 +135,7 @@ class QuantityFormFieldMixin(object):
     def __init__(self, *args, **kwargs):
         self.ureg = ureg
         self.base_units = kwargs.pop("base_units", None)
-        if not self.base_units:
+        if self.base_units is None:
             raise ValueError(
                 "QuantityFormField requires a base_units kwarg of a "
                 "single unit type (eg: grams)"

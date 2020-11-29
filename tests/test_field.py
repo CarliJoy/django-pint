@@ -25,8 +25,15 @@ class TestFieldCreate(TestCase):
             test_crazy_units = QuantityField("zinghie")  # noqa: F841
 
     def test_base_units_is_required(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             no_units = QuantityField()  # noqa: F841
+
+    def test_base_units_set_with_name(self):
+        okay_units = QuantityField(base_units="meter")  # noqa: F841
+
+    def test_base_units_are_invalid(self):
+        with self.assertRaises(ValueError):
+            wrong_units = QuantityField(None)  # noqa: F841
 
 
 @pytest.mark.django_db
