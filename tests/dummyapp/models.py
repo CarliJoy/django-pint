@@ -22,3 +22,7 @@ class EmptyHayBale(models.Model):
 class CustomUregHayBale(models.Model):
     # Custom is defined in settings in conftest.py
     custom = QuantityField("custom", null=True)
+
+
+class ChoicesDefinedInModel(models.Model):
+    weight = QuantityField("kilogram", unit_choices=["milligram", "pounds"])

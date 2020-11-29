@@ -7,7 +7,7 @@ from pint import DimensionalityError, UndefinedUnitError
 from quantityfield.fields import IntegerQuantityFormField, QuantityFormField
 from quantityfield.units import ureg
 from quantityfield.widgets import QuantityWidget
-from tests.dummyapp.models import HayBale
+from tests.dummyapp.models import ChoicesDefinedInModel, HayBale
 
 Quantity = ureg.Quantity
 
@@ -34,6 +34,12 @@ class HayBaleFormDefaultWidgets(forms.ModelForm):
     class Meta:
         model = HayBale
         exclude = ["weight_bigint"]
+
+
+class UnitChoicesDefinedInModelFieldModelForm(forms.ModelForm):
+    class Meta:
+        model = ChoicesDefinedInModel
+        fields = ["weight"]
 
 
 class NullableWeightForm(forms.Form):
@@ -110,6 +116,17 @@ class TestWidgets(TestCase):
                 ("feet", "feet"),
             ],
             form.fields["distance"].widget.widgets[1].choices,
+        )
+
+    def test_widget_field_displays_unit_choices_for_model_field_propagation(self):
+        form = UnitChoicesDefinedInModelFieldModelForm()
+        self.assertListEqual(
+            [
+                ("milligram", "milligram"),
+                ("pounds", "pounds"),
+                ("kilogram", "kilogram"),
+            ],
+            form.fields["weight"].widget.widgets[1].choices,
         )
 
     def test_unit_choices_must_be_valid_units(self):

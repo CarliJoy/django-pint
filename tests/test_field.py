@@ -35,6 +35,14 @@ class TestFieldCreate(TestCase):
         with self.assertRaises(ValueError):
             wrong_units = QuantityField(None)  # noqa: F841
 
+    def test_unit_choices_must_be_valid_units(self):
+        with self.assertRaises(UndefinedUnitError):
+            QuantityField(base_units="mile", unit_choices=["gunzu"])
+
+    def test_unit_choices_must_match_base_dimensionality(self):
+        with self.assertRaises(DimensionalityError):
+            QuantityField(base_units="gram", unit_choices=["meter", "ounces"])
+
 
 @pytest.mark.django_db
 class TestFieldSave(TestCase):
