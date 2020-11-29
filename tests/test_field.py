@@ -8,9 +8,9 @@ import json
 import warnings
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
 
-from quantityfield import ureg
 from quantityfield.fields import QuantityField
-from tests.dummyapp.models import CustomUregHayBale, EmptyHayBale, HayBale, custom_ureg
+from quantityfield.units import ureg
+from tests.dummyapp.models import CustomUregHayBale, EmptyHayBale, HayBale
 
 Quantity = ureg.Quantity
 
@@ -25,8 +25,23 @@ class TestFieldCreate(TestCase):
             test_crazy_units = QuantityField("zinghie")  # noqa: F841
 
     def test_base_units_is_required(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(TypeError):
             no_units = QuantityField()  # noqa: F841
+
+    def test_base_units_set_with_name(self):
+        okay_units = QuantityField(base_units="meter")  # noqa: F841
+
+    def test_base_units_are_invalid(self):
+        with self.assertRaises(ValueError):
+            wrong_units = QuantityField(None)  # noqa: F841
+
+    def test_unit_choices_must_be_valid_units(self):
+        with self.assertRaises(UndefinedUnitError):
+            QuantityField(base_units="mile", unit_choices=["gunzu"])
+
+    def test_unit_choices_must_match_base_dimensionality(self):
+        with self.assertRaises(DimensionalityError):
+            QuantityField(base_units="gram", unit_choices=["meter", "ounces"])
 
 
 @pytest.mark.django_db
@@ -40,7 +55,7 @@ class TestFieldSave(TestCase):
         self.heaviest = HayBale.objects.create(weight=1000, name="heaviest")
         EmptyHayBale.objects.create(name="Empty")
         CustomUregHayBale.objects.create(custom=5)
-        CustomUregHayBale.objects.create(custom=5 * custom_ureg.kilocustom)
+        CustomUregHayBale.objects.create(custom=5 * ureg.kilocustom)
 
     def test_stores_value_in_base_units(self):
         item = HayBale.objects.get(name="ounce")
@@ -152,7 +167,7 @@ class TestFieldSave(TestCase):
 
     def test_custom_ureg(self):
         obj = CustomUregHayBale.objects.first()
-        self.assertIsInstance(obj.custom, custom_ureg.Quantity)
+        self.assertIsInstance(obj.custom, ureg.Quantity)
         self.assertEqual(str(obj.custom), "5.0 custom")
 
         obj = CustomUregHayBale.objects.last()

@@ -1,16 +1,10 @@
 from django.db import models
 
-from pint import UnitRegistry
-
 from quantityfield.fields import (
     BigIntegerQuantityField,
     IntegerQuantityField,
     QuantityField,
 )
-
-custom_ureg = UnitRegistry()
-custom_ureg.define("custom = [custom]")
-custom_ureg.define("kilocustom = 1000 * custom")
 
 
 class HayBale(models.Model):
@@ -26,4 +20,9 @@ class EmptyHayBale(models.Model):
 
 
 class CustomUregHayBale(models.Model):
-    custom = QuantityField("custom", ureg=custom_ureg, null=True)
+    # Custom is defined in settings in conftest.py
+    custom = QuantityField("custom", null=True)
+
+
+class ChoicesDefinedInModel(models.Model):
+    weight = QuantityField("kilogram", unit_choices=["milligram", "pounds"])

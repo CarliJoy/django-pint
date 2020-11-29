@@ -56,7 +56,7 @@ If your base unit is atomic (i.e. can be represented by an integer), you may als
 
 You can also pass Quantity objects to be stored in models. These are automatically converted to the units defined for the field ( but can be converted to something else when retrieved of course ).
 
-    >> from quantityfield import ureg
+    >> from quantityfield.units import ureg
     >> Quantity = ureg.Quantity
     >> pounds = Quantity(500 * ureg.pound)
     >> bale = HayBale.objects.create(weight=pounds)
@@ -70,23 +70,37 @@ Use the inbuilt form field and widget to allow input of quantity values in diffe
     class HayBaleForm(forms.Form):
         weight = QuantityFormField(base_units='gram', unit_choices=['gram', 'ounce', 'milligram'])
 
-The form will render a float input and a select widget to choose the units. Whenever cleaned_data is presented from the above form the weight field value will be a Quantity with the units set to grams ( values are converted from the units input by the user ).
+The form will render a float input and a select widget to choose the units.
+Whenever cleaned_data is presented from the above form the weight field value will be a
+Quantity with the units set to grams (values are converted from the units input by the user ).
+You also can add the `unit_choices` directly to the `ModelField`. It will be propagated
+correctly.
 
-For comparative lookups, query values will be coerced into the correct units when comparing values, this means that comparing 1 ounce to 1 tonne should yield the correct results.
+For comparative lookups, query values will be coerced into the correct units when comparing values,
+this means that comparing 1 ounce to 1 tonne should yield the correct results.
 
     less_than_a_tonne = HayBale.objects.filter(weight__lt=Quantity(2000 * ureg.pound))
 
-You can also use a custom Pint unit registry:
+You can also use a custom Pint unit registry in your project `settings.py`
+
+    # project/settings.py
+
+    from pint import UnitRegistry
+
+    # django-pint will set the DJANGO_PINT_UNIT_REGISTER automatically
+    # as application_registry
+    DJANGO_PINT_UNIT_REGISTER = UnitRegistry('your_units.txt')
+    DJANGO_PINT_UNIT_REGISTER.define('beer_bootle_weight = 0.8 * kg = beer')
 
     # app/models.py
 
-    from django.db import models
-    from quantityfield import DeconstructibleUnitRegistry
-    from quantityfield.fields import QuantityField
-
-    my_ureg = DeconstructibleUnitRegistry('your_units.txt')
-
     class HayBale(models.Model):
-        custom_unit = QuantityField('tonne', ureg=my_ureg)
+        # now you can use your custom units in your models
+        custom_unit = QuantityField('beer')
 
-Note that in order to use Django's migrations with a custom unit registry, all unit info must be passed to the UnitRegistry constructor via the textfile method shown above. Calls to `.define(...)` aren't considered by Django's migration framework.
+Note: As the [documentation from pint](https://pint.readthedocs.io/en/latest/tutorial.html#using-pint-in-your-projects)
+states quite clearly: For each project there should be only one unit registry.
+Please note that if you change the unit registry for an already created project with
+data in a database, you could invalidate your data! So be sure you know what you are
+doing!
+Still only adding units should be okay.

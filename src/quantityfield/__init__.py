@@ -1,14 +1,12 @@
-__version__ = "0.4"
+from pkg_resources import DistributionNotFound, get_distribution
 
-from django.utils.deconstruct import deconstructible
-
-from pint import UnitRegistry
-
-
-@deconstructible
-class DeconstructibleUnitRegistry(UnitRegistry):
-    """Make UnitRegistry compatible with Django migrations by implementing the
-    deconstruct() method."""
-
-
-ureg = DeconstructibleUnitRegistry()
+try:
+    # Change here if project is renamed and does not equal the package name
+    dist_name = "django-pint"
+    __version__ = get_distribution(dist_name).version
+except DistributionNotFound:  # pragma: no cover
+    # We don't expect this to be executed, as this would mean the configuration
+    # for the python module is wrong
+    __version__ = "unknown"
+finally:
+    del get_distribution, DistributionNotFound

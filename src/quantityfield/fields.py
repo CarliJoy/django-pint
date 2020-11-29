@@ -5,11 +5,13 @@ from django.utils import formats
 from django.utils.translation import gettext_lazy as _
 
 import warnings
-from pint import DimensionalityError, Quantity
+from pint import Quantity
+from typing import List, Optional
 
 from quantityfield.exceptions import PrecisionLoss
+from quantityfield.helper import check_matching_unit_dimension
 
-from . import ureg as default_ureg
+from .units import ureg
 from .widgets import QuantityWidget
 
 
@@ -35,19 +37,36 @@ class QuantityFieldMixin(object):
 
     """A Django Model Field that resolves to a pint Quantity object"""
 
-    def __init__(self, base_units=None, *args, **kwargs):
-        if not base_units:
+    def __init__(
+        self, base_units: str, *args, unit_choices: Optional[List[str]] = None, **kwargs
+    ):
+        """
+        Create a Quantity field
+        :param base_units: Unit description of base unit
+        :param unit_choices: If given the possible unit choices with the same
+                             dimension like the base_unit
+        """
+        if not isinstance(base_units, str):
             raise ValueError(
                 'QuantityField must be defined with base units, eg: "gram"'
             )
 
-        self.ureg = kwargs.pop("ureg", default_ureg)
+        self.ureg = ureg
 
         # we do this as a way of raising an exception if some crazy unit was supplied.
         unit = getattr(self.ureg, base_units)  # noqa: F841
 
         # if we've not hit an exception here, we should be all good
         self.base_units = base_units
+
+        if unit_choices is None:
+            self.unit_choices: List[str] = [self.base_units]
+        else:
+            self.unit_choices = unit_choices
+
+        # Check if all unit_choices are valid
+        check_matching_unit_dimension(self.ureg, self.base_units, self.unit_choices)
+
         super(QuantityFieldMixin, self).__init__(*args, **kwargs)
 
     @property
@@ -57,7 +76,7 @@ class QuantityFieldMixin(object):
     def deconstruct(self):
         name, path, args, kwargs = super(QuantityFieldMixin, self).deconstruct()
         kwargs["base_units"] = self.base_units
-        kwargs["ureg"] = self.ureg
+        kwargs["unit_choices"] = self.unit_choices
         return name, path, args, kwargs
 
     def get_prep_value(self, value):
@@ -119,8 +138,8 @@ class QuantityFieldMixin(object):
     def formfield(self, **kwargs):
         defaults = {
             "form_class": self.form_field_class,
-            "ureg": self.ureg,
             "base_units": self.base_units,
+            "unit_choices": self.unit_choices,
         }
         defaults.update(kwargs)
         return super(QuantityFieldMixin, self).formfield(**defaults)
@@ -135,9 +154,9 @@ class QuantityFormFieldMixin(object):
     to_number_type = NotImplemented
 
     def __init__(self, *args, **kwargs):
-        self.ureg = kwargs.pop("ureg", default_ureg)
+        self.ureg = ureg
         self.base_units = kwargs.pop("base_units", None)
-        if not self.base_units:
+        if self.base_units is None:
             raise ValueError(
                 "QuantityFormField requires a base_units kwarg of a "
                 "single unit type (eg: grams)"
@@ -146,12 +165,7 @@ class QuantityFormFieldMixin(object):
         if self.base_units not in self.units:
             self.units.append(self.base_units)
 
-        base_unit = getattr(self.ureg, self.base_units)
-
-        for _unit in self.units:
-            unit = getattr(self.ureg, _unit)
-            if unit.dimensionality != base_unit.dimensionality:
-                raise DimensionalityError(base_unit, unit)
+        check_matching_unit_dimension(self.ureg, self.base_units, self.units)
 
         kwargs["widget"] = kwargs.get(
             "widget",
