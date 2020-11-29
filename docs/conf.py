@@ -90,6 +90,38 @@ extensions = [
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
+# Setup and Activate django so build are not failing
+import django.conf
+import django
+import pint
+
+django.conf.settings.configure(
+    DATABASES={
+        "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
+    },
+    SECRET_KEY="not very secret in tests",
+    USE_I18N=True,
+    USE_L10N=True,
+    # Use common Middleware
+    MIDDLEWARE=(
+        "django.middleware.common.CommonMiddleware",
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        "django.contrib.messages.middleware.MessageMiddleware",
+    ),
+    INSTALLED_APPS=[
+        "django.contrib.auth",
+        "django.contrib.admin",
+        "django.contrib.contenttypes",
+        "django.contrib.sessions",
+        "django.contrib.sites",
+        "django.contrib.flatpages",
+        "quantityfield",
+    ],
+    DJANGO_PINT_UNIT_REGISTER=pint.UnitRegistry(),
+)
+
+django.setup()
 
 # To configure AutoStructify
 def setup(app):
