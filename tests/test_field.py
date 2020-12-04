@@ -8,7 +8,11 @@ import json
 import warnings
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
 
-from quantityfield.fields import QuantityField
+from quantityfield.fields import (
+    BigIntegerQuantityField,
+    IntegerQuantityField,
+    QuantityField,
+)
 from quantityfield.units import ureg
 from tests.dummyapp.models import CustomUregHayBale, EmptyHayBale, HayBale
 
@@ -42,6 +46,64 @@ class TestFieldCreate(TestCase):
     def test_unit_choices_must_match_base_dimensionality(self):
         with self.assertRaises(DimensionalityError):
             QuantityField(base_units="gram", unit_choices=["meter", "ounces"])
+
+
+class TestIntegerFieldCreate(TestCase):
+    def test_sets_units(self):
+        test_grams = IntegerQuantityField("gram")
+        self.assertEqual(test_grams.units, ureg.gram)
+
+    def test_fails_with_unknown_units(self):
+        with self.assertRaises(UndefinedUnitError):
+            test_crazy_units = IntegerQuantityField("zinghie")  # noqa: F841
+
+    def test_base_units_is_required(self):
+        with self.assertRaises(TypeError):
+            no_units = IntegerQuantityField()  # noqa: F841
+
+    def test_base_units_set_with_name(self):
+        okay_units = IntegerQuantityField(base_units="meter")  # noqa: F841
+
+    def test_base_units_are_invalid(self):
+        with self.assertRaises(ValueError):
+            wrong_units = IntegerQuantityField(None)  # noqa: F841
+
+    def test_unit_choices_must_be_valid_units(self):
+        with self.assertRaises(UndefinedUnitError):
+            IntegerQuantityField(base_units="mile", unit_choices=["gunzu"])
+
+    def test_unit_choices_must_match_base_dimensionality(self):
+        with self.assertRaises(DimensionalityError):
+            IntegerQuantityField(base_units="gram", unit_choices=["meter", "ounces"])
+
+
+class TestBigIntegerFieldCreate(TestCase):
+    def test_sets_units(self):
+        test_grams = BigIntegerQuantityField("gram")
+        self.assertEqual(test_grams.units, ureg.gram)
+
+    def test_fails_with_unknown_units(self):
+        with self.assertRaises(UndefinedUnitError):
+            test_crazy_units = BigIntegerQuantityField("zinghie")  # noqa: F841
+
+    def test_base_units_is_required(self):
+        with self.assertRaises(TypeError):
+            no_units = BigIntegerQuantityField()  # noqa: F841
+
+    def test_base_units_set_with_name(self):
+        okay_units = BigIntegerQuantityField(base_units="meter")  # noqa: F841
+
+    def test_base_units_are_invalid(self):
+        with self.assertRaises(ValueError):
+            wrong_units = BigIntegerQuantityField(None)  # noqa: F841
+
+    def test_unit_choices_must_be_valid_units(self):
+        with self.assertRaises(UndefinedUnitError):
+            BigIntegerQuantityField(base_units="mile", unit_choices=["gunzu"])
+
+    def test_unit_choices_must_match_base_dimensionality(self):
+        with self.assertRaises(DimensionalityError):
+            BigIntegerQuantityField(base_units="gram", unit_choices=["meter", "ounces"])
 
 
 @pytest.mark.django_db
