@@ -116,8 +116,12 @@ class TestFieldSave(TestCase):
         self.lightest = HayBale.objects.create(weight=1, name="lightest")
         self.heaviest = HayBale.objects.create(weight=1000, name="heaviest")
         EmptyHayBale.objects.create(name="Empty")
-        CustomUregHayBale.objects.create(custom=5)
-        CustomUregHayBale.objects.create(custom=5 * ureg.kilocustom)
+        CustomUregHayBale.objects.create(custom=5, custom_int=5, custom_bigint=5)
+        CustomUregHayBale.objects.create(
+            custom=5 * ureg.kilocustom,
+            custom_int=5 * ureg.kilocustom,
+            custom_bigint=5 * ureg.kilocustom,
+        )
 
     def test_stores_value_in_base_units(self):
         item = HayBale.objects.get(name="ounce")
