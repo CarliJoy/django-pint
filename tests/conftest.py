@@ -11,6 +11,30 @@ import django
 
 from pint import UnitRegistry
 
+# Allow user specific postgres credentials to be provided
+# in a local.py file
+try:
+    from .local import PG_PASSWORD, PG_USER
+except ImportError:
+    # Define the defaults Travis CI/CD if any parameter was unser
+    PG_USER = "django_pint"
+    PG_PASSWORD = "not_secure_in_testing"
+
+try:
+    from .local import PG_DATABASE
+except ImportError:
+    PG_DATABASE = "django_pint"
+
+try:
+    from .local import PG_HOST
+except ImportError:
+    PG_HOST = "localhost"
+
+try:
+    from .local import PG_PORT
+except ImportError:
+    PG_PORT = ""
+
 
 def pytest_configure(config):
     from django.conf import settings
@@ -21,7 +45,14 @@ def pytest_configure(config):
 
     settings.configure(
         DATABASES={
-            "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
+            "default": {
+                "ENGINE": "django.db.backends.postgresql_psycopg2",
+                "NAME": PG_DATABASE,
+                "USER": PG_USER,
+                "PASSWORD": PG_PASSWORD,
+                "HOST": PG_HOST,
+                "PORT": PG_PORT,
+            }
         },
         SECRET_KEY="not very secret in tests",
         USE_I18N=True,
