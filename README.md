@@ -107,13 +107,14 @@ data in a database, you could invalidate your data! So be sure you know what you
 doing!
 Still only adding units should be okay.
 
-# Set Up Local Testing
+## Set Up Local Testing
 As SQL Lite is not very script in handling types we use Postgres for testing.
 This will bring up some possible pitfalls using proper databases.
 To get the test running please install `postgresql` on your OS.
 You need to have `psycopg2-binary` installed (see `tox.ini` for further requirements)
-and a user with the proper permissions set. See `before_script` of `.travis.yml`
-for an example on HowTo set it up.
+and a user with the proper permissions set. See `ci_setup_postgres.sh`
+for an example on HowTo set it up. Or simply run:
+`sudo -u postgres ./ci_setup_postgres.sh`.
 
 You can also use you local credentials by creating a `tests/local.py` file.
 See `test/conftest.py` for a description.
