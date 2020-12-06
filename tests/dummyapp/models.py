@@ -28,3 +28,7 @@ class CustomUregHayBale(models.Model):
 
 class ChoicesDefinedInModel(models.Model):
     weight = QuantityField("kilogram", unit_choices=["milligram", "pounds"])
+
+
+class ChoicesDefinedInModelInt(models.Model):
+    weight = IntegerQuantityField("kilogram", unit_choices=["milligram", "pounds"])
