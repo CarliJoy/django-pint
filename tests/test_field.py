@@ -2,7 +2,7 @@ import pytest
 
 from django.core.serializers import serialize
 from django.db import transaction
-from django.db.models import Field
+from django.db.models import Field, Model
 from django.test import TestCase
 
 import json
@@ -17,7 +17,13 @@ from quantityfield.fields import (
     QuantityFieldMixin,
 )
 from quantityfield.units import ureg
-from tests.dummyapp.models import CustomUregHayBale, EmptyHayBale, HayBale
+from tests.dummyapp.models import (
+    CustomUregHayBale,
+    EmptyHayBaleBigInt,
+    EmptyHayBaleFloat,
+    EmptyHayBaleInt,
+    HayBale,
+)
 
 Quantity = ureg.Quantity
 
@@ -104,6 +110,89 @@ class TestCustomUreg(TestCase):
         self.assertEqual(str(obj.custom_bigint), "5000 custom")
 
 
+class BaseMixinNullAble:
+    EMPTY_MODEL: Type[Model]
+
+    def setUp(self):
+        self.EMPTY_MODEL.objects.create(name="Empty")
+
+    def tearDown(self) -> None:
+        self.EMPTY_MODEL.objects.all().delete()
+
+    def test_accepts_assigned_null(self):
+        new = self.EMPTY_MODEL()
+        new.weight = None
+        new.name = "Test"
+        new.save()
+        self.assertIsNone(new.weight)
+        # Also get it from database to verify
+        from_db = self.EMPTY_MODEL.objects.last()
+        self.assertIsNone(from_db.weight)
+
+    def test_accepts_auto_null(self):
+        empty = self.EMPTY_MODEL.objects.first()
+        self.assertIsNone(empty.weight, None)
+
+    def test_accepts_default_pint_unit(self):
+        new = self.EMPTY_MODEL(name="DefaultPintUnitTest")
+        units = UnitRegistry()
+        new.weight = 5 * units.kilogram
+        # Different Registers so we expect a warning!
+        with self.assertWarns(RuntimeWarning):
+            new.save()
+        obj = self.EMPTY_MODEL.objects.last()
+        self.assertEqual(obj.name, "DefaultPintUnitTest")
+        self.assertEqual(obj.weight.units, "gram")
+        self.assertEqual(obj.weight.magnitude, 5000)
+
+    def test_accepts_default_app_unit(self):
+        new = self.EMPTY_MODEL(name="DefaultAppUnitTest")
+        new.weight = 5 * ureg.kilogram
+        # Make sure that the correct argument does not raise a warning
+        with warnings.catch_warnings(record=True) as w:
+            new.save()
+        assert len(w) == 0
+        obj = self.EMPTY_MODEL.objects.last()
+        self.assertEqual(obj.name, "DefaultAppUnitTest")
+        self.assertEqual(obj.weight.units, "gram")
+        self.assertEqual(obj.weight.magnitude, 5000)
+
+    def test_accepts_assigned_whole_number(self):
+        new = self.EMPTY_MODEL(name="WholeNumber")
+        new.weight = 707
+        new.save()
+        obj = self.EMPTY_MODEL.objects.last()
+        self.assertEqual(obj.name, "WholeNumber")
+        self.assertEqual(obj.weight.units, "gram")
+        self.assertEqual(obj.weight.magnitude, 707)
+
+    def test_accepts_assigned_float_number(self):
+        new = self.EMPTY_MODEL(name="FloatNumber")
+        new.weight = 707.7
+        new.save()
+        obj = self.EMPTY_MODEL.objects.last()
+        self.assertEqual(obj.name, "FloatNumber")
+        self.assertEqual(obj.weight.units, "gram")
+        # FIXME: This should fail with Int, but it does not!
+        #        Probably because we using SQL Lite
+        self.assertEqual(obj.weight.magnitude, 707.7)
+
+
+@pytest.mark.django_db
+class TestNullableFloat(BaseMixinNullAble, TestCase):
+    EMPTY_MODEL = EmptyHayBaleFloat
+
+
+@pytest.mark.django_db
+class TestNullableInt(BaseMixinNullAble, TestCase):
+    EMPTY_MODEL = EmptyHayBaleInt
+
+
+@pytest.mark.django_db
+class TestNullableBigInt(BaseMixinNullAble, TestCase):
+    EMPTY_MODEL = EmptyHayBaleBigInt
+
+
 @pytest.mark.django_db
 class TestFieldSave(TestCase):
     def setUp(self):
@@ -113,7 +202,9 @@ class TestFieldSave(TestCase):
         HayBale.objects.create(weight=Quantity(10 * ureg.ounce), name="ounce")
         self.lightest = HayBale.objects.create(weight=1, name="lightest")
         self.heaviest = HayBale.objects.create(weight=1000, name="heaviest")
-        EmptyHayBale.objects.create(name="Empty")
+
+    def tearDown(self):
+        HayBale.objects.all().delete()
 
     def test_stores_value_in_base_units(self):
         item = HayBale.objects.get(name="ounce")
@@ -138,50 +229,6 @@ class TestFieldSave(TestCase):
         with transaction.atomic():
             with self.assertRaises(DimensionalityError):
                 HayBale.objects.create(weight=metres, name="Should Fail")
-
-    def test_accepts_auto_null(self):
-        empty = EmptyHayBale.objects.first()
-        self.assertIsNone(empty.weight, None)
-
-    def test_accepts_assigned_null(self):
-        new = EmptyHayBale()
-        new.weight = None
-        new.name = "Test"
-        new.save()
-        self.assertIsNone(new.weight)
-
-    def test_accepts_assigned_float(self):
-        new = EmptyHayBale(name="FloatTest")
-        new.weight = 707
-        new.save()
-        obj: EmptyHayBale = EmptyHayBale.objects.last()
-        self.assertEqual(obj.name, "FloatTest")
-        self.assertEqual(obj.weight.units, "gram")
-        self.assertEqual(obj.weight.magnitude, 707)
-
-    def test_accepts_default_pint_unit(self):
-        new = EmptyHayBale(name="DefaultPintUnitTest")
-        units = UnitRegistry()
-        new.weight = 5 * units.kilogram
-        # Different Registers so we expect a warning!
-        with self.assertWarns(RuntimeWarning):
-            new.save()
-        obj: EmptyHayBale = EmptyHayBale.objects.last()
-        self.assertEqual(obj.name, "DefaultPintUnitTest")
-        self.assertEqual(obj.weight.units, "gram")
-        self.assertEqual(obj.weight.magnitude, 5000)
-
-    def test_accepts_default_app_unit(self):
-        new = EmptyHayBale(name="DefaultAppUnitTest")
-        new.weight = 5 * ureg.kilogram
-        # Make sure that the correct argument does not raise a warning
-        with warnings.catch_warnings(record=True) as w:
-            new.save()
-        assert len(w) == 0
-        obj: EmptyHayBale = EmptyHayBale.objects.last()
-        self.assertEqual(obj.name, "DefaultAppUnitTest")
-        self.assertEqual(obj.weight.units, "gram")
-        self.assertEqual(obj.weight.magnitude, 5000)
 
     def test_value_stored_as_quantity(self):
         obj = HayBale.objects.first()
@@ -218,10 +265,6 @@ class TestFieldSave(TestCase):
     def test_comparison_is_actually_numeric(self):
         qs = HayBale.objects.filter(weight__gt=1.0)
         self.assertNotIn(self.lightest, qs)
-
-    def tearDown(self):
-        HayBale.objects.all().delete()
-        EmptyHayBale.objects.all().delete()
 
     def test_serialisation(self):
         serialized = serialize(

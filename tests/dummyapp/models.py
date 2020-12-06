@@ -14,9 +14,19 @@ class HayBale(models.Model):
     weight_bigint = BigIntegerQuantityField("gram", blank=True, null=True)
 
 
-class EmptyHayBale(models.Model):
+class EmptyHayBaleFloat(models.Model):
     name = models.CharField(max_length=20)
     weight = QuantityField("gram", null=True)
+
+
+class EmptyHayBaleInt(models.Model):
+    name = models.CharField(max_length=20)
+    weight = IntegerQuantityField("gram", null=True)
+
+
+class EmptyHayBaleBigInt(models.Model):
+    name = models.CharField(max_length=20)
+    weight = BigIntegerQuantityField("gram", null=True)
 
 
 class CustomUregHayBale(models.Model):
