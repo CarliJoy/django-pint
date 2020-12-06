@@ -2,16 +2,19 @@ import pytest
 
 from django.core.serializers import serialize
 from django.db import transaction
+from django.db.models import Field
 from django.test import TestCase
 
 import json
 import warnings
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
+from typing import Type, Union
 
 from quantityfield.fields import (
     BigIntegerQuantityField,
     IntegerQuantityField,
     QuantityField,
+    QuantityFieldMixin,
 )
 from quantityfield.units import ureg
 from tests.dummyapp.models import CustomUregHayBale, EmptyHayBale, HayBale
@@ -19,91 +22,47 @@ from tests.dummyapp.models import CustomUregHayBale, EmptyHayBale, HayBale
 Quantity = ureg.Quantity
 
 
-class TestFieldCreate(TestCase):
+class BaseMixinTestFieldCreate:
+    FIELD: Type[Union[Field, QuantityFieldMixin]]
+
     def test_sets_units(self):
-        test_grams = QuantityField("gram")
+        test_grams = self.FIELD("gram")
         self.assertEqual(test_grams.units, ureg.gram)
 
     def test_fails_with_unknown_units(self):
         with self.assertRaises(UndefinedUnitError):
-            test_crazy_units = QuantityField("zinghie")  # noqa: F841
+            test_crazy_units = self.FIELD("zinghie")  # noqa: F841
 
     def test_base_units_is_required(self):
         with self.assertRaises(TypeError):
-            no_units = QuantityField()  # noqa: F841
+            no_units = self.FIELD()  # noqa: F841
 
     def test_base_units_set_with_name(self):
-        okay_units = QuantityField(base_units="meter")  # noqa: F841
+        okay_units = self.FIELD(base_units="meter")  # noqa: F841
 
     def test_base_units_are_invalid(self):
         with self.assertRaises(ValueError):
-            wrong_units = QuantityField(None)  # noqa: F841
+            wrong_units = self.FIELD(None)  # noqa: F841
 
     def test_unit_choices_must_be_valid_units(self):
         with self.assertRaises(UndefinedUnitError):
-            QuantityField(base_units="mile", unit_choices=["gunzu"])
+            self.FIELD(base_units="mile", unit_choices=["gunzu"])
 
     def test_unit_choices_must_match_base_dimensionality(self):
         with self.assertRaises(DimensionalityError):
-            QuantityField(base_units="gram", unit_choices=["meter", "ounces"])
+            self.FIELD(base_units="gram", unit_choices=["meter", "ounces"])
 
 
-class TestIntegerFieldCreate(TestCase):
-    def test_sets_units(self):
-        test_grams = IntegerQuantityField("gram")
-        self.assertEqual(test_grams.units, ureg.gram)
-
-    def test_fails_with_unknown_units(self):
-        with self.assertRaises(UndefinedUnitError):
-            test_crazy_units = IntegerQuantityField("zinghie")  # noqa: F841
-
-    def test_base_units_is_required(self):
-        with self.assertRaises(TypeError):
-            no_units = IntegerQuantityField()  # noqa: F841
-
-    def test_base_units_set_with_name(self):
-        okay_units = IntegerQuantityField(base_units="meter")  # noqa: F841
-
-    def test_base_units_are_invalid(self):
-        with self.assertRaises(ValueError):
-            wrong_units = IntegerQuantityField(None)  # noqa: F841
-
-    def test_unit_choices_must_be_valid_units(self):
-        with self.assertRaises(UndefinedUnitError):
-            IntegerQuantityField(base_units="mile", unit_choices=["gunzu"])
-
-    def test_unit_choices_must_match_base_dimensionality(self):
-        with self.assertRaises(DimensionalityError):
-            IntegerQuantityField(base_units="gram", unit_choices=["meter", "ounces"])
+class TestFloatFieldCrate(BaseMixinTestFieldCreate, TestCase):
+    FIELD = QuantityField
 
 
-class TestBigIntegerFieldCreate(TestCase):
-    def test_sets_units(self):
-        test_grams = BigIntegerQuantityField("gram")
-        self.assertEqual(test_grams.units, ureg.gram)
+class TestIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
+    FIELD = IntegerQuantityField
 
-    def test_fails_with_unknown_units(self):
-        with self.assertRaises(UndefinedUnitError):
-            test_crazy_units = BigIntegerQuantityField("zinghie")  # noqa: F841
 
-    def test_base_units_is_required(self):
-        with self.assertRaises(TypeError):
-            no_units = BigIntegerQuantityField()  # noqa: F841
-
-    def test_base_units_set_with_name(self):
-        okay_units = BigIntegerQuantityField(base_units="meter")  # noqa: F841
-
-    def test_base_units_are_invalid(self):
-        with self.assertRaises(ValueError):
-            wrong_units = BigIntegerQuantityField(None)  # noqa: F841
-
-    def test_unit_choices_must_be_valid_units(self):
-        with self.assertRaises(UndefinedUnitError):
-            BigIntegerQuantityField(base_units="mile", unit_choices=["gunzu"])
-
-    def test_unit_choices_must_match_base_dimensionality(self):
-        with self.assertRaises(DimensionalityError):
-            BigIntegerQuantityField(base_units="gram", unit_choices=["meter", "ounces"])
+class TestBigIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
+    FIELD = BigIntegerQuantityField
 
 
 @pytest.mark.django_db
