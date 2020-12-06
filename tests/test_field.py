@@ -8,7 +8,7 @@ from django.test import TestCase
 import json
 import warnings
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
-from typing import Type, Union
+from typing import Callable, Type, Union
 
 from quantityfield.fields import (
     BigIntegerQuantityField,
@@ -112,6 +112,7 @@ class TestCustomUreg(TestCase):
 
 class BaseMixinNullAble:
     EMPTY_MODEL: Type[Model]
+    get_database_number: Callable[[float], Union[float, int]]
 
     def setUp(self):
         self.EMPTY_MODEL.objects.create(name="Empty")
@@ -175,22 +176,25 @@ class BaseMixinNullAble:
         self.assertEqual(obj.weight.units, "gram")
         # FIXME: This should fail with Int, but it does not!
         #        Probably because we using SQL Lite
-        self.assertEqual(obj.weight.magnitude, 707.7)
+        self.assertEqual(obj.weight.magnitude, self.get_database_number(707.7))
 
 
 @pytest.mark.django_db
 class TestNullableFloat(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleFloat
+    get_database_number = float
 
 
 @pytest.mark.django_db
 class TestNullableInt(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleInt
+    get_database_number = round
 
 
 @pytest.mark.django_db
 class TestNullableBigInt(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleBigInt
+    get_database_number = round
 
 
 @pytest.mark.django_db
