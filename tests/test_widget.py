@@ -7,7 +7,11 @@ from pint import DimensionalityError, UndefinedUnitError
 from quantityfield.fields import IntegerQuantityFormField, QuantityFormField
 from quantityfield.units import ureg
 from quantityfield.widgets import QuantityWidget
-from tests.dummyapp.models import ChoicesDefinedInModel, HayBale
+from tests.dummyapp.models import (
+    ChoicesDefinedInModel,
+    ChoicesDefinedInModelInt,
+    HayBale,
+)
 
 Quantity = ureg.Quantity
 
