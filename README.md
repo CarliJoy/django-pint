@@ -111,6 +111,9 @@ Still only adding units should be okay.
 To run a local development environment with Docker you need to run the following steps:
 
 1. `git clone` your fork
-2. run `docker-compose up` in the root folder, this should build and start 2 containers, one for postgres and the other one python dependencies
-3. open a new terminal and run `docker compose exec app bash`, this should open a ssh console in the docker container
-4. you can run `pytest` inside the container to see the result of the tests.
+2. run `cp .env.example .env`
+3. edit `.env` file and change it with your credentials ( the postgres host should match the service name in docker-file so you can use "postgres" )
+4. run `cp tests/local.py.docker-example tests/local.py`
+5. run `docker-compose up` in the root folder, this should build and start 2 containers, one for postgres and the other one python dependencies
+6. open a new terminal and run `docker compose exec app bash`, this should open a ssh console in the docker container
+7. you can run `pytest` inside the container to see the result of the tests.
