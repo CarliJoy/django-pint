@@ -104,3 +104,13 @@ Please note that if you change the unit registry for an already created project 
 data in a database, you could invalidate your data! So be sure you know what you are
 doing!
 Still only adding units should be okay.
+
+
+## Local development environment with Docker
+
+To run a local development environment with Docker you need to run the following steps:
+
+1. `git clone` your fork
+2. run `docker-compose up` in the root folder, this should build and start 2 containers, one for postgres and the other one python dependencies
+3. open a new terminal and run `docker compose exec app bash`, this should open a ssh console in the docker container
+4. you can run `pytest` inside the container to see the result of the tests.
