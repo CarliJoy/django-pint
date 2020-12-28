@@ -7,7 +7,11 @@ from pint import DimensionalityError, UndefinedUnitError
 from quantityfield.fields import IntegerQuantityFormField, QuantityFormField
 from quantityfield.units import ureg
 from quantityfield.widgets import QuantityWidget
-from tests.dummyapp.models import ChoicesDefinedInModel, HayBale
+from tests.dummyapp.models import (
+    ChoicesDefinedInModel,
+    ChoicesDefinedInModelInt,
+    HayBale,
+)
 
 Quantity = ureg.Quantity
 
@@ -39,6 +43,12 @@ class HayBaleFormDefaultWidgets(forms.ModelForm):
 class UnitChoicesDefinedInModelFieldModelForm(forms.ModelForm):
     class Meta:
         model = ChoicesDefinedInModel
+        fields = ["weight"]
+
+
+class UnitChoicesDefinedInModelFieldModelFormInt(forms.ModelForm):
+    class Meta:
+        model = ChoicesDefinedInModelInt
         fields = ["weight"]
 
 
@@ -89,6 +99,9 @@ class TestWidgets(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(str(form.cleaned_data["weight"].units), "gram")
         self.assertAlmostEqual(form.cleaned_data["weight"].magnitude, 28.349523125)
+        # FIXME: Shouldn't this raise a loss of Precision error?
+        self.assertEqual(str(form.cleaned_data["weight_int"].units), "gram")
+        self.assertAlmostEqual(form.cleaned_data["weight_int"].magnitude, 28.349523125)
 
     def test_base_units_is_required_for_form_field(self):
         with self.assertRaises(ValueError):
@@ -120,6 +133,17 @@ class TestWidgets(TestCase):
 
     def test_widget_field_displays_unit_choices_for_model_field_propagation(self):
         form = UnitChoicesDefinedInModelFieldModelForm()
+        self.assertListEqual(
+            [
+                ("milligram", "milligram"),
+                ("pounds", "pounds"),
+                ("kilogram", "kilogram"),
+            ],
+            form.fields["weight"].widget.widgets[1].choices,
+        )
+
+    def test_widget_int_field_displays_unit_choices_for_model_field_propagation(self):
+        form = UnitChoicesDefinedInModelFieldModelFormInt()
         self.assertListEqual(
             [
                 ("milligram", "milligram"),

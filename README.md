@@ -1,9 +1,11 @@
 
 [![Build Status](https://api.travis-ci.com/CarliJoy/django-pint.svg?branch=master)](https://travis-ci.com/github/CarliJoy/django-pint)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/CarliJoy/django-pint.svg)](http://isitmaintained.com/project/CarliJoy/django-pint)
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/CarliJoy/django-pint.svg)](http://isitmaintained.com/project/CarliJoy/django-pint)
 [![codecov](https://codecov.io/gh/CarliJoy/django-pint/branch/master/graph/badge.svg?token=I3M4CLILXE)](https://codecov.io/gh/CarliJoy/django-pint)
 [![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-pint.svg)](https://pypi.org/project/django-pint/)
-[![PyPI](https://img.shields.io/pypi/v/django-ping.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
+[![PyPI](https://img.shields.io/pypi/v/django-pint.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
 [![Wheel Build](https://img.shields.io/pypi/wheel/django-pint.svg)](https://pypi.org/project/django-pint/)
 [![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -105,10 +107,23 @@ data in a database, you could invalidate your data! So be sure you know what you
 doing!
 Still only adding units should be okay.
 
+## Set Up Local Testing
+As SQL Lite is not very script in handling types we use Postgres for testing.
+This will bring up some possible pitfalls using proper databases.
+To get the test running please install `postgresql` on your OS.
+You need to have `psycopg2-binary` installed (see `tox.ini` for further requirements)
+and a user with the proper permissions set. See `ci_setup_postgres.sh`
+for an example on HowTo set it up. Or simply run:
+`sudo -u postgres ./ci_setup_postgres.sh`.
+
+You can also use you local credentials by creating a `tests/local.py` file.
+See `test/conftest.py` for a description.
+
 
 ## Local development environment with Docker
 
 To run a local development environment with Docker you need to run the following steps:
+This is helpful if you have troubles installing `postgresql` or `psycopg2-binary`.
 
 1. `git clone` your fork
 2. run `cp .env.example .env`
