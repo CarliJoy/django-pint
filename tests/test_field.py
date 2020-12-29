@@ -1,6 +1,6 @@
 import pytest
 
-from django.core.serializers import serialize
+from django.core.serializers import deserialize, serialize
 from django.db import transaction
 from django.db.models import Field, Model
 from django.test import TestCase
@@ -174,9 +174,25 @@ class BaseMixinNullAble:
         obj = self.EMPTY_MODEL.objects.last()
         self.assertEqual(obj.name, "FloatNumber")
         self.assertEqual(obj.weight.units, "gram")
-        # FIXME: This should fail with Int, but it does not!
-        #        Probably because we using SQL Lite
+        # Note get_database_number is assumed to be int which works with postgresql
+        # for other databases this might fail
         self.assertEqual(obj.weight.magnitude, self.get_database_number(707.7))
+
+    def test_serialisation(self):
+        serialized = serialize(
+            "json",
+            [
+                self.EMPTY_MODEL.objects.first(),
+            ],
+        )
+        deserialized = json.loads(serialized)
+        obj = deserialized[0]["fields"]
+        self.assertEqual(obj["name"], "Empty")
+        self.assertIsNone(obj["weight"])
+        obj_generator = deserialize("json", serialized, ignorenonexistent=True)
+        obj_back = next(obj_generator)
+        self.assertEqual(obj_back.object.name, "Empty")
+        self.assertIsNone(obj_back.object.weight)
 
 
 @pytest.mark.django_db
