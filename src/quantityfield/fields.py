@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 import warnings
 from pint import Quantity
-from typing import List, Optional
+from typing import List, Optional, Type, Union
 
 from quantityfield.exceptions import PrecisionLoss
 from quantityfield.helper import check_matching_unit_dimension
@@ -15,10 +15,11 @@ from .units import ureg
 from .widgets import QuantityWidget
 
 
-def safe_to_int(value):
+def safe_to_int(value: Union[float, str, int], exception: Type[Exception]) -> int:
     """
     Check if a value is an int otherwise warn that it can't be converted
     :param value:
+    :param exception: which kind of exception is needed to be raised
     :return:
     """
     float_value = float(value)
@@ -27,9 +28,22 @@ def safe_to_int(value):
     if round(abs(int_value - float_value), 10) == 0:
         return int_value
     else:
-        raise PrecisionLoss(
-            _("Possible loss of precision converting value to integer: %s") % value
+        raise exception(
+            _(
+                "After unit conversation this leads to a loss of precision. "
+                "The converted value '%s' can not safely be stored as integer "
+                "without precision loss."
+            )
+            % value
         )
+
+
+def raise_validation_error_on_imprecise_int(value) -> int:
+    return safe_to_int(value, ValidationError)
+
+
+def raise_precision_error_on_imprecise_int(value) -> int:
+    return safe_to_int(value, PrecisionLoss)
 
 
 class QuantityFieldMixin(object):
@@ -112,7 +126,7 @@ class QuantityFieldMixin(object):
             return value
         return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
 
-    def to_python(self, value):
+    def to_python(self, value) -> Quantity:
         if isinstance(value, self.ureg.Quantity):
             return value
 
@@ -120,6 +134,21 @@ class QuantityFieldMixin(object):
             return None
 
         return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
+
+    def clean(self, value, model_instance) -> Quantity:
+        """
+        Convert the value's type and run validation. Validation errors
+        from to_python() and validate() are propagated. Return the correct
+        value if no error is raised.
+
+        This is a copy from djangos implementation but modified so that validators
+        are only checked against the magnitude as otherwise the default database
+        validators will not fail because of comparison errors
+        """
+        value = self.get_prep_value(self.to_python(value))
+        self.validate(value, model_instance)
+        self.run_validators(value)
+        return value
 
     # TODO: Add tests, understand, add super call if required
     """
@@ -214,7 +243,7 @@ class QuantityFormFieldMixin(object):
 
         val = self.ureg.Quantity(val * getattr(self.ureg, units)).to(self.base_units)
         self.validate(val.magnitude)
-        self.run_validators(val)
+        self.run_validators(val.magnitude)
         return val
 
 
@@ -228,14 +257,14 @@ class QuantityField(QuantityFieldMixin, models.FloatField):
 
 
 class IntegerQuantityFormField(QuantityFormFieldMixin, forms.IntegerField):
-    to_number_type = staticmethod(safe_to_int)
+    to_number_type = staticmethod(raise_validation_error_on_imprecise_int)
 
 
 class IntegerQuantityField(QuantityFieldMixin, models.IntegerField):
     form_field_class = IntegerQuantityFormField
-    to_number_type = staticmethod(safe_to_int)
+    to_number_type = staticmethod(raise_precision_error_on_imprecise_int)
 
 
 class BigIntegerQuantityField(QuantityFieldMixin, models.BigIntegerField):
     form_field_class = IntegerQuantityFormField
-    to_number_type = staticmethod(safe_to_int)
+    to_number_type = staticmethod(raise_precision_error_on_imprecise_int)

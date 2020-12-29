@@ -19,7 +19,7 @@ Quantity = ureg.Quantity
 class HayBaleForm(forms.ModelForm):
     weight = QuantityFormField(base_units="gram", unit_choices=["ounce", "gram"])
     weight_int = IntegerQuantityFormField(
-        base_units="gram", unit_choices=["ounce", "gram"]
+        base_units="gram", unit_choices=["ounce", "gram", "kilogram"]
     )
 
     class Meta:
@@ -92,16 +92,28 @@ class TestWidgets(TestCase):
                 "weight_0": 1.0,
                 "weight_1": "ounce",
                 "weight_int_0": 1,
-                "weight_int_1": "ounce",
+                "weight_int_1": "kilogram",
                 "name": "test",
             }
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(str(form.cleaned_data["weight"].units), "gram")
         self.assertAlmostEqual(form.cleaned_data["weight"].magnitude, 28.349523125)
-        # FIXME: Shouldn't this raise a loss of Precision error?
         self.assertEqual(str(form.cleaned_data["weight_int"].units), "gram")
-        self.assertAlmostEqual(form.cleaned_data["weight_int"].magnitude, 28.349523125)
+        self.assertAlmostEqual(form.cleaned_data["weight_int"].magnitude, 1000)
+
+    def test_precision_lost(self):
+        def test_clean_yields_quantity_in_correct_units(self):
+            form = HayBaleForm(
+                data={
+                    "weight_0": 1.0,
+                    "weight_1": "ounce",
+                    "weight_int_0": 1,
+                    "weight_int_1": "onuce",
+                    "name": "test",
+                }
+            )
+            self.assertFalse(form.is_valid())
 
     def test_base_units_is_required_for_form_field(self):
         with self.assertRaises(ValueError):
@@ -266,4 +278,4 @@ class TestWidgets(TestCase):
             }
         )
         self.assertFalse(form.is_valid())
-        self.assertTrue(form.has_error("weight_int", "precision_loss"))
+        self.assertTrue(form.has_error("weight_int"))
