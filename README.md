@@ -129,6 +129,6 @@ This is helpful if you have troubles installing `postgresql` or `psycopg2-binary
 2. run `cp .env.example .env`
 3. edit `.env` file and change it with your credentials ( the postgres host should match the service name in docker-file so you can use "postgres" )
 4. run `cp tests/local.py.docker-example tests/local.py`
-5. run `docker-compose up` in the root folder, this should build and start 2 containers, one for postgres and the other one python dependencies
-6. open a new terminal and run `docker compose exec app bash`, this should open a ssh console in the docker container
+5. run `docker-compose up` in the root folder, this should build and start 2 containers, one for postgres and the other one python dependencies. Note you have to be in the [docker](https://stackoverflow.com/a/47078951/3813064) group for this to work.
+6. open a new terminal and run `docker-compose exec app bash`, this should open a ssh console in the docker container
 7. you can run `pytest` inside the container to see the result of the tests.
