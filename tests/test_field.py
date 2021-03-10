@@ -7,19 +7,23 @@ from django.test import TestCase
 
 import json
 import warnings
+from decimal import Decimal
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
-from typing import Callable, Type, Union
+from typing import Type, Union
 
 from quantityfield.fields import (
     BigIntegerQuantityField,
+    DecimalQuantityField,
     IntegerQuantityField,
     QuantityField,
     QuantityFieldMixin,
 )
 from quantityfield.units import ureg
 from tests.dummyapp.models import (
+    CustomUregDecimalHayBale,
     CustomUregHayBale,
     EmptyHayBaleBigInt,
+    EmptyHayBaleDecimal,
     EmptyHayBaleFloat,
     EmptyHayBaleInt,
     HayBale,
@@ -29,34 +33,43 @@ Quantity = ureg.Quantity
 
 
 class BaseMixinTestFieldCreate:
+    # The field that needs to be tested
     FIELD: Type[Union[Field, QuantityFieldMixin]]
+    # Some fields, i.e. the decimal require default kwargs to work properly
+    DEFAULT_KWARGS = {}
 
     def test_sets_units(self):
-        test_grams = self.FIELD("gram")
+        test_grams = self.FIELD("gram", **self.DEFAULT_KWARGS)
         self.assertEqual(test_grams.units, ureg.gram)
 
     def test_fails_with_unknown_units(self):
         with self.assertRaises(UndefinedUnitError):
-            test_crazy_units = self.FIELD("zinghie")  # noqa: F841
+            test_crazy_units = self.FIELD(  # noqa: F841
+                "zinghie", **self.DEFAULT_KWARGS
+            )
 
     def test_base_units_is_required(self):
         with self.assertRaises(TypeError):
-            no_units = self.FIELD()  # noqa: F841
+            no_units = self.FIELD(**self.DEFAULT_KWARGS)  # noqa: F841
 
     def test_base_units_set_with_name(self):
-        okay_units = self.FIELD(base_units="meter")  # noqa: F841
+        okay_units = self.FIELD(base_units="meter", **self.DEFAULT_KWARGS)  # noqa: F841
 
     def test_base_units_are_invalid(self):
         with self.assertRaises(ValueError):
-            wrong_units = self.FIELD(None)  # noqa: F841
+            wrong_units = self.FIELD(None, **self.DEFAULT_KWARGS)  # noqa: F841
 
     def test_unit_choices_must_be_valid_units(self):
         with self.assertRaises(UndefinedUnitError):
-            self.FIELD(base_units="mile", unit_choices=["gunzu"])
+            self.FIELD(base_units="mile", unit_choices=["gunzu"], **self.DEFAULT_KWARGS)
 
     def test_unit_choices_must_match_base_dimensionality(self):
         with self.assertRaises(DimensionalityError):
-            self.FIELD(base_units="gram", unit_choices=["meter", "ounces"])
+            self.FIELD(
+                base_units="gram",
+                unit_choices=["meter", "ounces"],
+                **self.DEFAULT_KWARGS
+            )
 
 
 class TestFloatFieldCrate(BaseMixinTestFieldCreate, TestCase):
@@ -69,6 +82,54 @@ class TestIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
 
 class TestBigIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
     FIELD = BigIntegerQuantityField
+
+
+class TestDecimalFieldCreate(BaseMixinTestFieldCreate, TestCase):
+    FIELD = DecimalQuantityField
+    DEFAULT_KWARGS = {"max_digits": 10, "decimal_places": 2}
+
+
+@pytest.mark.parametrize(
+    "max_digits, decimal_places, error",
+    [
+        (None, None, "Invalid initialization.*expect.*integers.*"),
+        (10, None, "Invalid initialization.*expect.*integers.*"),
+        (None, 2, "Invalid initialization.*expect.*integers.*"),
+        (-1, 2, "Invalid initialization.*positive.*larger than decimal_places.*"),
+        (2, -1, "Invalid initialization.*positive.*larger than decimal_places.*"),
+        (2, 3, "Invalid initialization.*positive.*larger than decimal_places.*"),
+    ],
+)
+def test_decimal_init_fail(max_digits, decimal_places, error):
+    with pytest.raises(ValueError, match=error):
+        DecimalQuantityField(
+            "meter", max_digits=max_digits, decimal_places=decimal_places
+        )
+
+
+@pytest.mark.parametrize("max_digits, decimal_places", [(2, 0), (2, 2), (1, 0)])
+def decimal_init_success(max_digits, decimal_places):
+    DecimalQuantityField("meter", max_digits=max_digits, decimal_places=decimal_places)
+
+
+@pytest.mark.django_db
+class TestCustomDecimalUreg(TestCase):
+    def setUp(self):
+        # Custom Values are fined in confest.py
+        CustomUregDecimalHayBale.objects.create(custom_decimal=Decimal("5"))
+        CustomUregDecimalHayBale.objects.create(
+            custom_decimal=Decimal("5") * ureg.kilocustom,
+        )
+
+    def tearDown(self):
+        CustomUregHayBale.objects.all().delete()
+
+    def test_custom_ureg_decimal(self):
+        obj = CustomUregDecimalHayBale.objects.first()
+        self.assertEqual(str(obj.custom_decimal), "5.00 custom")
+
+        obj = CustomUregDecimalHayBale.objects.last()
+        self.assertEqual(str(obj.custom_decimal), "5000.00 custom")
 
 
 @pytest.mark.django_db
@@ -112,7 +173,9 @@ class TestCustomUreg(TestCase):
 
 class BaseMixinNullAble:
     EMPTY_MODEL: Type[Model]
-    get_database_number: Callable[[float], Union[float, int]]
+    FLOAT_SET_STR = "707.7"
+    FLOAT_SET = float(FLOAT_SET_STR)
+    DB_FLOAT_VALUE_EXPECTED = 707.7
 
     def setUp(self):
         self.EMPTY_MODEL.objects.create(name="Empty")
@@ -169,14 +232,14 @@ class BaseMixinNullAble:
 
     def test_accepts_assigned_float_number(self):
         new = self.EMPTY_MODEL(name="FloatNumber")
-        new.weight = 707.7
+        new.weight = self.FLOAT_SET
         new.save()
         obj = self.EMPTY_MODEL.objects.last()
         self.assertEqual(obj.name, "FloatNumber")
         self.assertEqual(obj.weight.units, "gram")
         # Note get_database_number is assumed to be int which works with postgresql
         # for other databases this might fail
-        self.assertEqual(obj.weight.magnitude, self.get_database_number(707.7))
+        self.assertEqual(obj.weight.magnitude, self.DB_FLOAT_VALUE_EXPECTED)
 
     def test_serialisation(self):
         serialized = serialize(
@@ -198,19 +261,24 @@ class BaseMixinNullAble:
 @pytest.mark.django_db
 class TestNullableFloat(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleFloat
-    get_database_number = float
 
 
 @pytest.mark.django_db
 class TestNullableInt(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleInt
-    get_database_number = round
+    DB_FLOAT_VALUE_EXPECTED = round(BaseMixinNullAble.FLOAT_SET)
 
 
 @pytest.mark.django_db
 class TestNullableBigInt(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleBigInt
-    get_database_number = round
+    DB_FLOAT_VALUE_EXPECTED = round(BaseMixinNullAble.FLOAT_SET)
+
+
+@pytest.mark.django_db
+class TestNullableDecimal(BaseMixinNullAble, TestCase):
+    EMPTY_MODEL = EmptyHayBaleDecimal
+    get_database_number = Decimal(BaseMixinNullAble.FLOAT_SET_STR)
 
 
 @pytest.mark.django_db

@@ -2,6 +2,7 @@ from django.db import models
 
 from quantityfield.fields import (
     BigIntegerQuantityField,
+    DecimalQuantityField,
     IntegerQuantityField,
     QuantityField,
 )
@@ -29,11 +30,20 @@ class EmptyHayBaleBigInt(models.Model):
     weight = BigIntegerQuantityField("gram", null=True)
 
 
+class EmptyHayBaleDecimal(models.Model):
+    name = models.CharField(max_length=20)
+    weight = DecimalQuantityField("gram", null=True, max_digits=10, decimal_places=2)
+
+
 class CustomUregHayBale(models.Model):
     # Custom is defined in settings in conftest.py
     custom = QuantityField("custom")
     custom_int = IntegerQuantityField("custom")
     custom_bigint = BigIntegerQuantityField("custom")
+
+
+class CustomUregDecimalHayBale(models.Model):
+    custom_decimal = DecimalQuantityField("custom", max_digits=10, decimal_places=2)
 
 
 class ChoicesDefinedInModel(models.Model):

@@ -5,6 +5,7 @@ from django.utils import formats
 from django.utils.translation import gettext_lazy as _
 
 import warnings
+from decimal import Decimal
 from pint import Quantity
 from typing import List, Optional, Type, Union
 
@@ -229,7 +230,7 @@ class QuantityFormFieldMixin(object):
             return None
 
         if units not in self.units:
-            raise ValidationError("%(units)s is not a valid choice" % locals())
+            raise ValidationError(_("%(units)s is not a valid choice") % locals())
 
         if self.localize:
             val = formats.sanitize_separators(value)
@@ -268,3 +269,69 @@ class IntegerQuantityField(QuantityFieldMixin, models.IntegerField):
 class BigIntegerQuantityField(QuantityFieldMixin, models.BigIntegerField):
     form_field_class = IntegerQuantityFormField
     to_number_type = staticmethod(raise_precision_error_on_imprecise_int)
+
+
+class DecimalQuantityFormField(QuantityFieldMixin, forms.DecimalField):
+    to_number_type = staticmethod(Decimal)
+
+
+class DecimalQuantityField(QuantityFieldMixin, models.DecimalField):
+    form_field_class = DecimalQuantityFormField
+    to_number_type = staticmethod(Decimal)
+
+    def __init__(
+        self,
+        base_units: str,
+        *args,
+        unit_choices: Optional[List[str]] = None,
+        verbose_name: str = None,
+        name: str = None,
+        max_digits: int = None,
+        decimal_places: int = None,
+        **kwargs
+    ):
+        # We try to be friendly as default django, if there are missing argument
+        # we throw an error early
+        if not isinstance(max_digits, int) or not isinstance(decimal_places, int):
+            raise ValueError(
+                _(
+                    "Invalid initialization for DecimalQuantityField! "
+                    "We expect max_digits and decimal_places to be set as integers."
+                )
+            )
+        # and we also check the values to be sane
+        if decimal_places < 0 or max_digits < 1 or decimal_places > max_digits:
+            raise ValueError(
+                _(
+                    "Invalid initialization for DecimalQuantityField! "
+                    "max_digits and decimal_places need to positive and max_digits"
+                    "needs to be larger than decimal_places and at least 1. "
+                    "So max_digits=%(max_digits)s and "
+                    "decimal_plactes=%(decimal_places)s "
+                    "are not valid parameters."
+                )
+                % locals()
+            )
+
+        super().__init__(
+            base_units,
+            *args,
+            unit_choices=unit_choices,
+            verbose_name=verbose_name,
+            name=name,
+            max_digits=max_digits,
+            decimal_places=decimal_places,
+            **kwargs
+        )
+
+    def get_db_prep_save(self, value, connection):
+        """
+        Get Value that shall be saved to database, make sure it is transformed
+        """
+        value = self.get_prep_value(value)
+        return super().get_db_prep_save(value, connection)
+
+    def to_python(self, value) -> Quantity:
+        if isinstance(value, (str, float, int)):
+            value = models.DecimalField.to_python(self, value)
+        return QuantityField.to_python(self, value)
