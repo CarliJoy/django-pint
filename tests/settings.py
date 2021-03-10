@@ -5,7 +5,7 @@ from pint import UnitRegistry
 try:
     from .local import PG_PASSWORD, PG_USER
 except ImportError:
-    # Define the defaults Travis CI/CD if any parameter was unser
+    # Define the defaults Travis CI/CD if any parameter was unset
     PG_USER = "django_pint"
     PG_PASSWORD = "not_secure_in_testing"
 

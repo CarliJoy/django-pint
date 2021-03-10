@@ -1,13 +1,13 @@
 
 [![Build Status](https://api.travis-ci.com/CarliJoy/django-pint.svg?branch=master)](https://travis-ci.com/github/CarliJoy/django-pint)
-[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/CarliJoy/django-pint.svg)](http://isitmaintained.com/project/CarliJoy/django-pint)
-[![Percentage of issues still open](http://isitmaintained.com/badge/open/CarliJoy/django-pint.svg)](http://isitmaintained.com/project/CarliJoy/django-pint)
 [![codecov](https://codecov.io/gh/CarliJoy/django-pint/branch/master/graph/badge.svg?token=I3M4CLILXE)](https://codecov.io/gh/CarliJoy/django-pint)
-[![PyPI](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
+[![PyPI Downloads](https://img.shields.io/pypi/dm/django-pint.svg?maxAge=2592000?style=plastic)](https://pypistats.org/packages/django-pint/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/django-pint.svg)](https://pypi.org/project/django-pint/)
-[![PyPI](https://img.shields.io/pypi/v/django-pint.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
+[![PyPI Version](https://img.shields.io/pypi/v/django-pint.svg?maxAge=2592000?style=plastic)](https://pypi.org/project/django-pint/)
+[![Project Status](https://img.shields.io/pypi/status/django-pint.svg)](https://pypi.org/project/SyncGitlab2MSProject/)
 [![Wheel Build](https://img.shields.io/pypi/wheel/django-pint.svg)](https://pypi.org/project/django-pint/)
 [![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://readthedocs.org/projects/django-pint/badge/?version=latest)](https://django-pint.readthedocs.io/en/latest/?badge=latest)
 
@@ -108,7 +108,7 @@ doing!
 Still only adding units should be okay.
 
 ## Set Up Local Testing
-As SQL Lite is not very script in handling types we use Postgres for testing.
+As SQL Lite is not very strict in handling types we use Postgres for testing.
 This will bring up some possible pitfalls using proper databases.
 To get the test running please install `postgresql` on your OS.
 You need to have `psycopg2-binary` installed (see `tox.ini` for further requirements)
@@ -117,7 +117,7 @@ for an example on HowTo set it up. Or simply run:
 `sudo -u postgres ./ci_setup_postgres.sh`.
 
 You can also use you local credentials by creating a `tests/local.py` file.
-See `test/conftest.py` for a description.
+See `test/settings.py` for a description.
 
 
 ## Local development environment with Docker
