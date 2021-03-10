@@ -4,6 +4,7 @@ virt: lxd
 dist: focal
 group: edge
 language: python
+services: postgresql
 cache:
   - directories:
       - $HOME/.cache/pre-commit
@@ -44,6 +45,9 @@ jobs:
 
 install:
         - travis_retry pip install tox tox-travis
+
+before_script:
+  - bash ci_setup_postgres.sh
 
 script: tox
 

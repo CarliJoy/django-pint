@@ -14,6 +14,8 @@ __pycache__/*
 .*.swp
 */.ipynb_checkpoints/*
 .DS_Store
+.env
+local.py
 
 # Project files
 .ropeproject
@@ -47,6 +49,7 @@ docs/_rst/*
 docs/_build/*
 cover/*
 MANIFEST
+tests/local.py
 
 # Per-project virtualenvs
 .venv*/
