@@ -237,9 +237,10 @@ class BaseMixinNullAble:
         obj = self.EMPTY_MODEL.objects.last()
         self.assertEqual(obj.name, "FloatNumber")
         self.assertEqual(obj.weight.units, "gram")
-        # Note get_database_number is assumed to be int which works with postgresql
-        # for other databases this might fail
+        # We expect the database to deliver the correct type, at least
+        # for postgresql this is true
         self.assertEqual(obj.weight.magnitude, self.DB_FLOAT_VALUE_EXPECTED)
+        self.assertIsInstance(obj.weight.magnitude, type(self.DB_FLOAT_VALUE_EXPECTED))
 
     def test_serialisation(self):
         serialized = serialize(
@@ -278,14 +279,47 @@ class TestNullableBigInt(BaseMixinNullAble, TestCase):
 @pytest.mark.django_db
 class TestNullableDecimal(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleDecimal
-    get_database_number = Decimal(BaseMixinNullAble.FLOAT_SET_STR)
+    DB_FLOAT_VALUE_EXPECTED = Decimal(BaseMixinNullAble.FLOAT_SET_STR)
+
+    def test_with_default_implementation(self):
+        new = self.EMPTY_MODEL(name="FloatNumber")
+        new.weight = self.FLOAT_SET
+        new.compare = self.FLOAT_SET
+        new.save()
+        obj = self.EMPTY_MODEL.objects.last()
+        self.assertEqual(obj.name, "FloatNumber")
+        self.assertEqual(obj.weight.units, "gram")
+        # We compare with the reference implementation of django, this should
+        # be always true no matter which database is used
+        self.assertEqual(obj.weight.magnitude, obj.compare)
+        self.assertIsInstance(obj.weight.magnitude, type(obj.compare))
+
+    def test_with_decimal(self):
+        new = self.EMPTY_MODEL(name="FloatNumber")
+        new.weight = Decimal(self.FLOAT_SET_STR)
+        new.compare = Decimal(self.FLOAT_SET_STR)
+        new.save()
+        obj = self.EMPTY_MODEL.objects.last()
+        self.assertEqual(obj.name, "FloatNumber")
+        self.assertEqual(obj.weight.units, "gram")
+        # We compare with the reference implementation of django, this should
+        # be always true no matter which database is used
+        self.assertEqual(obj.weight.magnitude, obj.compare)
+        self.assertIsInstance(obj.weight.magnitude, type(obj.compare))
+        # But we also expect (at least for postgresql) that this a Decimal
+        self.assertEqual(obj.weight.magnitude, self.DB_FLOAT_VALUE_EXPECTED)
+        self.assertIsInstance(obj.weight.magnitude, Decimal)
 
 
 @pytest.mark.django_db
 class TestFieldSave(TestCase):
     def setUp(self):
         HayBale.objects.create(
-            weight=100, weight_int=100, weight_bigint=100, name="grams"
+            weight=100,
+            weight_int=100,
+            weight_bigint=100,
+            weight_decimal=100,
+            name="grams",
         )
         HayBale.objects.create(weight=Quantity(10 * ureg.ounce), name="ounce")
         self.lightest = HayBale.objects.create(weight=1, name="lightest")
@@ -324,6 +358,13 @@ class TestFieldSave(TestCase):
         self.assertEqual(str(obj.weight), "100.0 gram")
         self.assertEqual(str(obj.weight_int), "100 gram")
         self.assertEqual(str(obj.weight_bigint), "100 gram")
+
+    def test_value_stored_as_correct_magnitude_type(self):
+        obj = HayBale.objects.first()
+        self.assertIsInstance(obj.weight, Quantity)
+        self.assertIsInstance(obj.weight.magnitude, float)
+        self.assertIsInstance(obj.weight_int.magnitude, int)
+        self.assertIsInstance(obj.weight_bigint.magnitude, int)
 
     def test_value_conversion(self):
         obj = HayBale.objects.first()

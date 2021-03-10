@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import DecimalField
 
 from quantityfield.fields import (
     BigIntegerQuantityField,
@@ -13,6 +14,9 @@ class HayBale(models.Model):
     weight = QuantityField("gram")
     weight_int = IntegerQuantityField("gram", blank=True, null=True)
     weight_bigint = BigIntegerQuantityField("gram", blank=True, null=True)
+    weight_decimal = DecimalField(
+        "gram", blank=True, null=True, max_digits=10, decimal_places=2
+    )
 
 
 class EmptyHayBaleFloat(models.Model):
@@ -33,6 +37,8 @@ class EmptyHayBaleBigInt(models.Model):
 class EmptyHayBaleDecimal(models.Model):
     name = models.CharField(max_length=20)
     weight = DecimalQuantityField("gram", null=True, max_digits=10, decimal_places=2)
+    # Value to compare with default implementation
+    compare = DecimalField(max_digits=10, decimal_places=2, null=True)
 
 
 class CustomUregHayBale(models.Model):
