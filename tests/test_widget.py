@@ -1,4 +1,6 @@
 # flake8: noqa: F841
+import pytest
+
 from django import forms
 from django.test import TestCase
 
@@ -255,6 +257,7 @@ class TestWidgets(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn("weight", form.errors)
 
+    @pytest.mark.django_db
     def test_widget_single_inputs_with_units(self):
         form = HayBaleFormDefaultWidgets(
             data={
@@ -268,6 +271,13 @@ class TestWidgets(TestCase):
         self.assertEqual(form.cleaned_data["weight_int"].magnitude, 10)
         self.assertEqual(str(form.cleaned_data["weight"].units), "gram")
         self.assertEqual(str(form.cleaned_data["weight_int"].units), "gram")
+        form.save()
+        obj: HayBale = HayBale.objects.last()
+        self.assertEqual(str(obj.weight.units), "gram")
+        self.assertEqual(str(obj.weight_int.units), "gram")
+        self.assertAlmostEqual(obj.weight.magnitude, 10.3)
+        self.assertEqual(obj.weight_int.magnitude, 10)
+        self.assertIsNone(obj.weight_bigint)
 
     def test_widget_int_precision_loss(self):
         form = HayBaleFormDefaultWidgets(
