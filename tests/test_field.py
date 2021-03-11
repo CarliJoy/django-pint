@@ -23,6 +23,7 @@ from tests.dummyapp.models import (
     BitIntFieldSaveModel,
     CustomUregDecimalHayBale,
     CustomUregHayBale,
+    DecimalFieldSaveModel,
     EmptyHayBaleBigInt,
     EmptyHayBaleDecimal,
     EmptyHayBaleFloat,
@@ -318,8 +319,8 @@ class FieldSaveTestBase:
     MODEL: Type[FieldSaveModel]
     EXPECTED_TYPE: Type = float
     DEFAULT_WEIGHT = 100
-    DEFAULT_WEIGHT_STR = "100"
-    DEFAULT_WEIGHT_QUANTITY_STR = "100 gram"
+    DEFAULT_WEIGHT_STR = "100.0"
+    DEFAULT_WEIGHT_QUANTITY_STR = "100.0 gram"
     HEAVIEST = 1000
     LIGHTEST = 1
     OUNCE_VALUE = 3.52739619496
@@ -400,8 +401,6 @@ class FieldSaveTestBase:
 class FloatLikeFieldSaveTestBase(FieldSaveTestBase):
     OUNCES = Quantity(10 * ureg.ounce)
     OUNCES_IN_GRAM = 283.49523125
-    DEFAULT_WEIGHT_STR = "100.0"
-    DEFAULT_WEIGHT_QUANTITY_STR = "100.0 gram"
 
     def test_stores_value_in_base_units(self):
         self.MODEL.objects.create(weight=self.OUNCES, name="ounce")
@@ -412,6 +411,16 @@ class FloatLikeFieldSaveTestBase(FieldSaveTestBase):
 
 class TestFloatFieldSave(FloatLikeFieldSaveTestBase, TestCase):
     MODEL = FloatFieldSaveModel
+
+
+class TestDecimalFieldSave(FloatLikeFieldSaveTestBase, TestCase):
+    MODEL = DecimalFieldSaveModel
+    DEFAULT_WEIGHT_STR = "100.00"
+    DEFAULT_WEIGHT_QUANTITY_STR = "100.00 gram"
+    OUNCES = Decimal("10") * ureg.ounce
+    OUNCE_VALUE = Decimal("3.52739619496")
+    OUNCES_IN_GRAM = Decimal("283.50")
+    EXPECTED_TYPE = Decimal
 
 
 class IntLikeFieldSaveTestBase(FieldSaveTestBase):
