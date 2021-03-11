@@ -7,56 +7,73 @@ from django.test import TestCase
 
 import json
 import warnings
+from decimal import Decimal
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
-from typing import Callable, Type, Union
+from typing import Type, Union
 
 from quantityfield.fields import (
     BigIntegerQuantityField,
+    DecimalQuantityField,
     IntegerQuantityField,
     QuantityField,
     QuantityFieldMixin,
 )
 from quantityfield.units import ureg
 from tests.dummyapp.models import (
+    BigIntFieldSaveModel,
+    CustomUregDecimalHayBale,
     CustomUregHayBale,
+    DecimalFieldSaveModel,
     EmptyHayBaleBigInt,
+    EmptyHayBaleDecimal,
     EmptyHayBaleFloat,
     EmptyHayBaleInt,
-    HayBale,
+    FieldSaveModel,
+    FloatFieldSaveModel,
+    IntFieldSaveModel,
 )
 
 Quantity = ureg.Quantity
 
 
 class BaseMixinTestFieldCreate:
+    # The field that needs to be tested
     FIELD: Type[Union[Field, QuantityFieldMixin]]
+    # Some fields, i.e. the decimal require default kwargs to work properly
+    DEFAULT_KWARGS = {}
 
     def test_sets_units(self):
-        test_grams = self.FIELD("gram")
+        test_grams = self.FIELD("gram", **self.DEFAULT_KWARGS)
         self.assertEqual(test_grams.units, ureg.gram)
 
     def test_fails_with_unknown_units(self):
         with self.assertRaises(UndefinedUnitError):
-            test_crazy_units = self.FIELD("zinghie")  # noqa: F841
+            test_crazy_units = self.FIELD(  # noqa: F841
+                "zinghie", **self.DEFAULT_KWARGS
+            )
 
     def test_base_units_is_required(self):
         with self.assertRaises(TypeError):
-            no_units = self.FIELD()  # noqa: F841
+            no_units = self.FIELD(**self.DEFAULT_KWARGS)  # noqa: F841
 
     def test_base_units_set_with_name(self):
-        okay_units = self.FIELD(base_units="meter")  # noqa: F841
+        okay_units = self.FIELD(base_units="meter", **self.DEFAULT_KWARGS)  # noqa: F841
 
     def test_base_units_are_invalid(self):
         with self.assertRaises(ValueError):
-            wrong_units = self.FIELD(None)  # noqa: F841
+            wrong_units = self.FIELD(None, **self.DEFAULT_KWARGS)  # noqa: F841
 
     def test_unit_choices_must_be_valid_units(self):
         with self.assertRaises(UndefinedUnitError):
-            self.FIELD(base_units="mile", unit_choices=["gunzu"])
+            self.FIELD(base_units="mile", unit_choices=["gunzu"], **self.DEFAULT_KWARGS)
 
     def test_unit_choices_must_match_base_dimensionality(self):
         with self.assertRaises(DimensionalityError):
-            self.FIELD(base_units="gram", unit_choices=["meter", "ounces"])
+            self.FIELD(
+                base_units="gram",
+                unit_choices=["meter", "ounces"],
+                **self.DEFAULT_KWARGS
+            )
 
 
 class TestFloatFieldCrate(BaseMixinTestFieldCreate, TestCase):
@@ -69,6 +86,54 @@ class TestIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
 
 class TestBigIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
     FIELD = BigIntegerQuantityField
+
+
+class TestDecimalFieldCreate(BaseMixinTestFieldCreate, TestCase):
+    FIELD = DecimalQuantityField
+    DEFAULT_KWARGS = {"max_digits": 10, "decimal_places": 2}
+
+
+@pytest.mark.parametrize(
+    "max_digits, decimal_places, error",
+    [
+        (None, None, "Invalid initialization.*expect.*integers.*"),
+        (10, None, "Invalid initialization.*expect.*integers.*"),
+        (None, 2, "Invalid initialization.*expect.*integers.*"),
+        (-1, 2, "Invalid initialization.*positive.*larger than decimal_places.*"),
+        (2, -1, "Invalid initialization.*positive.*larger than decimal_places.*"),
+        (2, 3, "Invalid initialization.*positive.*larger than decimal_places.*"),
+    ],
+)
+def test_decimal_init_fail(max_digits, decimal_places, error):
+    with pytest.raises(ValueError, match=error):
+        DecimalQuantityField(
+            "meter", max_digits=max_digits, decimal_places=decimal_places
+        )
+
+
+@pytest.mark.parametrize("max_digits, decimal_places", [(2, 0), (2, 2), (1, 0)])
+def decimal_init_success(max_digits, decimal_places):
+    DecimalQuantityField("meter", max_digits=max_digits, decimal_places=decimal_places)
+
+
+@pytest.mark.django_db
+class TestCustomDecimalUreg(TestCase):
+    def setUp(self):
+        # Custom Values are fined in confest.py
+        CustomUregDecimalHayBale.objects.create(custom_decimal=Decimal("5"))
+        CustomUregDecimalHayBale.objects.create(
+            custom_decimal=Decimal("5") * ureg.kilocustom,
+        )
+
+    def tearDown(self):
+        CustomUregHayBale.objects.all().delete()
+
+    def test_custom_ureg_decimal(self):
+        obj = CustomUregDecimalHayBale.objects.first()
+        self.assertEqual(str(obj.custom_decimal), "5.00 custom")
+
+        obj = CustomUregDecimalHayBale.objects.last()
+        self.assertEqual(str(obj.custom_decimal), "5000.00 custom")
 
 
 @pytest.mark.django_db
@@ -112,7 +177,9 @@ class TestCustomUreg(TestCase):
 
 class BaseMixinNullAble:
     EMPTY_MODEL: Type[Model]
-    get_database_number: Callable[[float], Union[float, int]]
+    FLOAT_SET_STR = "707.7"
+    FLOAT_SET = float(FLOAT_SET_STR)
+    DB_FLOAT_VALUE_EXPECTED = 707.7
 
     def setUp(self):
         self.EMPTY_MODEL.objects.create(name="Empty")
@@ -169,14 +236,15 @@ class BaseMixinNullAble:
 
     def test_accepts_assigned_float_number(self):
         new = self.EMPTY_MODEL(name="FloatNumber")
-        new.weight = 707.7
+        new.weight = self.FLOAT_SET
         new.save()
         obj = self.EMPTY_MODEL.objects.last()
         self.assertEqual(obj.name, "FloatNumber")
         self.assertEqual(obj.weight.units, "gram")
-        # Note get_database_number is assumed to be int which works with postgresql
-        # for other databases this might fail
-        self.assertEqual(obj.weight.magnitude, self.get_database_number(707.7))
+        # We expect the database to deliver the correct type, at least
+        # for postgresql this is true
+        self.assertEqual(obj.weight.magnitude, self.DB_FLOAT_VALUE_EXPECTED)
+        self.assertIsInstance(obj.weight.magnitude, type(self.DB_FLOAT_VALUE_EXPECTED))
 
     def test_serialisation(self):
         serialized = serialize(
@@ -198,48 +266,76 @@ class BaseMixinNullAble:
 @pytest.mark.django_db
 class TestNullableFloat(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleFloat
-    get_database_number = float
 
 
 @pytest.mark.django_db
 class TestNullableInt(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleInt
-    get_database_number = round
+    DB_FLOAT_VALUE_EXPECTED = round(BaseMixinNullAble.FLOAT_SET)
 
 
 @pytest.mark.django_db
 class TestNullableBigInt(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleBigInt
-    get_database_number = round
+    DB_FLOAT_VALUE_EXPECTED = round(BaseMixinNullAble.FLOAT_SET)
 
 
 @pytest.mark.django_db
-class TestFieldSave(TestCase):
+class TestNullableDecimal(BaseMixinNullAble, TestCase):
+    EMPTY_MODEL = EmptyHayBaleDecimal
+    DB_FLOAT_VALUE_EXPECTED = Decimal(BaseMixinNullAble.FLOAT_SET_STR)
+
+    def test_with_default_implementation(self):
+        new = self.EMPTY_MODEL(name="FloatNumber")
+        new.weight = self.FLOAT_SET
+        new.compare = self.FLOAT_SET
+        new.save()
+        obj = self.EMPTY_MODEL.objects.last()
+        self.assertEqual(obj.name, "FloatNumber")
+        self.assertEqual(obj.weight.units, "gram")
+        # We compare with the reference implementation of django, this should
+        # be always true no matter which database is used
+        self.assertEqual(obj.weight.magnitude, obj.compare)
+        self.assertIsInstance(obj.weight.magnitude, type(obj.compare))
+
+    def test_with_decimal(self):
+        new = self.EMPTY_MODEL(name="FloatNumber")
+        new.weight = Decimal(self.FLOAT_SET_STR)
+        new.compare = Decimal(self.FLOAT_SET_STR)
+        new.save()
+        obj = self.EMPTY_MODEL.objects.last()
+        self.assertEqual(obj.name, "FloatNumber")
+        self.assertEqual(obj.weight.units, "gram")
+        # We compare with the reference implementation of django, this should
+        # be always true no matter which database is used
+        self.assertEqual(obj.weight.magnitude, obj.compare)
+        self.assertIsInstance(obj.weight.magnitude, type(obj.compare))
+        # But we also expect (at least for postgresql) that this a Decimal
+        self.assertEqual(obj.weight.magnitude, self.DB_FLOAT_VALUE_EXPECTED)
+        self.assertIsInstance(obj.weight.magnitude, Decimal)
+
+
+class FieldSaveTestBase:
+    MODEL: Type[FieldSaveModel]
+    EXPECTED_TYPE: Type = float
+    DEFAULT_WEIGHT = 100
+    DEFAULT_WEIGHT_STR = "100.0"
+    DEFAULT_WEIGHT_QUANTITY_STR = "100.0 gram"
+    HEAVIEST = 1000
+    LIGHTEST = 1
+    OUNCE_VALUE = 3.52739619496
+    COMPARE_QUANTITY = Quantity(0.8 * ureg.ounce)  # 1 ounce = 28.34 grams
+
     def setUp(self):
-        HayBale.objects.create(
-            weight=100, weight_int=100, weight_bigint=100, name="grams"
+        self.MODEL.objects.create(
+            weight=self.DEFAULT_WEIGHT,
+            name="grams",
         )
-        HayBale.objects.create(weight=Quantity(10 * ureg.ounce), name="ounce")
-        self.lightest = HayBale.objects.create(weight=1, name="lightest")
-        self.heaviest = HayBale.objects.create(weight=1000, name="heaviest")
+        self.lightest = self.MODEL.objects.create(weight=self.LIGHTEST, name="lightest")
+        self.heaviest = self.MODEL.objects.create(weight=self.HEAVIEST, name="heaviest")
 
     def tearDown(self):
-        HayBale.objects.all().delete()
-
-    def test_stores_value_in_base_units(self):
-        item = HayBale.objects.get(name="ounce")
-        self.assertEqual(item.weight.units, "gram")
-        self.assertAlmostEqual(item.weight.magnitude, 283.49523125)
-
-    def test_store_integer_loss_of_precision(self):
-        with transaction.atomic():
-            with self.assertRaisesRegex(ValueError, "loss of precision"):
-                HayBale(name="x", weight=0, weight_int=Quantity(10 * ureg.ounce)).save()
-        with transaction.atomic():
-            with self.assertRaisesRegex(ValueError, "loss of precision"):
-                HayBale(
-                    name="x", weight=0, weight_bigint=Quantity(10 * ureg.ounce)
-                ).save()
+        self.MODEL.objects.all().delete()
 
     def test_fails_with_incompatible_units(self):
         # we have to wrap this in a transaction
@@ -248,52 +344,101 @@ class TestFieldSave(TestCase):
         metres = Quantity(100 * ureg.meter)
         with transaction.atomic():
             with self.assertRaises(DimensionalityError):
-                HayBale.objects.create(weight=metres, name="Should Fail")
+                self.MODEL.objects.create(weight=metres, name="Should Fail")
 
     def test_value_stored_as_quantity(self):
-        obj = HayBale.objects.first()
+        obj = self.MODEL.objects.first()
         self.assertIsInstance(obj.weight, Quantity)
-        self.assertEqual(str(obj.weight), "100.0 gram")
-        self.assertEqual(str(obj.weight_int), "100 gram")
-        self.assertEqual(str(obj.weight_bigint), "100 gram")
+        self.assertEqual(str(obj.weight), self.DEFAULT_WEIGHT_QUANTITY_STR)
+
+    def test_value_stored_as_correct_magnitude_type(self):
+        obj = self.MODEL.objects.first()
+        self.assertIsInstance(obj.weight, Quantity)
+        self.assertIsInstance(obj.weight.magnitude, self.EXPECTED_TYPE)
 
     def test_value_conversion(self):
-        obj = HayBale.objects.first()
+        obj = self.MODEL.objects.first()
         ounces = obj.weight.to(ureg.ounce)
-        self.assertAlmostEqual(ounces.magnitude, 3.52739619496)
+        self.assertAlmostEqual(ounces.magnitude, self.OUNCE_VALUE)
         self.assertEqual(ounces.units, ureg.ounce)
 
     def test_order_by(self):
-        qs = HayBale.objects.all().order_by("weight")
+        qs = list(self.MODEL.objects.all().order_by("weight"))
         self.assertEqual(qs[0].name, "lightest")
+        self.assertEqual(qs[-1].name, "heaviest")
+        self.assertEqual(qs[0], self.lightest)
+        self.assertEqual(qs[-1], self.heaviest)
 
     def test_comparison_with_number(self):
-        qs = HayBale.objects.filter(weight__gt=2)
+        qs = self.MODEL.objects.filter(weight__gt=2)
         self.assertNotIn(self.lightest, qs)
 
     def test_comparison_with_quantity(self):
         weight = Quantity(20 * ureg.gram)
-        qs = HayBale.objects.filter(weight__gt=weight)
+        qs = self.MODEL.objects.filter(weight__gt=weight)
         self.assertNotIn(self.lightest, qs)
 
     def test_comparison_with_quantity_respects_units(self):
-        # 1 ounce = 28.34 grams
-        weight = Quantity(0.8 * ureg.ounce)
-        qs = HayBale.objects.filter(weight__gt=weight)
+        qs = self.MODEL.objects.filter(weight__gt=self.COMPARE_QUANTITY)
         self.assertNotIn(self.lightest, qs)
 
     def test_comparison_is_actually_numeric(self):
-        qs = HayBale.objects.filter(weight__gt=1.0)
+        qs = self.MODEL.objects.filter(weight__gt=1.0)
         self.assertNotIn(self.lightest, qs)
 
     def test_serialisation(self):
         serialized = serialize(
             "json",
             [
-                HayBale.objects.first(),
+                self.MODEL.objects.first(),
             ],
         )
         deserialized = json.loads(serialized)
         obj = deserialized[0]["fields"]
-        self.assertEqual(obj["weight"], "100.0")
-        self.assertEqual(obj["weight_int"], "100")
+        self.assertEqual(obj["weight"], self.DEFAULT_WEIGHT_STR)
+
+
+class FloatLikeFieldSaveTestBase(FieldSaveTestBase):
+    OUNCES = Quantity(10 * ureg.ounce)
+    OUNCES_IN_GRAM = 283.49523125
+
+    def test_stores_value_in_base_units(self):
+        self.MODEL.objects.create(weight=self.OUNCES, name="ounce")
+        item = self.MODEL.objects.get(name="ounce")
+        self.assertEqual(item.weight.units, "gram")
+        self.assertAlmostEqual(item.weight.magnitude, self.OUNCES_IN_GRAM)
+
+
+class TestFloatFieldSave(FloatLikeFieldSaveTestBase, TestCase):
+    MODEL = FloatFieldSaveModel
+
+
+class TestDecimalFieldSave(FloatLikeFieldSaveTestBase, TestCase):
+    MODEL = DecimalFieldSaveModel
+    DEFAULT_WEIGHT_STR = "100.00"
+    DEFAULT_WEIGHT_QUANTITY_STR = "100.00 gram"
+    OUNCES = Decimal("10") * ureg.ounce
+    OUNCE_VALUE = Decimal("3.52739619496")
+    OUNCES_IN_GRAM = Decimal("283.50")
+    EXPECTED_TYPE = Decimal
+
+
+class IntLikeFieldSaveTestBase(FieldSaveTestBase):
+    DEFAULT_WEIGHT_STR = "100"
+    DEFAULT_WEIGHT_QUANTITY_STR = "100 gram"
+    EXPECTED_TYPE = int
+    # 1 ounce = 28.34 grams -> we use something that can be stored as int
+    COMPARE_QUANTITY = Quantity(28 * 1000 * ureg.milligram)
+
+    def test_store_integer_loss_of_precision(self):
+        with transaction.atomic():
+            with self.assertRaisesRegex(ValueError, "loss of precision"):
+                self.MODEL(name="x", weight=Quantity(10 * ureg.ounce)).save()
+
+
+class TestIntFieldSave(IntLikeFieldSaveTestBase, TestCase):
+    MODEL = IntFieldSaveModel
+
+
+class TestBigIntFieldSave(IntLikeFieldSaveTestBase, TestCase):
+    MODEL = BigIntFieldSaveModel
