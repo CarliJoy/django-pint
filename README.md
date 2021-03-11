@@ -56,7 +56,10 @@ Quantities are stored as float (Django FloatField) and retrieved like any other 
 
 If your base unit is atomic (i.e. can be represented by an integer), you may also use `IntegerQuantityField` and `BigIntegerQuantityField`.
 
-You can also pass Quantity objects to be stored in models. These are automatically converted to the units defined for the field ( but can be converted to something else when retrieved of course ).
+If you prefer exact units you can use the `DecimalQuantityField`
+
+You can also pass Quantity objects to be stored in models. These are automatically converted to the units defined for the field
+( but can be converted to something else when retrieved of course ).
 
     >> from quantityfield.units import ureg
     >> Quantity = ureg.Quantity

@@ -2,6 +2,12 @@
 Changelog
 =========
 
+Version 0.6
+===========
+- Added ``DecimalQuantityField``
+- Improved Testing a lot, the different field types are tested individually.
+  Now we have a total of 142 tests covering 98% of the code.
+
 Version 0.5
 ===========
 - API Change: Units are now defined project wide in settings and not by defining ureg
