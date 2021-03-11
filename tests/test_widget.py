@@ -1,6 +1,4 @@
 # flake8: noqa: F841
-import pytest
-
 from django import forms
 from django.test import TestCase
 
@@ -36,15 +34,6 @@ class HayBaleFormDefaultWidgets(forms.ModelForm):
     weight_int = IntegerQuantityFormField(
         base_units="gram", unit_choices=["ounce", "gram"], widget=forms.NumberInput
     )
-
-    class Meta:
-        model = HayBale
-        exclude = ["weight_bigint"]
-
-
-class HayBaleFormDefaultFields(forms.ModelForm):
-    weight = forms.FloatField()
-    weight_int = forms.IntegerField()
 
     class Meta:
         model = HayBale
@@ -189,6 +178,7 @@ class TestWidgets(TestCase):
             )  # noqa: F841
 
     def test_widget_display(self):
+        # TODO Move to integration test
         bale = HayBale.objects.create(name="Fritz", weight=20)
         form = HayBaleForm(instance=bale)
         html = str(form)
@@ -199,22 +189,6 @@ class TestWidgets(TestCase):
         )
 
         self.assertIn('<option value="ounce">ounce</option>', html)
-
-    def test_widget_valid_inputs_with_units(self):
-        form = HayBaleForm(
-            data={
-                "name": "testing",
-                "weight_0": "10.3",
-                "weight_1": "gram",
-                "weight_int_0": "10",
-                "weight_int_1": "gram",
-            }
-        )
-        self.assertTrue(form.is_valid())
-        self.assertAlmostEqual(form.cleaned_data["weight"].magnitude, 10.3)
-        self.assertEqual(form.cleaned_data["weight_int"].magnitude, 10)
-        self.assertEqual(str(form.cleaned_data["weight"].units), "gram")
-        self.assertEqual(str(form.cleaned_data["weight_int"].units), "gram")
 
     def test_widget_invalid_float(self):
         form = HayBaleForm(
@@ -265,52 +239,6 @@ class TestWidgets(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn("weight", form.errors)
-
-    @pytest.mark.django_db
-    def test_widget_single_inputs_with_units(self):
-        form = HayBaleFormDefaultWidgets(
-            data={
-                "name": "testing",
-                "weight": "10.3",
-                "weight_int": "10",
-            }
-        )
-        self.assertTrue(form.is_valid())
-        self.assertAlmostEqual(form.cleaned_data["weight"].magnitude, 10.3)
-        self.assertEqual(form.cleaned_data["weight_int"].magnitude, 10)
-        self.assertEqual(str(form.cleaned_data["weight"].units), "gram")
-        self.assertEqual(str(form.cleaned_data["weight_int"].units), "gram")
-        form.save()
-        obj: HayBale = HayBale.objects.last()
-        self.assertEqual(str(obj.weight.units), "gram")
-        self.assertEqual(str(obj.weight_int.units), "gram")
-        self.assertAlmostEqual(obj.weight.magnitude, 10.3)
-        self.assertEqual(obj.weight_int.magnitude, 10)
-        self.assertIsNone(obj.weight_bigint)
-
-    @pytest.mark.django_db
-    def test_widget_single_inputs_with_units_and_default_form_fields(self):
-        """
-        Test with default form fields, will still create the correct
-        database entries
-        """
-        form = HayBaleFormDefaultFields(
-            data={
-                "name": "testing",
-                "weight": "10.3",
-                "weight_int": "10",
-            }
-        )
-        self.assertTrue(form.is_valid())
-        self.assertAlmostEqual(form.cleaned_data["weight"], 10.3)
-        self.assertEqual(form.cleaned_data["weight_int"], 10)
-        form.save()
-        obj: HayBale = HayBale.objects.last()
-        self.assertEqual(str(obj.weight.units), "gram")
-        self.assertEqual(str(obj.weight_int.units), "gram")
-        self.assertAlmostEqual(obj.weight.magnitude, 10.3)
-        self.assertEqual(obj.weight_int.magnitude, 10)
-        self.assertIsNone(obj.weight_bigint)
 
     def test_widget_int_precision_loss(self):
         form = HayBaleFormDefaultWidgets(

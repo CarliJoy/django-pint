@@ -25,7 +25,7 @@ class IntFieldSaveModel(FieldSaveModel):
     weight = IntegerQuantityField("gram")
 
 
-class BitIntFieldSaveModel(FieldSaveModel):
+class BigIntFieldSaveModel(FieldSaveModel):
     weight = BigIntegerQuantityField("gram")
 
 

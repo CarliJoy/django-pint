@@ -20,7 +20,7 @@ from quantityfield.fields import (
 )
 from quantityfield.units import ureg
 from tests.dummyapp.models import (
-    BitIntFieldSaveModel,
+    BigIntFieldSaveModel,
     CustomUregDecimalHayBale,
     CustomUregHayBale,
     DecimalFieldSaveModel,
@@ -441,4 +441,4 @@ class TestIntFieldSave(IntLikeFieldSaveTestBase, TestCase):
 
 
 class TestBigIntFieldSave(IntLikeFieldSaveTestBase, TestCase):
-    MODEL = BitIntFieldSaveModel
+    MODEL = BigIntFieldSaveModel
