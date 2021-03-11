@@ -9,14 +9,35 @@ from quantityfield.fields import (
 )
 
 
+class FieldSaveModel(models.Model):
+    name = models.CharField(max_length=20)
+    weight = ...
+
+    class Meta:
+        abstract = True
+
+
+class FloatFieldSaveModel(FieldSaveModel):
+    weight = QuantityField("gram")
+
+
+class IntFieldSaveModel(FieldSaveModel):
+    weight = IntegerQuantityField("gram")
+
+
+class BitIntFieldSaveModel(FieldSaveModel):
+    weight = BigIntegerQuantityField("gram")
+
+
+class DecimalFieldSaveModel(FieldSaveModel):
+    weight = DecimalQuantityField("gram", max_digits=10, decimal_places=2)
+
+
 class HayBale(models.Model):
     name = models.CharField(max_length=20)
     weight = QuantityField("gram")
     weight_int = IntegerQuantityField("gram", blank=True, null=True)
     weight_bigint = BigIntegerQuantityField("gram", blank=True, null=True)
-    weight_decimal = DecimalField(
-        "gram", blank=True, null=True, max_digits=10, decimal_places=2
-    )
 
 
 class EmptyHayBaleFloat(models.Model):
