@@ -2,6 +2,11 @@
 Changelog
 =========
 
+Version 0.6.1
+=============
+- Fix wrong mixin type for DecimalQuantityFormField (`merge request #31 from ikseek`_)
+
+
 Version 0.6
 ===========
 - Added ``DecimalQuantityField``
@@ -35,4 +40,5 @@ Version 0.4
 .. _Carli* Freudenberg: https://github.com/CarliJoy
 .. _merge request #11 from jonashaag: https://github.com/CarliJoy/django-pint/pull/11
 .. _merge request #5 from cornelv: https://github.com/CarliJoy/django-pint/pull/5
+.. _merge request #31 from ikseek: https://github.com/CarliJoy/django-pint/pull/31
 .. _black: https://github.com/psf/black

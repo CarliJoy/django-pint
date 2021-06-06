@@ -8,3 +8,4 @@ Contributors
 * Cornel Vaideanu <cornel.vaideanu@gmail.com>
 * Alex Bhandari <alexbhandari@gmail.com>
 * Jonas Haag <jonas@lophus.org>
+* Igor Kozyrenko <igor@ikseek.com>
