@@ -5,7 +5,11 @@ from django.test import TestCase
 
 from decimal import Decimal
 
-from quantityfield.fields import IntegerQuantityFormField, QuantityFormField
+from quantityfield.fields import (
+    DecimalQuantityFormField,
+    IntegerQuantityFormField,
+    QuantityFormField,
+)
 from tests.dummyapp.models import (
     BigIntFieldSaveModel,
     DecimalFieldSaveModel,
@@ -39,7 +43,7 @@ class DefaultFormBigInt(forms.ModelForm):
 
 
 class DefaultFormDecimal(forms.ModelForm):
-    weight = QuantityFormField(base_units="gram", unit_choices=["ounce", "gram"])
+    weight = DecimalQuantityFormField(base_units="gram", unit_choices=["ounce", "gram"])
 
     class Meta:
         model = DecimalFieldSaveModel

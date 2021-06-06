@@ -271,7 +271,7 @@ class BigIntegerQuantityField(QuantityFieldMixin, models.BigIntegerField):
     to_number_type = staticmethod(raise_precision_error_on_imprecise_int)
 
 
-class DecimalQuantityFormField(QuantityFieldMixin, forms.DecimalField):
+class DecimalQuantityFormField(QuantityFormFieldMixin, forms.DecimalField):
     to_number_type = staticmethod(Decimal)
 
 
