@@ -4,8 +4,8 @@ Changelog
 
 Version 0.6.1
 =============
-- Fix wrong mixin type for DecimalQuantityFormField (`merge request #31 from ikseek`_)
-
+- Fix wrong mixin type for ``DecimalQuantityFormField`` (`merge request #31 from ikseek`_)
+- Fix ``BigIntegerQuantityField`` and ``IntegerQuantityField`` showing wrong widget in django admin `issue #34`_
 
 Version 0.6
 ===========
@@ -41,4 +41,5 @@ Version 0.4
 .. _merge request #11 from jonashaag: https://github.com/CarliJoy/django-pint/pull/11
 .. _merge request #5 from cornelv: https://github.com/CarliJoy/django-pint/pull/5
 .. _merge request #31 from ikseek: https://github.com/CarliJoy/django-pint/pull/31
+.. _issue #34: https://github.com/CarliJoy/django-pint/issues/34
 .. _black: https://github.com/psf/black

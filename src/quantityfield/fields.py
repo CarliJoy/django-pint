@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import formats
@@ -197,10 +198,40 @@ class QuantityFormFieldMixin(object):
 
         check_matching_unit_dimension(self.ureg, self.base_units, self.units)
 
-        kwargs["widget"] = kwargs.get(
-            "widget",
-            QuantityWidget(base_units=self.base_units, allowed_types=self.units),
-        )
+        def is_special_admin_widget(widget) -> bool:
+            """
+            There are some special django admin widgets, defined
+            in django/contrib/admin/options.py in the variable
+            FORMFIELD_FOR_DBFIELD_DEFAULTS
+            The intention for Integer and BigIntegerField is only to
+            define the width.
+
+            They are set through a complicated process of the
+            modelform_factory setting formfield_callback to
+            ModelForm.formfield_fo_dbfield
+
+            As they will overwrite our Widget we check for them and
+            will ignore them, if they are set as attribute.
+
+            We still will allow subclasses, so the end user has still
+            the possibility to use this widget.
+            """
+            WIDGETS_TO_IGNORE = [
+                FORMFIELD_FOR_DBFIELD_DEFAULTS[models.IntegerField],
+                FORMFIELD_FOR_DBFIELD_DEFAULTS[models.BigIntegerField],
+            ]
+            classes_to_ignore = [
+                ignored_widget["widget"].__name__
+                for ignored_widget in WIDGETS_TO_IGNORE
+            ]
+            return getattr(widget, "__name__") in classes_to_ignore
+
+        widget = kwargs.get("widget", None)
+        if widget is None or is_special_admin_widget(widget):
+            widget = QuantityWidget(
+                base_units=self.base_units, allowed_types=self.units
+            )
+        kwargs["widget"] = widget
         super(QuantityFormFieldMixin, self).__init__(*args, **kwargs)
 
     def prepare_value(self, value):
