@@ -1,8 +1,4 @@
 from pathlib import Path
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 from pint import UnitRegistry
 
 # Allow user specific postgres credentials to be provided
@@ -47,6 +43,10 @@ except ImportError:
         dummy_app_load_string = "dummyapp"
 else:
     dummy_app_load_string = "tests.dummyapp"
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 TEMPLATES = [
     {
