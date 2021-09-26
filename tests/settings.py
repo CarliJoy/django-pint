@@ -47,6 +47,8 @@ else:
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+DEBUG = True
+STATIC_URL = "/static/"
 
 TEMPLATES = [
     {
@@ -93,13 +95,12 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 INSTALLED_APPS = [
-    "django.contrib.auth",
     "django.contrib.admin",
+    "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
-    "django.contrib.staticfiles",
     "django.contrib.messages",
-    "django.contrib.sites",
+    "django.contrib.staticfiles",
     "quantityfield",
     dummy_app_load_string,
 ]
