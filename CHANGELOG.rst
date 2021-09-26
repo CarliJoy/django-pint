@@ -2,6 +2,12 @@
 Changelog
 =========
 
+Version 0.6.2
+=============
+- only a internal technical release as the PyPi token had to be removed
+  due to security breach before and no new token was set before
+  releasing 0.6.1
+
 Version 0.6.1
 =============
 - Fix wrong mixin type for ``DecimalQuantityFormField`` (`merge request #31 from ikseek`_)
