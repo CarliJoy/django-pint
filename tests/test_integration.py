@@ -197,13 +197,13 @@ class IntegrationTestBaseInt(IntegrationTestBase):
     OUTPUT_MAGNITUDE = 10
 
 
-class TestIntFiledWigetIntegration(IntegrationTestBaseInt, TestCase):
+class TestIntFiledWidgetIntegration(IntegrationTestBaseInt, TestCase):
     DEFAULT_FORM = DefaultFormInt
     DEFAULT_FIELDS_FORM = DefaultFormFieldsInt
     DEFAULT_WIDGET_FORM = DefaultWidgetsFormInt
 
 
-class TestBigIntFiledWigetIntegration(IntegrationTestBaseInt, TestCase):
+class TestBigIntFiledWidgetIntegration(IntegrationTestBaseInt, TestCase):
     DEFAULT_FORM = DefaultFormBigInt
     DEFAULT_FIELDS_FORM = DefaultFormFieldsBigInt
     DEFAULT_WIDGET_FORM = DefaultWidgetsFormBigInt
