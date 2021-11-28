@@ -6,67 +6,83 @@ group: edge
 language: python
 services: postgresql
 cache:
-  - directories:
-      - $HOME/.cache/pre-commit
-      - $TRAVIS_BUILD_DIR/.eggs
-  - pip
-
+- directories:
+  - "$HOME/.cache/pre-commit"
+  - "$TRAVIS_BUILD_DIR/.eggs"
+- pip
 stages:
-  - lint
-  - test
-  - deploy
-
-# Taken from https://github.com/encode/django-rest-framework/blob/master/.travis.yml
-# But do not check the most up to date version as it seem to be in compatible with django_nose
+- lint
+- test
+- deploy
 jobs:
-    fast_finish: true
-    include:
-      - stage: lint
-        python: "3.9"
-        install: travis_retry pip install pre-commit
-        script: pre-commit run --all-files
-        env: DJANGO="none"
-
-      - { stage: test, python: "3.6", env: DJANGO=2.2 }
-      - { stage: test, python: "3.6", env: DJANGO=3.0 }
-      - { stage: test, python: "3.6", env: DJANGO=3.1 }
-      - { stage: test, python: "3.6", env: DJANGO=3.2 }
-
-      - { stage: test, python: "3.7", env: DJANGO=2.2 }
-      - { stage: test, python: "3.7", env: DJANGO=3.0 }
-      - { stage: test, python: "3.7", env: DJANGO=3.1 }
-      - { stage: test, python: "3.7", env: DJANGO=3.2 }
-
-      - { stage: test, python: "3.8", env: DJANGO=2.2 }
-      - { stage: test, python: "3.8", env: DJANGO=3.0 }
-      - { stage: test, python: "3.8", env: DJANGO=3.1 }
-      - { stage: test, python: "3.8", env: DJANGO=3.2 }
-
-      - { stage: test, python: "3.9", env: DJANGO=3.1 }
-      - { stage: test, python: "3.9", env: DJANGO=3.2 }
-
-      - { stage: test, python: "3.10", env: DJANGO=3.2 }
-      - { stage: deploy, python: "3.10", env: STAGE="release", script: skip, install: skip }
-
-
+  fast_finish: true
+  include:
+  - stage: lint
+    python: '3.9'
+    install: travis_retry pip install pre-commit
+    script: pre-commit run --all-files
+    env: DJANGO="none"
+  - stage: test
+    python: '3.6'
+    env: DJANGO=2.2
+  - stage: test
+    python: '3.6'
+    env: DJANGO=3.0
+  - stage: test
+    python: '3.6'
+    env: DJANGO=3.1
+  - stage: test
+    python: '3.6'
+    env: DJANGO=3.2
+  - stage: test
+    python: '3.7'
+    env: DJANGO=2.2
+  - stage: test
+    python: '3.7'
+    env: DJANGO=3.0
+  - stage: test
+    python: '3.7'
+    env: DJANGO=3.1
+  - stage: test
+    python: '3.7'
+    env: DJANGO=3.2
+  - stage: test
+    python: '3.8'
+    env: DJANGO=2.2
+  - stage: test
+    python: '3.8'
+    env: DJANGO=3.0
+  - stage: test
+    python: '3.8'
+    env: DJANGO=3.1
+  - stage: test
+    python: '3.8'
+    env: DJANGO=3.2
+  - stage: test
+    python: '3.9'
+    env: DJANGO=3.1
+  - stage: test
+    python: '3.9'
+    env: DJANGO=3.2
+  - stage: deploy
+    python: '3.9'
+    env: STAGE="release"
+    script: skip
+    install: skip
 install:
-        - travis_retry pip install tox tox-travis
-
+- travis_retry pip install tox tox-travis
 before_script:
-  - bash ci_setup_postgres.sh
-
+- bash ci_setup_postgres.sh
 script: tox
-
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
+- bash <(curl -s https://codecov.io/bash)
 deploy:
   provider: pypi
   username: __token__
   server: https://upload.pypi.org/legacy/
   distributions: sdist bdist_wheel
   password:
-    secure: "lOJTg8yx0OzNzViTLvdfhaI7/bznQEEYzsSciLZl/8SUlgoOpjjJmbQ+NjoHqPlYggyq3L5sj06uSHDllIuahlbtltAegF2MACoylJE2kaE9z6XjQd0GFN/jidJKRvNnOg4mAjDhrKCVtrrpfKSBvcFcD79OdQOARXkM7p0o0KBFAlyu1BkdFeFFhejm5oIBVNbRNbG66XMXis3SP+aXWWlZsCBxaO/0Z2svAmheQpSKb4YYzgh0pUHdEHI27YVsVA19f3pd/KkT9ZT8M1enRKh/Qywo+FrCDDE08fui4tXPPx9Zl7Bui4JFZ1UsZXqvKpCZPUpq6KPbfyeO20VDXld5ku+rAXwbzz/XRuP/KCZw4nADFkunhxRZxVbq7aEhrmhJzSL+0HoiP2s8pQtcQMZTmpVIZBZFeRXRnkJuxJPldNyEz6gtxvh2JHvLWXDj/SlBKk+AB9xTs2Kxq/WVZgKumGTHmioB9NeG01K+7c7gAIvV192xf+hiHkJazsgovai+pg05bY3Ntdnp52YAQrzL6kFCu68AeCRoai6O9bi8oQymcDqp1si1NGH+xJm2xdmv+DQaZpZmDu2BEu4Eohf1WHY9Tl8/wAwmQoP1V8LzfHqRyDI1hY3VfBox8Pq5mNgaCF7NskVlIhaZWP/x/mPqOOuGyfxR5htbgqFiEP0="
+    secure: VEpg5XE97eZj5MB7WEfgeqB3oEUK/je09YIn6H2zE0KSLite4KCrrDI5qexKHObkxRfDhWA9WBua5LjEHMpBbF/HUCyhbWF1Mx4/Hoi2QdQTGOP2ADcKVS27BzxSIJV1QbCyADyDbNvXWvqbbJWTXsI2ixTYuwObHiNT4ZgpLC79QHqQNhWzbai4I/izEhLm+uJOhuaQC+XESL35/HAVFb0qiA+kUhZXK++cdFaBwrZkNQ5XfKPOdBxwHg6ZN9gWXfkGyyqw6lGi+CguXahRmUM7NFvACKxR5rq818S0G/OoILikJBqali7Q7mAMD5sKw6XDz3/DCZj4vKtipxCuhPewMwDKEaMQ/dhZU0owNlk0uSQb68WujmRThWyL/oLZsRCxor1BHViNhaeWFgelcJeUhPRiSOsWkWUnt9kNZr0YUn6Fh/k7gkWiItlAwDvt/nZSYuTzzzrqDNV2kA7vy1JsZ2uFd8bQOS6zFKRj37RdXvgdbh2zHRFezD0qGynNxRByAxjUlxR2ht8ySkxYfonF/jbXvqBy2Tr1XosssGNEuG+RCZ+PlbMMzYKyIYNL+GbiTBSImL3WHJS75ix5BQiqyTBOmhMBHt1aojqzsHO6Y62th0FTQzzOQxrMp5gf012K8wb0joHW2MAc7A6S09NgCUjI4lubL0N66iZIdJU=
   on:
     tags: true
-    condition: $STAGE =~ ^(release)$
+    condition: "$STAGE =~ ^(release)$"
