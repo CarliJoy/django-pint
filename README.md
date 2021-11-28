@@ -19,7 +19,13 @@ A Small django field extension allowing you to store quantities in certain units
 ## Compatibility
 
 
-Requires django >= 2.2, and python 3.6/3.7/3.8/3.9
+Requires django >= 2.2, and python 3.6/3.7/3.8/3.9/3.10
+
+Test with the following combinations:
+* Django 2.2 (Python 3.6, 3.7, 3.8)
+* Django 3.0 (Python 3.6, 3.7, 3.8)
+* Django 3.1 (Python 3.6, 3.7, 3.8, 3.9)
+* Django 3.2 (Python 3.6, 3.7, 3.8, 3.9, 3.10)
 
 ## Installation
 
