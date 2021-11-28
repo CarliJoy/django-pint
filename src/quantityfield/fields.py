@@ -5,16 +5,25 @@ from django.db import models
 from django.utils import formats
 from django.utils.translation import gettext_lazy as _
 
+import datetime
 import warnings
 from decimal import Decimal
 from pint import Quantity
-from typing import List, Optional, Type, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
 
 from quantityfield.exceptions import PrecisionLoss
 from quantityfield.helper import check_matching_unit_dimension
 
 from .units import ureg
 from .widgets import QuantityWidget
+
+DJANGO_JSON_SERIALIZABLE_BASE = Union[
+    None, bool, str, int, float, complex, datetime.datetime
+]
+DJANGO_JSON_SERIALIZABLE = Union[
+    Sequence[DJANGO_JSON_SERIALIZABLE_BASE], Dict[str, DJANGO_JSON_SERIALIZABLE_BASE]
+]
+NUMBER_TYPE = Union[int, float, Decimal]
 
 
 def safe_to_int(value: Union[float, str, int], exception: Type[Exception]) -> int:
@@ -86,16 +95,41 @@ class QuantityFieldMixin(object):
         super(QuantityFieldMixin, self).__init__(*args, **kwargs)
 
     @property
-    def units(self):
+    def units(self) -> str:
         return self.base_units
 
-    def deconstruct(self):
-        name, path, args, kwargs = super(QuantityFieldMixin, self).deconstruct()
+    def deconstruct(
+        self,
+    ) -> Tuple[
+        str,
+        str,
+        Sequence[DJANGO_JSON_SERIALIZABLE],
+        Dict[str, DJANGO_JSON_SERIALIZABLE],
+    ]:
+        """
+        Return enough information to recreate the field as a 4-tuple:
+
+         * The name of the field on the model, if contribute_to_class() has
+           been run.
+         * The import path of the field, including the class:e.g.
+           django.db.models.IntegerField This should be the most portable
+           version, so less specific may be better.
+         * A list of positional arguments.
+         * A dict of keyword arguments.
+
+        """
+        super_deconstruct = getattr(super(), "deconstruct", None)
+        if not callable(super_deconstruct):
+            raise NotImplementedError(
+                "Tried to use Mixin on a class that has no deconstruct function. "
+            )
+        name, path, args, kwargs = super_deconstruct()
         kwargs["base_units"] = self.base_units
         kwargs["unit_choices"] = self.unit_choices
         return name, path, args, kwargs
 
     def get_prep_value(self, value):
+        """Perform preliminary non-db specific value checks and conversions."""
         # we store the value in the base units defined for this field
         if value is None:
             return None
@@ -123,12 +157,12 @@ class QuantityFieldMixin(object):
         value = self.value_from_object(obj)
         return str(self.get_prep_value(value))
 
-    def from_db_value(self, value, *args, **kwargs):
+    def from_db_value(self, value: Any, *args, **kwargs) -> Optional[Quantity]:
         if value is None:
-            return value
+            return None
         return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
 
-    def to_python(self, value) -> Quantity:
+    def to_python(self, value) -> Optional[Quantity]:
         if isinstance(value, self.ureg.Quantity):
             return value
 
@@ -364,5 +398,6 @@ class DecimalQuantityField(QuantityFieldMixin, models.DecimalField):
 
     def to_python(self, value) -> Quantity:
         if isinstance(value, (str, float, int)):
+            # Make s
             value = models.DecimalField.to_python(self, value)
         return QuantityField.to_python(self, value)
