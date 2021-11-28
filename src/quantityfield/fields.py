@@ -11,7 +11,6 @@ from decimal import Decimal
 from pint import Quantity
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, cast
 
-from quantityfield.exceptions import PrecisionLoss
 from quantityfield.helper import check_matching_unit_dimension
 
 from .units import ureg
@@ -317,8 +316,6 @@ class QuantityFormFieldMixin(object):
 
         try:
             val = self.to_number_type(val)
-        except PrecisionLoss as e:
-            raise ValidationError(str(e), code="precision_loss")
         except (ValueError, TypeError):
             raise ValidationError(self.error_messages["invalid"], code="invalid")
 

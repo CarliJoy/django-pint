@@ -1,2 +1,0 @@
-class PrecisionLoss(ValueError):
-    pass
