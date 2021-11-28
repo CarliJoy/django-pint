@@ -271,13 +271,13 @@ class TestNullableFloat(BaseMixinNullAble, TestCase):
 @pytest.mark.django_db
 class TestNullableInt(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleInt
-    DB_FLOAT_VALUE_EXPECTED = round(BaseMixinNullAble.FLOAT_SET)
+    DB_FLOAT_VALUE_EXPECTED = int(BaseMixinNullAble.FLOAT_SET)
 
 
 @pytest.mark.django_db
 class TestNullableBigInt(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleBigInt
-    DB_FLOAT_VALUE_EXPECTED = round(BaseMixinNullAble.FLOAT_SET)
+    DB_FLOAT_VALUE_EXPECTED = int(BaseMixinNullAble.FLOAT_SET)
 
 
 @pytest.mark.django_db
@@ -430,7 +430,11 @@ class IntLikeFieldSaveTestBase(FieldSaveTestBase):
     # 1 ounce = 28.34 grams -> we use something that can be stored as int
     COMPARE_QUANTITY = Quantity(28 * 1000 * ureg.milligram)
 
+    @pytest.mark.xfail(reason="Not anymore supported")
     def test_store_integer_loss_of_precision(self):
+        # We don't support this anymore, as it introduces to many edge cases
+        # Also the normal int field accepts floats, so this should be handled
+        # by the forms!
         with transaction.atomic():
             with self.assertRaisesRegex(ValueError, "loss of precision"):
                 self.MODEL(name="x", weight=Quantity(10 * ureg.ounce)).save()

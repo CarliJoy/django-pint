@@ -9,7 +9,7 @@ import datetime
 import warnings
 from decimal import Decimal
 from pint import Quantity
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, cast
 
 from quantityfield.exceptions import PrecisionLoss
 from quantityfield.helper import check_matching_unit_dimension
@@ -26,39 +26,15 @@ DJANGO_JSON_SERIALIZABLE = Union[
 NUMBER_TYPE = Union[int, float, Decimal]
 
 
-def safe_to_int(value: Union[float, str, int], exception: Type[Exception]) -> int:
-    """
-    Check if a value is an int otherwise warn that it can't be converted
-    :param value:
-    :param exception: which kind of exception is needed to be raised
-    :return:
-    """
-    float_value = float(value)
-    int_value = int(float_value)
-    # We round to compensate for possible float rounding errors
-    if round(abs(int_value - float_value), 10) == 0:
-        return int_value
-    else:
-        raise exception(
-            _(
-                "After unit conversation this leads to a loss of precision. "
-                "The converted value '%s' can not safely be stored as integer "
-                "without precision loss."
-            )
-            % value
-        )
-
-
-def raise_validation_error_on_imprecise_int(value) -> int:
-    return safe_to_int(value, ValidationError)
-
-
-def raise_precision_error_on_imprecise_int(value) -> int:
-    return safe_to_int(value, PrecisionLoss)
-
-
 class QuantityFieldMixin(object):
-    to_number_type = NotImplemented
+    to_number_type: Callable[[Any], NUMBER_TYPE]
+
+    # TODO: Move these stuff into an Protocol or anything
+    #       better defining a Mixin
+    value_from_object: Callable[[Any], Any]
+    name: str
+    validate: Callable
+    run_validators: Callable
 
     """A Django Model Field that resolves to a pint Quantity object"""
 
@@ -128,30 +104,52 @@ class QuantityFieldMixin(object):
         kwargs["unit_choices"] = self.unit_choices
         return name, path, args, kwargs
 
-    def get_prep_value(self, value):
-        """Perform preliminary non-db specific value checks and conversions."""
+    def fix_unit_registry(self, value: Quantity) -> Quantity:
+        """
+        Check if the UnitRegistry from settings is used.
+        If not try to fix it but give a warning.
+        """
+        if isinstance(value, Quantity):
+            if not isinstance(value, self.ureg.Quantity):
+                # Could be fatal if different unit registers are used but we assume
+                # the same is used within one project
+                # As we warn for this behaviour, we assume that the programmer
+                # will fix it and do not include more checks!
+                warnings.warn(
+                    "Trying to set value from a different unit register for "
+                    "quantityfield. "
+                    "We assume the naming is equal but best use the same register as"
+                    " for creating the quantityfield.",
+                    RuntimeWarning,
+                )
+                return value.magnitude * self.ureg(str(value.units))
+            else:
+                return value
+        else:
+            raise ValueError(f"Value '{value}' ({type(value)} is not a quantity.")
+
+    def get_prep_value(self, value: Any) -> Optional[NUMBER_TYPE]:
+        """
+        Perform preliminary non-db specific value checks and conversions.
+
+        Make sure that we compare/use only values without a unit
+        """
         # we store the value in the base units defined for this field
         if value is None:
             return None
 
-        # Check if not the DeconstructibleUnitRegistry from this module but the default
-        # UnitRegistery from pint was used
-        if isinstance(value, Quantity) and not isinstance(value, self.ureg.Quantity):
-            # Could be fatal if different unit registers are used but we assume
-            # the same is used within one project
-            # so we might need to implement a check if the UnitRegisters do match
-            warnings.warn(
-                "Trying to set value from a different unit register for quantityfield. "
-                "We assume the naming is equal but best use the same register as for"
-                " creating the quantityfield.",
-                RuntimeWarning,
-            )
-            value = value.magnitude * self.ureg(str(value.units))
+        if isinstance(value, Quantity):
+            quantity = self.fix_unit_registry(value)
+            magnitude = quantity.to(self.base_units).magnitude
+        else:
+            magnitude = value
 
-        if isinstance(value, self.ureg.Quantity):
-            to_save = value.to(self.base_units)
-            return self.to_number_type(to_save.magnitude)
-        return value
+        try:
+            return self.to_number_type(magnitude)
+        except (TypeError, ValueError) as e:
+            raise e.__class__(
+                "Field '%s' expected a number but got %r." % (self.name, value),
+            ) from e
 
     def value_to_string(self, obj) -> str:
         value = self.value_from_object(obj)
@@ -163,11 +161,19 @@ class QuantityFieldMixin(object):
         return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
 
     def to_python(self, value) -> Optional[Quantity]:
-        if isinstance(value, self.ureg.Quantity):
-            return value
+        if isinstance(value, Quantity):
+            return self.fix_unit_registry(value)
 
         if value is None:
             return None
+
+        to_number = getattr(super(), "to_python")
+        if not callable(to_number):
+            raise NotImplementedError(
+                "Mixin not used with a class that has to_python function"
+            )
+
+        value = cast(NUMBER_TYPE, to_number(value))
 
         return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
 
@@ -181,9 +187,10 @@ class QuantityFieldMixin(object):
         are only checked against the magnitude as otherwise the default database
         validators will not fail because of comparison errors
         """
-        value = self.get_prep_value(self.to_python(value))
-        self.validate(value, model_instance)
-        self.run_validators(value)
+        value = self.to_python(value)
+        check_value = self.get_prep_value(value)
+        self.validate(check_value, model_instance)
+        self.run_validators(check_value)
         return value
 
     # TODO: Add tests, understand, add super call if required
@@ -216,7 +223,15 @@ class QuantityFormFieldMixin(object):
     the base_units
     """
 
-    to_number_type = NotImplemented
+    to_number_type: Callable[[Any], NUMBER_TYPE]
+
+    # TODO: Move these stuff into an Protocol or anything
+    #       better defining a Mixin
+    validate: Callable
+    run_validators: Callable
+    error_messages: Dict[str, str]
+    empty_values: Sequence[Any]
+    localize: bool
 
     def __init__(self, *args, **kwargs):
         self.ureg = ureg
@@ -323,26 +338,26 @@ class QuantityField(QuantityFieldMixin, models.FloatField):
 
 
 class IntegerQuantityFormField(QuantityFormFieldMixin, forms.IntegerField):
-    to_number_type = staticmethod(raise_validation_error_on_imprecise_int)
+    to_number_type = int
 
 
 class IntegerQuantityField(QuantityFieldMixin, models.IntegerField):
     form_field_class = IntegerQuantityFormField
-    to_number_type = staticmethod(raise_precision_error_on_imprecise_int)
+    to_number_type = int
 
 
 class BigIntegerQuantityField(QuantityFieldMixin, models.BigIntegerField):
     form_field_class = IntegerQuantityFormField
-    to_number_type = staticmethod(raise_precision_error_on_imprecise_int)
+    to_number_type = int
 
 
 class DecimalQuantityFormField(QuantityFormFieldMixin, forms.DecimalField):
-    to_number_type = staticmethod(Decimal)
+    to_number_type = Decimal
 
 
 class DecimalQuantityField(QuantityFieldMixin, models.DecimalField):
     form_field_class = DecimalQuantityFormField
-    to_number_type = staticmethod(Decimal)
+    to_number_type = Decimal
 
     def __init__(
         self,
@@ -353,7 +368,7 @@ class DecimalQuantityField(QuantityFieldMixin, models.DecimalField):
         name: str = None,
         max_digits: int = None,
         decimal_places: int = None,
-        **kwargs
+        **kwargs,
     ):
         # We try to be friendly as default django, if there are missing argument
         # we throw an error early
@@ -386,18 +401,15 @@ class DecimalQuantityField(QuantityFieldMixin, models.DecimalField):
             name=name,
             max_digits=max_digits,
             decimal_places=decimal_places,
-            **kwargs
+            **kwargs,
         )
 
-    def get_db_prep_save(self, value, connection):
+    def get_db_prep_save(self, value, connection) -> Decimal:
         """
         Get Value that shall be saved to database, make sure it is transformed
         """
-        value = self.get_prep_value(value)
-        return super().get_db_prep_save(value, connection)
-
-    def to_python(self, value) -> Quantity:
-        if isinstance(value, (str, float, int)):
-            # Make s
-            value = models.DecimalField.to_python(self, value)
-        return QuantityField.to_python(self, value)
+        converted = self.to_python(value)
+        magnitude = self.get_prep_value(converted)
+        return connection.ops.adapt_decimalfield_value(
+            magnitude, self.max_digits, self.decimal_places
+        )
