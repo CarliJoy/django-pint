@@ -15,6 +15,7 @@ from quantityfield.fields import (
     BigIntegerQuantityField,
     DecimalQuantityField,
     IntegerQuantityField,
+    PositiveIntegerQuantityField,
     QuantityField,
     QuantityFieldMixin,
 )
@@ -86,6 +87,10 @@ class TestIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
 
 class TestBigIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
     FIELD = BigIntegerQuantityField
+
+
+class TestPositiveIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
+    FIELD = PositiveIntegerQuantityField
 
 
 class TestDecimalFieldCreate(BaseMixinTestFieldCreate, TestCase):
