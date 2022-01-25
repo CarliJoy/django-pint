@@ -348,6 +348,11 @@ class BigIntegerQuantityField(QuantityFieldMixin, models.BigIntegerField):
     to_number_type = int
 
 
+class PositiveIntegerQuantityField(QuantityFieldMixin, models.PositiveIntegerField):
+    form_field_class = IntegerQuantityFormField
+    to_number_type = int
+
+
 class DecimalQuantityFormField(QuantityFormFieldMixin, forms.DecimalField):
     to_number_type = Decimal
 
