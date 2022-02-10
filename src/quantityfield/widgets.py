@@ -1,4 +1,4 @@
-from django.forms.widgets import MultiWidget, NumberInput, Select
+from django.forms.widgets import HiddenInput, MultiWidget, NumberInput, Select
 
 import re
 
@@ -6,13 +6,22 @@ from .units import ureg
 
 
 class QuantityWidget(MultiWidget):
-    def __init__(self, *, attrs=None, base_units=None, allowed_types=None):
+    def __init__(
+        self,
+        attrs=None,
+        base_units=None,
+        allowed_types=None,
+    ):
         self.ureg = ureg
         choices = self.get_choices(allowed_types)
         self.base_units = base_units
         attrs = attrs or {}
         attrs.setdefault("step", "any")
-        widgets = (NumberInput(attrs=attrs), Select(attrs=attrs, choices=choices))
+        if len(choices) <= 1:
+            unit_widget = HiddenInput(attrs=attrs)
+        else:
+            unit_widget = Select(attrs=attrs, choices=choices)
+        widgets = (NumberInput(attrs=attrs), unit_widget)
         super(QuantityWidget, self).__init__(widgets, attrs)
 
     def get_choices(self, allowed_types=None):

@@ -1,10 +1,7 @@
-from pint import DimensionalityError, UnitRegistry
-from typing import List
+from pint import DimensionalityError
 
 
-def check_matching_unit_dimension(
-    ureg: UnitRegistry, base_units: str, units_to_check: List[str]
-) -> None:
+def check_matching_unit_dimension(ureg, base_units, units_to_check):
     """
     Check if all units_to_check have the same Dimension like the base_units
     If not

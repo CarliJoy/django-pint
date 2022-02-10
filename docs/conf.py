@@ -96,9 +96,7 @@ import django
 import pint
 
 django.conf.settings.configure(
-    DATABASES={
-        "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
-    },
+    DATABASES={"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}},
     SECRET_KEY="not very secret in tests",
     USE_I18N=True,
     USE_L10N=True,
@@ -209,7 +207,7 @@ html_theme = "sphinx_rtd_theme"
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-#html_theme_options = {"sidebar_width": "300px", "page_width": "1200px"}
+# html_theme_options = {"sidebar_width": "300px", "page_width": "1200px"}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
