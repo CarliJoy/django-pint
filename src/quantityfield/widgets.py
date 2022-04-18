@@ -22,6 +22,10 @@ class QuantityWidget(MultiWidget):
     def decompress(self, value):
         non_decimal = re.compile(r"[^\d.]+")
         if value:
+            if isinstance(value, float):
+                # str for value could use scientific notation,
+                # non_decimal would remove 'e'
+                return [str(value), self.base_units]
             number_value = non_decimal.sub("", str(value))
             return [number_value, self.base_units]
         return [None, self.base_units]
