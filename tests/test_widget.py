@@ -177,11 +177,12 @@ class TestWidgets(TestCase):
                 base_units="gram", unit_choices=["meter", "ounces"]
             )  # noqa: F841
 
-    def test_widget_display(self):
+    def test_widget_display_units(self):
         # TODO Move to integration test
         bale = HayBale.objects.create(name="Fritz", weight=20)
         form = HayBaleForm(instance=bale)
         html = str(form)
+
         self.assertIn(
             '<input type="number" name="weight_int_0" step="any" '
             'required id="id_weight_int_0">',
@@ -189,6 +190,34 @@ class TestWidgets(TestCase):
         )
 
         self.assertIn('<option value="ounce">ounce</option>', html)
+
+    def test_widget_display_positive_number(self):
+        # TODO Move to integration test
+        bale = HayBale.objects.create(name="Fritz", weight=20)
+        form = HayBaleForm(instance=bale)
+        html = str(form)
+        self.assertIn('<input type="number" name="weight_0" value="20" step="any" required id="id_weight_0">',
+            html,
+        )
+
+    def test_widget_display_negative_number(self):
+        # TODO Move to integration test
+        bale = HayBale.objects.create(name="Fritz", weight=-20)
+        form = HayBaleForm(instance=bale)
+        html = str(form)
+        self.assertIn('<input type="number" name="weight_0" value="-20" step="any" required id="id_weight_0">',
+            html,
+        )
+
+    def test_widget_display_small_number(self):
+        # TODO Move to integration test
+        bale = HayBale.objects.create(name="Fritz", weight=1e-10)
+        form = HayBaleForm(instance=bale)
+        html = str(form)
+        self.assertIn('<input type="number" name="weight_0" value="1e-10" step="any" required id="id_weight_0">',
+            html,
+        )
+
 
     def test_widget_invalid_float(self):
         form = HayBaleForm(
