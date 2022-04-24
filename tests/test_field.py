@@ -1,5 +1,7 @@
 import pytest
 
+import django.core.exceptions
+import django.core.validators
 from django.core.serializers import deserialize, serialize
 from django.db import transaction
 from django.db.models import Field, Model
@@ -15,6 +17,7 @@ from quantityfield.fields import (
     BigIntegerQuantityField,
     DecimalQuantityField,
     IntegerQuantityField,
+    PositiveIntegerQuantityField,
     QuantityField,
     QuantityFieldMixin,
 )
@@ -28,6 +31,7 @@ from tests.dummyapp.models import (
     EmptyHayBaleDecimal,
     EmptyHayBaleFloat,
     EmptyHayBaleInt,
+    EmptyHayBalePositiveInt,
     FieldSaveModel,
     FloatFieldSaveModel,
     IntFieldSaveModel,
@@ -76,7 +80,7 @@ class BaseMixinTestFieldCreate:
             )
 
 
-class TestFloatFieldCrate(BaseMixinTestFieldCreate, TestCase):
+class TestFloatFieldCreate(BaseMixinTestFieldCreate, TestCase):
     FIELD = QuantityField
 
 
@@ -86,6 +90,10 @@ class TestIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
 
 class TestBigIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
     FIELD = BigIntegerQuantityField
+
+
+class TestPositiveIntegerFieldCreate(BaseMixinTestFieldCreate, TestCase):
+    FIELD = PositiveIntegerQuantityField
 
 
 class TestDecimalFieldCreate(BaseMixinTestFieldCreate, TestCase):
@@ -272,6 +280,27 @@ class TestNullableFloat(BaseMixinNullAble, TestCase):
 class TestNullableInt(BaseMixinNullAble, TestCase):
     EMPTY_MODEL = EmptyHayBaleInt
     DB_FLOAT_VALUE_EXPECTED = int(BaseMixinNullAble.FLOAT_SET)
+
+
+@pytest.mark.django_db
+class TestNullablePositiveInt(BaseMixinNullAble, TestCase):
+    EMPTY_MODEL = EmptyHayBalePositiveInt
+    DB_FLOAT_VALUE_EXPECTED = int(BaseMixinNullAble.FLOAT_SET)
+
+    def test_raises_validation_error_for_negative_numbers(self):
+        # Test copied and modified from Django IntegerField tests
+        min_value = 0
+        instance = self.EMPTY_MODEL(weight=min_value - 1, name="lowest")
+        expected_message = django.core.validators.MinValueValidator.message % {
+            "limit_value": min_value,
+        }
+        with self.assertRaisesMessage(
+            django.core.exceptions.ValidationError, expected_message
+        ):
+            instance.full_clean()
+
+        instance.weight = min_value
+        instance.full_clean()
 
 
 @pytest.mark.django_db

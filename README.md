@@ -8,6 +8,7 @@
 [![Wheel Build](https://img.shields.io/pypi/wheel/django-pint.svg)](https://pypi.org/project/django-pint/)
 [![Code Style Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/CarliJoy/django-pint/main.svg)](https://results.pre-commit.ci/latest/github/CarliJoy/django-pint/main)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation Status](https://readthedocs.org/projects/django-pint/badge/?version=latest)](https://django-pint.readthedocs.io/en/latest/?badge=latest)
 
@@ -16,16 +17,19 @@
 
 A Small django field extension allowing you to store quantities in certain units and perform conversions easily. Uses [pint](https://github.com/hgrecco/pint) behind the scenes. Also contains a form field class and form widget that allows a user to choose alternative units to input data. The cleaned_data will output the value in the base_units defined for the field, eg: you specify you want to store a value in grams but will allow users to input either grams or ounces.
 
+
+## Help wanted
+I am currently not working with Django anymore. Therefore the Maintance of this project is not a priority for me anymore.
+If there is anybody that could imagine helping out maintaining the project, send me a mail.
+
 ## Compatibility
 
 
-Requires django >= 2.2, and python 3.6/3.7/3.8/3.9/3.10
+Requires django >= 3.2, and python 3.7/3.8/3.9/3.10
 
-Test with the following combinations:
-* Django 2.2 (Python 3.6, 3.7, 3.8)
-* Django 3.0 (Python 3.6, 3.7, 3.8)
-* Django 3.1 (Python 3.6, 3.7, 3.8, 3.9)
-* Django 3.2 (Python 3.6, 3.7, 3.8, 3.9, 3.10)
+Tested with the following combinations:
+* Django 3.2 (Python 3.7, 3.8, 3.9, 3.10)
+* Django 4.0 (Python 3.7, 3.8, 3.9, 3.10)
 
 ## Installation
 
@@ -128,6 +132,7 @@ for an example on HowTo set it up. Or simply run:
 You can also use you local credentials by creating a `tests/local.py` file.
 See `test/settings.py` for a description.
 
+The testing is done using `pytest` or `tox`.
 
 ## Local development environment with Docker
 
@@ -141,3 +146,12 @@ This is helpful if you have troubles installing `postgresql` or `psycopg2-binary
 5. run `docker-compose up` in the root folder, this should build and start 2 containers, one for postgres and the other one python dependencies. Note you have to be in the [docker](https://stackoverflow.com/a/47078951/3813064) group for this to work.
 6. open a new terminal and run `docker-compose exec app bash`, this should open a ssh console in the docker container
 7. you can run `pytest` inside the container to see the result of the tests.
+
+## Updating the package
+Python and Django major versions have defined EOL.
+To reduce the maintenance burden and encourage users to use version still receiving security updates.
+Updating these dependencies have to be done in multiple places:
+ - `README.md`: Describing it to end users
+ - `tox.ini`: For local testing
+ - `setup.cfg`: For usage with pip and displaying it in PyPa
+ - `.travis.yaml`: For the CI/CD Definition
