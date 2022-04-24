@@ -25,13 +25,11 @@ If there is anybody that could imagine helping out maintaining the project, send
 ## Compatibility
 
 
-Requires django >= 2.2, and python 3.6/3.7/3.8/3.9/3.10
+Requires django >= 3.2, and python 3.7/3.8/3.9/3.10
 
-Test with the following combinations:
-* Django 2.2 (Python 3.6, 3.7, 3.8)
-* Django 3.0 (Python 3.6, 3.7, 3.8)
-* Django 3.1 (Python 3.6, 3.7, 3.8, 3.9)
-* Django 3.2 (Python 3.6, 3.7, 3.8, 3.9, 3.10)
+Tested with the following combinations:
+* Django 3.2 (Python 3.7, 3.8, 3.9, 3.10)
+* Django 4.0 (Python 3.7, 3.8, 3.9, 3.10)
 
 ## Installation
 
@@ -134,6 +132,7 @@ for an example on HowTo set it up. Or simply run:
 You can also use you local credentials by creating a `tests/local.py` file.
 See `test/settings.py` for a description.
 
+The testing is done using `pytest` or `tox`.
 
 ## Local development environment with Docker
 
@@ -147,3 +146,12 @@ This is helpful if you have troubles installing `postgresql` or `psycopg2-binary
 5. run `docker-compose up` in the root folder, this should build and start 2 containers, one for postgres and the other one python dependencies. Note you have to be in the [docker](https://stackoverflow.com/a/47078951/3813064) group for this to work.
 6. open a new terminal and run `docker-compose exec app bash`, this should open a ssh console in the docker container
 7. you can run `pytest` inside the container to see the result of the tests.
+
+## Updating the package
+Python and Django major versions have defined EOL.
+To reduce the maintenance burden and encourage users to use version still receiving security updates.
+Updating these dependencies have to be done in multiple places:
+ - `README.md`: Describing it to end users
+ - `tox.ini`: For local testing
+ - `setup.cfg`: For usage with pip and displaying it in PyPa
+ - `.travis.yaml`: For the CI/CD Definition
