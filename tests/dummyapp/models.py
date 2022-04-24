@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models import DecimalField
 
+import quantityfield.fields
 from quantityfield.fields import (
     BigIntegerQuantityField,
     DecimalQuantityField,
@@ -48,6 +49,11 @@ class EmptyHayBaleFloat(models.Model):
 class EmptyHayBaleInt(models.Model):
     name = models.CharField(max_length=20)
     weight = IntegerQuantityField("gram", null=True)
+
+
+class EmptyHayBalePositiveInt(models.Model):
+    name = models.CharField(max_length=20)
+    weight = quantityfield.fields.PositiveIntegerQuantityField("gram", null=True)
 
 
 class EmptyHayBaleBigInt(models.Model):
