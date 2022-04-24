@@ -1,4 +1,6 @@
 # flake8: noqa: F841
+import pytest
+
 from django import forms
 from django.test import TestCase
 
@@ -177,48 +179,6 @@ class TestWidgets(TestCase):
                 base_units="gram", unit_choices=["meter", "ounces"]
             )  # noqa: F841
 
-    def test_widget_display_units(self):
-        # TODO Move to integration test
-        bale = HayBale.objects.create(name="Fritz", weight=20)
-        form = HayBaleForm(instance=bale)
-        html = str(form)
-
-        self.assertIn(
-            '<input type="number" name="weight_int_0" step="any" '
-            'required id="id_weight_int_0">',
-            html,
-        )
-
-        self.assertIn('<option value="ounce">ounce</option>', html)
-
-    def test_widget_display_positive_number(self):
-        # TODO Move to integration test
-        bale = HayBale.objects.create(name="Fritz", weight=20)
-        form = HayBaleForm(instance=bale)
-        html = str(form)
-        self.assertIn('<input type="number" name="weight_0" value="20" step="any" required id="id_weight_0">',
-            html,
-        )
-
-    def test_widget_display_negative_number(self):
-        # TODO Move to integration test
-        bale = HayBale.objects.create(name="Fritz", weight=-20)
-        form = HayBaleForm(instance=bale)
-        html = str(form)
-        self.assertIn('<input type="number" name="weight_0" value="-20" step="any" required id="id_weight_0">',
-            html,
-        )
-
-    def test_widget_display_small_number(self):
-        # TODO Move to integration test
-        bale = HayBale.objects.create(name="Fritz", weight=1e-10)
-        form = HayBaleForm(instance=bale)
-        html = str(form)
-        self.assertIn('<input type="number" name="weight_0" value="1e-10" step="any" required id="id_weight_0">',
-            html,
-        )
-
-
     def test_widget_invalid_float(self):
         form = HayBaleForm(
             data={
@@ -279,3 +239,46 @@ class TestWidgets(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertTrue(form.has_error("weight_int"))
+
+
+class TestWidgetRenderingBase(TestCase):
+    value = 20
+    expected_created = "20"
+    expected_db = "20.0"
+
+    def get_html(self, value_from_db: bool) -> str:
+        """Create the rendered form with the widget"""
+        bale = HayBale.objects.create(name="Fritz", weight=self.value)
+        if value_from_db:
+            # When creating an object django just takes the given value
+            # and sets it
+            # Once we receive it from the database the correct Quantity
+            # is created
+            bale = HayBale.objects.get(pk=bale.pk)
+        form = HayBaleForm(instance=bale)
+        return str(form)
+
+    def test_widget_display(self):
+        # Add to Integration tests
+        html = self.get_html(False)
+        expected = f'<input type="number" name="weight_0" value="{self.expected_created}" step="any" required id="id_weight_0">'
+        self.assertIn(expected, html)
+        self.assertIn('<option value="ounce">ounce</option>', html)
+
+    def test_widget_display_db_value(self):
+        html = self.get_html(True)
+        expected = f'<input type="number" name="weight_0" value="{self.expected_db}" step="any" required id="id_weight_0">'
+        self.assertIn(expected, html)
+        self.assertIn('<option value="ounce">ounce</option>', html)
+
+
+class TestWidgetRenderingNegativNumber(TestWidgetRenderingBase):
+    value = -20
+    expected_created = "-20"
+    expected_db = "-20.0"
+
+
+class TestWidgetRenderingSmallNumber(TestWidgetRenderingBase):
+    value = 1e-10
+    expected_created = "1e-10"
+    expected_db = "1e-10"

@@ -6,6 +6,7 @@ from django.utils import formats
 from django.utils.translation import gettext_lazy as _
 
 import datetime
+import typing
 import warnings
 from decimal import Decimal
 from pint import Quantity
@@ -38,7 +39,11 @@ class QuantityFieldMixin(object):
     """A Django Model Field that resolves to a pint Quantity object"""
 
     def __init__(
-        self, base_units: str, *args, unit_choices: Optional[List[str]] = None, **kwargs
+        self,
+        base_units: str,
+        *args,
+        unit_choices: Optional[typing.Iterable[str]] = None,
+        **kwargs,
     ):
         """
         Create a Quantity field
@@ -62,7 +67,12 @@ class QuantityFieldMixin(object):
         if unit_choices is None:
             self.unit_choices: List[str] = [self.base_units]
         else:
-            self.unit_choices = unit_choices
+            self.unit_choices = list(unit_choices)
+            # The multi widget expects that the base unit is always present as unit
+            # choice.
+            # Otherwise we would need to handle special cases for no good reason.
+            if self.base_units not in self.unit_choices:
+                self.unit_choices.append(self.base_units)
 
         # Check if all unit_choices are valid
         check_matching_unit_dimension(self.ureg, self.base_units, self.unit_choices)

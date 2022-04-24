@@ -1,6 +1,6 @@
 from django.forms.widgets import MultiWidget, NumberInput, Select
 
-import re
+import pint
 
 from .units import ureg
 
@@ -20,12 +20,15 @@ class QuantityWidget(MultiWidget):
         return [(x, x) for x in allowed_types]
 
     def decompress(self, value):
-        non_decimal = re.compile(r"[^\d.]+")
+        """This function is called during rendering
+
+        It is responsible to split values for the two widgets
+        """
         if value:
-            if isinstance(value, float):
-                # str for value could use scientific notation,
-                # non_decimal would remove 'e'
-                return [str(value), self.base_units]
-            number_value = non_decimal.sub("", str(value))
-            return [number_value, self.base_units]
+            if isinstance(value, pint.Quantity):
+                return [value.magnitude, value.units]
+            else:
+                # We assume that the given value is a proper number,
+                # ready to be rendered
+                return [value, self.base_units]
         return [None, self.base_units]
