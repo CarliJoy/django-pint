@@ -272,7 +272,7 @@ class TestWidgetRenderingBase(TestCase):
         self.assertIn('<option value="ounce">ounce</option>', html)
 
 
-class TestWidgetRenderingNegativNumber(TestWidgetRenderingBase):
+class TestWidgetRenderingNegativeNumber(TestWidgetRenderingBase):
     value = -20
     expected_created = "-20"
     expected_db = "-20.0"

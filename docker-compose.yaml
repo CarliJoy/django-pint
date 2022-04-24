@@ -8,7 +8,7 @@ services:
   postgres:
     image: postgres:12-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # DB persistance
+      - postgres_data:/var/lib/postgresql/data  # DB persistence
     env_file:
       - .env
     ports:

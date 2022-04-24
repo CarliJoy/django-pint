@@ -19,7 +19,7 @@ A Small django field extension allowing you to store quantities in certain units
 
 
 ## Help wanted
-I am currently not working with Django anymore. Therefore the Maintance of this project is not a priority for me anymore.
+I am currently not working with Django anymore. Therefore the Maintenance of this project is not a priority for me anymore.
 If there is anybody that could imagine helping out maintaining the project, send me a mail.
 
 ## Compatibility

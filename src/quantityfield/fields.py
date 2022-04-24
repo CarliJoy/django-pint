@@ -266,7 +266,7 @@ class QuantityFormFieldMixin(object):
 
             They are set through a complicated process of the
             modelform_factory setting formfield_callback to
-            ModelForm.formfield_fo_dbfield
+            ModelForm.formfield_to_dbfield
 
             As they will overwrite our Widget we check for them and
             will ignore them, if they are set as attribute.
