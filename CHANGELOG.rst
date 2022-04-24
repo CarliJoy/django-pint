@@ -2,6 +2,11 @@
 Changelog
 =========
 
+Version 0.7.0
+=============
+- drop support for Django (<3.2) and Python Versions (<3.7) as they reached EOL
+- add ``PositiveIntegerQuantityField`` (`merge request #39 from jwygoda`_)
+
 Version 0.6.3
 =============
 - fix error with Django 3.2 (`issue #36`_)
@@ -56,3 +61,4 @@ Version 0.4
 .. _issue #34: https://github.com/CarliJoy/django-pint/issues/34
 .. _black: https://github.com/psf/black
 .. _issue #36: https://github.com/CarliJoy/django-pint/issues/36
+.. _merge request #39 from jwygoda: https://github.com/CarliJoy/django-pint/pull/39
