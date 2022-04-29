@@ -149,9 +149,9 @@ class TestWidgets(TestCase):
         form = UnitChoicesDefinedInModelFieldModelForm()
         self.assertListEqual(
             [
+                ("kilogram", "kilogram"),
                 ("milligram", "milligram"),
                 ("pounds", "pounds"),
-                ("kilogram", "kilogram"),
             ],
             form.fields["weight"].widget.widgets[1].choices,
         )
@@ -160,9 +160,9 @@ class TestWidgets(TestCase):
         form = UnitChoicesDefinedInModelFieldModelFormInt()
         self.assertListEqual(
             [
+                ("kilogram", "kilogram"),
                 ("milligram", "milligram"),
                 ("pounds", "pounds"),
-                ("kilogram", "kilogram"),
             ],
             form.fields["weight"].widget.widgets[1].choices,
         )
