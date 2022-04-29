@@ -71,8 +71,12 @@ class QuantityFieldMixin(object):
             # The multi widget expects that the base unit is always present as unit
             # choice.
             # Otherwise we would need to handle special cases for no good reason.
-            if self.base_units not in self.unit_choices:
-                self.unit_choices.append(self.base_units)
+            if self.base_units in self.unit_choices:
+                self.unit_choices.remove(self.base_units)
+            # Base unit has to be the first choice, always as all values are saved as
+            # base unit within the database and this would be the first unit shown
+            # in the widget
+            self.unit_choices = [self.base_units, *self.unit_choices]
 
         # Check if all unit_choices are valid
         check_matching_unit_dimension(self.ureg, self.base_units, self.unit_choices)
