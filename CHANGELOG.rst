@@ -2,6 +2,11 @@
 Changelog
 =========
 
+
+Version 0.7.1
+=============
+-  fix wrong unit display in widget (`issue #43 <https://github.com/CarliJoy/django-pint/issues/43>`_)
+
 Version 0.7.0
 =============
 - drop support for Django (<3.2) and Python Versions (<3.7) as they reached EOL
