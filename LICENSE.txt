@@ -1,8 +1,8 @@
 The MIT License (MIT)
 
-Copyright (C) 2020 django-pint authors (see AUTHORS file)
+Copyright (C) 2020-2022 django-pint authors (see AUTHORS file)
 
-Copyright (c) 2020 Carli* Freudenberg
+Copyright (c) 2020-2022 Carli* Freudenberg
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
