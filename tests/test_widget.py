@@ -282,3 +282,11 @@ class TestWidgetRenderingSmallNumber(TestWidgetRenderingBase):
     value = 1e-10
     expected_created = "1e-10"
     expected_db = "1e-10"
+
+
+class TestWidgetRenderingZero(TestWidgetRenderingBase):
+    value = 0
+    expected_created = "0"
+    expected_db = "0"
+
+# not sure what a db should return if the value is None or ""?
