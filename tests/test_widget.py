@@ -287,6 +287,6 @@ class TestWidgetRenderingSmallNumber(TestWidgetRenderingBase):
 class TestWidgetRenderingZero(TestWidgetRenderingBase):
     value = 0
     expected_created = "0"
-    expected_db = "0"
+    expected_db = "0.0"
 
 # not sure what a db should return if the value is None or ""?

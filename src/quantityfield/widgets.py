@@ -24,7 +24,7 @@ class QuantityWidget(MultiWidget):
 
         It is responsible to split values for the two widgets
         """
-        if value:
+        if value is not None:
             if isinstance(value, pint.Quantity):
                 return [value.magnitude, value.units]
             else:
