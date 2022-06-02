@@ -1,3 +1,5 @@
+from numbers import Number
+
 from django.forms.widgets import MultiWidget, NumberInput, Select
 
 import pint
@@ -24,11 +26,11 @@ class QuantityWidget(MultiWidget):
 
         It is responsible to split values for the two widgets
         """
-        if value:
-            if isinstance(value, pint.Quantity):
-                return [value.magnitude, value.units]
-            else:
-                # We assume that the given value is a proper number,
-                # ready to be rendered
-                return [value, self.base_units]
+        if isinstance(value, Number):
+            # We assume that the given value is a proper number,
+            # ready to be rendered
+            return [value, self.base_units]
+        elif isinstance(value, pint.Quantity):
+            return [value.magnitude, value.units]
+
         return [None, self.base_units]
