@@ -4,6 +4,7 @@ import pytest
 from django import forms
 from django.test import TestCase
 
+from decimal import Decimal
 from pint import DimensionalityError, UndefinedUnitError
 
 from quantityfield.fields import IntegerQuantityFormField, QuantityFormField
@@ -282,3 +283,28 @@ class TestWidgetRenderingSmallNumber(TestWidgetRenderingBase):
     value = 1e-10
     expected_created = "1e-10"
     expected_db = "1e-10"
+
+
+class TestWidgetRenderingZeroInt(TestWidgetRenderingBase):
+    value = 0
+    expected_created = "0"
+    expected_db = "0.0"
+
+
+class TestWidgetRenderingZeroFloat(TestWidgetRenderingBase):
+    value = 0.0
+    expected_created = "0.0"
+    expected_db = "0.0"
+
+
+class TestWidgetRenderingZeroDecimal(TestWidgetRenderingBase):
+    value = Decimal(0.0)
+    expected_created = "0"
+    expected_db = "0.0"
+
+
+class TestWidgetRenderingDecimalFromFloat(TestWidgetRenderingBase):
+    # 1.0 is represenatble in base 2 and base 10, so should return 1 (not 1. + 1e-16 etc)
+    value = Decimal(1.0)
+    expected_created = "1"
+    expected_db = "1.0"
