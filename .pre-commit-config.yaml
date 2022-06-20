@@ -46,6 +46,6 @@ repos:
       exclude: '^tests/'
 
 - repo: https://github.com/crate-ci/typos.git
-  rev: 'v1.8.1'
+  rev: 'v1.10.1'
   hooks:
     - id: typos
