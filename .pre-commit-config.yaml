@@ -18,7 +18,7 @@ repos:
     args: ['--fix=auto']
 
 - repo: https://github.com/PyCQA/autoflake.git
-  rev: 'v1.5.1'
+  rev: 'v1.5.3'
   hooks:
     - id: autoflake
 
@@ -28,7 +28,7 @@ repos:
   - id: isort
 
 - repo: https://github.com/psf/black
-  rev: 22.6.0
+  rev: 22.8.0
   hooks:
   - id: black
     language_version: python3
@@ -46,6 +46,6 @@ repos:
       exclude: '^tests/'
 
 - repo: https://github.com/crate-ci/typos.git
-  rev: 'typos-v0.10.4'
+  rev: 'typos-dict-v0.9.1'
   hooks:
     - id: typos
