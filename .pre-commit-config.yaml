@@ -23,7 +23,7 @@ repos:
     - id: autoflake
 
 - repo: https://github.com/PyCQA/isort
-  rev: 5.11.4
+  rev: 5.12.0
   hooks:
   - id: isort
 
@@ -46,6 +46,6 @@ repos:
       exclude: '^tests/'
 
 - repo: https://github.com/crate-ci/typos.git
-  rev: 'typos-dict-v0.9.14'
+  rev: 'typos-dict-v0.9.15'
   hooks:
     - id: typos
