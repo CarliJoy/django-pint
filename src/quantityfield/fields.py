@@ -297,7 +297,6 @@ class QuantityFormFieldMixin(object):
         super(QuantityFormFieldMixin, self).__init__(*args, **kwargs)
 
     def prepare_value(self, value):
-
         if isinstance(value, Quantity):
             return value.to(self.base_units)
         else:
