@@ -18,7 +18,7 @@ repos:
     args: ['--fix=auto']
 
 - repo: https://github.com/PyCQA/autoflake.git
-  rev: 'v2.0.1'
+  rev: 'v2.0.2'
   hooks:
     - id: autoflake
 
@@ -40,12 +40,12 @@ repos:
     args: ['--max-line-length=88']  # default of Black
 
 - repo: https://github.com/PyCQA/bandit.git
-  rev: '1.7.4'
+  rev: '1.7.5'
   hooks:
   -   id: bandit
       exclude: '^tests/'
 
 - repo: https://github.com/crate-ci/typos.git
-  rev: 'v1.13.18'
+  rev: 'v1.14.3'
   hooks:
     - id: typos
