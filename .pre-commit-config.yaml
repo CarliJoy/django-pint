@@ -18,7 +18,7 @@ repos:
     args: ['--fix=auto']
 
 - repo: https://github.com/PyCQA/autoflake.git
-  rev: 'v2.0.2'
+  rev: 'v2.1.0'
   hooks:
     - id: autoflake
 
@@ -46,6 +46,6 @@ repos:
       exclude: '^tests/'
 
 - repo: https://github.com/crate-ci/typos.git
-  rev: 'v1.14.5'
+  rev: 'v1.14.6'
   hooks:
     - id: typos
