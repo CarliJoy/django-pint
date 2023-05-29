@@ -46,6 +46,6 @@ repos:
       exclude: '^tests/'
 
 - repo: https://github.com/crate-ci/typos.git
-  rev: 'typos-dict-v0.9.27'
+  rev: 'v1.14.11'
   hooks:
     - id: typos
