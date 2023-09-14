@@ -35,6 +35,7 @@ from tests.dummyapp.models import (
     FieldSaveModel,
     FloatFieldSaveModel,
     IntFieldSaveModel,
+    OffsetUnitFloatFieldSaveModel,
 )
 
 Quantity = ureg.Quantity
@@ -475,3 +476,38 @@ class TestIntFieldSave(IntLikeFieldSaveTestBase, TestCase):
 
 class TestBigIntFieldSave(IntLikeFieldSaveTestBase, TestCase):
     MODEL = BigIntFieldSaveModel
+
+
+class TestOffsetUnitFieldSaveTestBase(FloatLikeFieldSaveTestBase, TestCase):
+    MODEL = OffsetUnitFloatFieldSaveModel
+    DEFAULT_WEIGHT_QUANTITY_STR = "100.0 degree_Celsius"
+    HEAVIEST = 1000
+    LIGHTEST = 1
+    FAHRENHEIT_VALUE = 212  # 100 celsius = 212 kelvin
+    COMPARE_QUANTITY = Quantity(100, ureg.fahrenheit)
+
+    def test_value_conversion(self):
+        obj = self.MODEL.objects.first()
+        degF = obj.weight.to(ureg.fahrenheit)  # weight is in celsius
+        self.assertAlmostEqual(degF.magnitude, self.FAHRENHEIT_VALUE)
+        self.assertEqual(degF.units, ureg.fahrenheit)
+
+    def test_value_stored_as_quantity(self):
+        obj = self.MODEL.objects.first()
+        self.assertIsInstance(obj.weight, Quantity)
+        self.assertEqual(str(obj.weight), self.DEFAULT_WEIGHT_QUANTITY_STR)
+
+    def test_stores_value_in_base_units(self):
+        self.MODEL.objects.create(weight=self.FAHRENHEIT_VALUE, name="fahrenheit")
+        item = self.MODEL.objects.get(name="fahrenheit")
+        self.assertEqual(item.weight.units, "degree_Celsius")
+        self.assertAlmostEqual(item.weight.magnitude, self.FAHRENHEIT_VALUE)
+
+    def test_comparison_with_quantity(self):
+        weight = Quantity(20, ureg.celsius)
+        qs = self.MODEL.objects.filter(weight__gt=weight)
+        self.assertNotIn(self.lightest, qs)
+
+    def test_comparison_with_quantity_respects_units(self):
+        qs = self.MODEL.objects.filter(weight__gt=self.COMPARE_QUANTITY)
+        self.assertNotIn(self.lightest, qs)

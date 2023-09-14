@@ -85,3 +85,7 @@ class ChoicesDefinedInModel(models.Model):
 
 class ChoicesDefinedInModelInt(models.Model):
     weight = IntegerQuantityField("kilogram", unit_choices=["milligram", "pounds"])
+
+
+class OffsetUnitFloatFieldSaveModel(FieldSaveModel):
+    weight = QuantityField("degC")
