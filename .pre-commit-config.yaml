@@ -18,7 +18,7 @@ repos:
     args: ['--fix=auto']
 
 - repo: https://github.com/PyCQA/autoflake.git
-  rev: 'v2.2.0'
+  rev: 'v2.2.1'
   hooks:
     - id: autoflake
 
@@ -28,13 +28,13 @@ repos:
   - id: isort
 
 - repo: https://github.com/psf/black
-  rev: 23.3.0
+  rev: 23.9.1
   hooks:
   - id: black
     language_version: python3
 
 - repo: https://github.com/PyCQA/flake8
-  rev: 6.0.0
+  rev: 6.1.0
   hooks:
   - id: flake8
     args: ['--max-line-length=88']  # default of Black
@@ -46,6 +46,6 @@ repos:
       exclude: '^tests/'
 
 - repo: https://github.com/crate-ci/typos.git
-  rev: 'typos-dict-v0.10.2'
+  rev: 'v1.16.13'
   hooks:
     - id: typos
