@@ -12,8 +12,7 @@ from decimal import Decimal
 from pint import Quantity
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, cast
 
-from quantityfield.helper import check_matching_unit_dimension
-
+from .helper import check_matching_unit_dimension
 from .units import ureg
 from .widgets import QuantityWidget
 
