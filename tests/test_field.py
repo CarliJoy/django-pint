@@ -483,8 +483,11 @@ class TestOffsetUnitFieldSaveTestBase(FloatLikeFieldSaveTestBase, TestCase):
     DEFAULT_WEIGHT_QUANTITY_STR = "100.0 degree_Celsius"
     HEAVIEST = 1000
     LIGHTEST = 1
-    FAHRENHEIT_VALUE = 212  # 100 celsius = 212 kelvin
+    FAHRENHEIT_VALUE = 212  # 100 celsius = 212 fahrenheit
     COMPARE_QUANTITY = Quantity(100, ureg.fahrenheit)
+
+    # Note: weight here is a temperature,
+    #       reused the field name to allow inheritance of float test cae
 
     def test_value_conversion(self):
         obj = self.MODEL.objects.first()

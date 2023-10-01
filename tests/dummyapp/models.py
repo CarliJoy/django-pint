@@ -88,4 +88,6 @@ class ChoicesDefinedInModelInt(models.Model):
 
 
 class OffsetUnitFloatFieldSaveModel(FieldSaveModel):
+    # Note: This is a temperature not a weight.
+    #       We wanted to reuse existing test cases inheritance
     weight = QuantityField("degC")
