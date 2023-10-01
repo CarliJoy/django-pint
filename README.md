@@ -25,11 +25,11 @@ If there is anybody that could imagine helping out maintaining the project, send
 ## Compatibility
 
 
-Requires django >= 3.2, and python 3.7/3.8/3.9/3.10
+Requires django >= 3.2, and python 3.8/3.9/3.10/3.11
 
 Tested with the following combinations:
-* Django 3.2 (Python 3.7, 3.8, 3.9, 3.10)
-* Django 4.0 (Python 3.7, 3.8, 3.9, 3.10)
+* Django 3.2 (Python 3.8, 3.9, 3.10, 3.11)
+* Django 4.2 (Python 3.8, 3.9, 3.10, 3.11)
 
 ## Installation
 
