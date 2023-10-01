@@ -173,4 +173,4 @@ Updating these dependencies have to be done in multiple places:
  - `README.md`: Describing it to end users
  - `tox.ini`: For local testing
  - `setup.cfg`: For usage with pip and displaying it in PyPa
- - `.travis.yaml`: For the CI/CD Definition
+ - `.github/workflows/test.yaml`: For the CI/CD Definition
