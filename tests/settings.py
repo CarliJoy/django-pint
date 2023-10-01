@@ -1,29 +1,6 @@
+import os
 from pathlib import Path
 from pint import UnitRegistry
-
-# Allow user specific postgres credentials to be provided
-# in a local.py file
-try:
-    from .local import PG_PASSWORD, PG_USER
-except ImportError:
-    # Define the defaults Travis CI/CD if any parameter was unset
-    PG_USER = "django_pint"
-    PG_PASSWORD = "not_secure_in_testing"
-
-try:
-    from .local import PG_DATABASE
-except ImportError:
-    PG_DATABASE = "django_pint"
-
-try:
-    from .local import PG_HOST
-except ImportError:
-    PG_HOST = "localhost"
-
-try:
-    from .local import PG_PORT
-except ImportError:
-    PG_PORT = ""
 
 # Try to find guess the correct loading string for the dummy app,
 # which dependes on the PYTHON_PATH (that can differ between local
@@ -69,13 +46,15 @@ TEMPLATES = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "USER": PG_USER,
-        "NAME": PG_DATABASE,
-        "HOST": PG_HOST,
-        "PORT": PG_PORT,
-        "PASSWORD": PG_PASSWORD,
+        "USER": os.environ.get("POSTGRES_USER", "django_pint"),
+        "NAME": os.environ.get("POSTGRES_DB", "django_pint"),
+        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+        "PORT": os.environ.get(
+            "POSTGRES_PORT", os.environ.get("POSTGRES_5432_TCP_PORT", "")
+        ),
+        "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "not_secure_in_testing"),
         "TEST": {
-            "NAME": "mytestdatabase",
+            "NAME": os.environ.get("TEST_DB", "mytestdatabase"),
         },
     },
 }

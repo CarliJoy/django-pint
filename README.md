@@ -120,19 +120,38 @@ data in a database, you could invalidate your data! So be sure you know what you
 doing!
 Still only adding units should be okay.
 
-## Set Up Local Testing
-As SQL Lite is not very strict in handling types we use Postgres for testing.
-This will bring up some possible pitfalls using proper databases.
-To get the test running please install `postgresql` on your OS.
-You need to have `psycopg2-binary` installed (see `tox.ini` for further requirements)
-and a user with the proper permissions set. See `ci_setup_postgres.sh`
-for an example on HowTo set it up. Or simply run:
-`sudo -u postgres ./ci_setup_postgres.sh`.
+## Development
 
-You can also use you local credentials by creating a `tests/local.py` file.
-See `test/settings.py` for a description.
+### Preparation
 
-The testing is done using `pytest` or `tox`.
+You need to install all Python Version that django-pint is compatible with.
+In a *nix environment you best could use [pyenv](https://github.com/pyenv/pyenv) to do so.
+
+Furthermore, you need to install [tox](https://tox.wiki/en/latest/) and [pre-commit](https://pre-commit.com/) to lint and test.
+
+You also need docker as our tests require a postgres database to run.
+We don't use SQL lite as some bugs only occurred using a proper database.
+
+I recommend using [pipx](https://pypa.github.io/pipx/) to install them.
+
+1. Install `pipx` (see pipx documentation), i.e. with `python3 -m pip install --user pipx && python3 -m pipx ensurepath`
+2. Install `pre-commit` running `pipx install pre-commit`
+3. Install `tox`  running `pipx install tox`
+4. Install the `tox-docker` plugin `pipx inject tox tox-docker`
+5. Fork `django-pint` and clone your fork (see [Tutorial](https://docs.github.com/get-started/quickstart/contributing-to-projects))
+6. Change into the repo `cd django-pint`
+7. Activate `pre-commit` for the repo running `pre-commit install`
+8. Check that all linter run fine with the cloned version by running `pre-commit run --all-files`
+9. Check that all tests succeed by running `tox`
+
+**Congratulation** you successfully cloned and tested the upstream version of `django-pint`.
+
+Now you can work on your feature branch and test your changes using `tox`.
+Your code will be automatically linted and formatted by `pre-commit` if you commit your changes.
+If it fails, simply add all changes and try again.
+If this doesn't help look at the output of your `git commit` command.
+
+Once you are done, [create a pull request](https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
 
 ## Local development environment with Docker
 
