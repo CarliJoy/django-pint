@@ -40,4 +40,4 @@ def test_admin_widgets(model: Model, field: str):
     admin: ModelAdmin = django.contrib.admin.site._registry[model]
     form: ModelForm = admin.get_form({})()
     form_fields: Dict[str, Field] = form.fields
-    assert type(form_fields[field].widget) == QuantityWidget
+    assert type(form_fields[field].widget) == QuantityWidget  # noqa

@@ -47,7 +47,7 @@ class IntegrationTestBase:
         form.save()
         obj = form.Meta.model.objects.last()
         self.assertEqual(str(obj.weight.units), "gram")
-        if type(self.OUTPUT_MAGNITUDE) == float:
+        if isinstance(self.OUTPUT_MAGNITUDE, float):
             self.assertAlmostEqual(obj.weight.magnitude, self.OUTPUT_MAGNITUDE)
         else:
             self.assertEqual(obj.weight.magnitude, self.OUTPUT_MAGNITUDE)
