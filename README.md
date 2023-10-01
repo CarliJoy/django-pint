@@ -153,7 +153,7 @@ If this doesn't help look at the output of your `git commit` command.
 
 Once you are done, [create a pull request](https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
 
-## Local development environment with Docker
+### Local development environment with Docker
 
 To run a local development environment with Docker you need to run the following steps:
 This is helpful if you have troubles installing `postgresql` or `psycopg2-binary`.
@@ -166,9 +166,9 @@ This is helpful if you have troubles installing `postgresql` or `psycopg2-binary
 6. open a new terminal and run `docker-compose exec app bash`, this should open a ssh console in the docker container
 7. you can run `pytest` inside the container to see the result of the tests.
 
-## Updating the package
-Python and Django major versions have defined EOL.
-To reduce the maintenance burden and encourage users to use version still receiving security updates.
+### Updating the package
+[Python](https://endoflife.date/python) and [Django](https://endoflife.date/django) major versions have defined EOL.
+To reduce the maintenance burden and encourage users to use version still receiving security updates any `django-pint` update should match all and only these version of Python and Django that are supported.
 Updating these dependencies have to be done in multiple places:
  - `README.md`: Describing it to end users
  - `tox.ini`: For local testing
