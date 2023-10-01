@@ -1,0 +1,68 @@
+name: test
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+concurrency:
+  group: test-${{ github.head_ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUNBUFFERED: "1"
+  FORCE_COLOR: "1"
+  POSTGRES_USER: "django_pint_gh_action"
+  POSTGRES_PASSWORD: "django_pint_gh_action"
+  POSTGRES_DB: "django"
+
+
+jobs:
+  runner-job:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.8', '3.9', '3.10']
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Set health checks to wait until postgres has started
+        env:
+          POSTGRES_USER: "django_pint_gh_action"
+          POSTGRES_PASSWORD: "django_pint_gh_action"
+          POSTGRES_DB: "django"
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup python for test ${{ matrix.py }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.py }}
+      - name: Install tox
+        run: python -m pip install tox-gh>=1.2
+      - name: Setup test suite
+        run: tox -vv --notest
+      - name: Run test suite
+        run: tox --skip-pkg-install
+        env:
+          # The hostname used to communicate with the PostgreSQL service container
+          POSTGRES_HOST: localhost
+          # The default PostgreSQL port
+          POSTGRES_PORT: 5432
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
