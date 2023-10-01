@@ -85,3 +85,9 @@ class ChoicesDefinedInModel(models.Model):
 
 class ChoicesDefinedInModelInt(models.Model):
     weight = IntegerQuantityField("kilogram", unit_choices=["milligram", "pounds"])
+
+
+class OffsetUnitFloatFieldSaveModel(FieldSaveModel):
+    # Note: This is a temperature not a weight.
+    #       We wanted to reuse existing test cases inheritance
+    weight = QuantityField("degC")

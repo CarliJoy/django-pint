@@ -170,7 +170,7 @@ class QuantityFieldMixin(object):
     def from_db_value(self, value: Any, *args, **kwargs) -> Optional[Quantity]:
         if value is None:
             return None
-        return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
+        return self.ureg.Quantity(value, getattr(self.ureg, self.base_units))
 
     def to_python(self, value) -> Optional[Quantity]:
         if isinstance(value, Quantity):
@@ -187,7 +187,7 @@ class QuantityFieldMixin(object):
 
         value = cast(NUMBER_TYPE, to_number(value))
 
-        return self.ureg.Quantity(value * getattr(self.ureg, self.base_units))
+        return self.ureg.Quantity(value, getattr(self.ureg, self.base_units))
 
     def clean(self, value, model_instance) -> Quantity:
         """
@@ -331,7 +331,7 @@ class QuantityFormFieldMixin(object):
         except (ValueError, TypeError):
             raise ValidationError(self.error_messages["invalid"], code="invalid")
 
-        val = self.ureg.Quantity(val * getattr(self.ureg, units)).to(self.base_units)
+        val = self.ureg.Quantity(val, getattr(self.ureg, units)).to(self.base_units)
         self.validate(val.magnitude)
         self.run_validators(val.magnitude)
         return val
