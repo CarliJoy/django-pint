@@ -10,10 +10,14 @@ def check_matching_unit_dimension(
     If not
     :raise DimensionalityError
     """
-
     base_unit = getattr(ureg, base_units)
+    # create a pint quantity by multiplying unit with magnitude of 1
+    base_quant = 1 * base_unit
 
     for unit_string in units_to_check:
         unit = getattr(ureg, unit_string)
-        if unit.dimensionality != base_unit.dimensionality:
-            raise DimensionalityError(base_unit, unit)
+        # try to convert base qunatity to new unit, this also work for ureg.context
+        try:
+            base_quant.to(unit)
+        except DimensionalityError as e:
+            raise DimensionalityError(base_unit, unit) from e
