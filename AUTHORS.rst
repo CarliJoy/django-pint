@@ -9,4 +9,4 @@ Contributors
 * Alex Bhandari <alexbhandari@gmail.com>
 * Jonas Haag <jonas@lophus.org>
 * Igor Kozyrenko <igor@ikseek.com>
-* Samuel Scott Jennings <samuel.scott.jennings@gmail.com>
+* Samuel Jennings <samuel.scott.jennings@gmail.com>
