@@ -16,11 +16,11 @@ from typing import Type, Union
 from quantityfield.fields import (
     BigIntegerQuantityField,
     DecimalQuantityField,
+    DecimalQuantityFormField,
     IntegerQuantityField,
     PositiveIntegerQuantityField,
     QuantityField,
     QuantityFieldMixin,
-    DecimalQuantityFormField,
 )
 from quantityfield.units import ureg
 from tests.dummyapp.models import (
@@ -458,10 +458,11 @@ class TestDecimalFieldSave(FloatLikeFieldSaveTestBase, TestCase):
         expected = Decimal("2.1")
         func = field.to_number_type
         self.assertIsInstance(func(2.1), Decimal)
-        self.assertEqual(func(2.1), expected) # test float
-        self.assertEqual(func("2.1"), expected) # test string
-        self.assertEqual(func(Decimal("2.1")), expected) # test Decimal
-        self.assertEqual(func(2), Decimal("2")) # test Int
+        self.assertEqual(func(2.1), expected)  # test float
+        self.assertEqual(func("2.1"), expected)  # test string
+        self.assertEqual(func(Decimal("2.1")), expected)  # test Decimal
+        self.assertEqual(func(2), Decimal("2"))  # test Int
+
 
 class IntLikeFieldSaveTestBase(FieldSaveTestBase):
     DEFAULT_WEIGHT_STR = "100"
@@ -533,15 +534,15 @@ class TestDecimalQuantityFormField(TestCase):
         expected = Decimal("2.1")
         func = field.to_number_type
         self.assertIsInstance(func(2.1), Decimal)
-        self.assertEqual(func(2.1), expected) # test float
-        self.assertEqual(func("2.1"), expected) # test string
-        self.assertEqual(func(Decimal("2.1")), expected) # test Decimal
-        self.assertEqual(func(2), Decimal("2")) # test Int
+        self.assertEqual(func(2.1), expected)  # test float
+        self.assertEqual(func("2.1"), expected)  # test string
+        self.assertEqual(func(Decimal("2.1")), expected)  # test Decimal
+        self.assertEqual(func(2), Decimal("2"))  # test Int
 
     def test_saves_correct_decimal_precision(self):
         field = DecimalQuantityFormField(base_units="gram")
         expected = Decimal("2.1")
-        self.assertEqual(field.clean(2.1).magnitude, expected) # test float
-        self.assertEqual(field.clean("2.1").magnitude, expected) # test string
-        self.assertEqual(field.clean(expected).magnitude, expected) # test Decimal
-        self.assertEqual(field.clean(2).magnitude, Decimal("2")) # test Int
+        self.assertEqual(field.clean(2.1).magnitude, expected)  # test float
+        self.assertEqual(field.clean("2.1").magnitude, expected)  # test string
+        self.assertEqual(field.clean(expected).magnitude, expected)  # test Decimal
+        self.assertEqual(field.clean(2).magnitude, Decimal("2"))  # test Int
