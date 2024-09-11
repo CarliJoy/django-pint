@@ -464,7 +464,6 @@ class TestDecimalFieldSave(FloatLikeFieldSaveTestBase, TestCase):
         self.assertEqual(func(2), Decimal("2"))  # test Int
 
 
-
 class IntLikeFieldSaveTestBase(FieldSaveTestBase):
     DEFAULT_WEIGHT_STR = "100"
     DEFAULT_WEIGHT_QUANTITY_STR = "100 gram"

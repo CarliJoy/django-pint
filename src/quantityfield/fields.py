@@ -366,7 +366,7 @@ class PositiveIntegerQuantityField(QuantityFieldMixin, models.PositiveIntegerFie
 
 
 class DecimalQuantityFormField(QuantityFormFieldMixin, forms.DecimalField):
-    
+
     def to_number_type(self, x: object) -> Decimal:
         return Decimal(str(x))
 

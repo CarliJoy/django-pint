@@ -6,7 +6,7 @@ Changelog
 Version 0.7.2
 =============
 - fix conversion of number input to DecimalField (`issue #106 <https://github.com/CarliJoy/django-pint/issues/106>`)
- 
+
 Version 0.7.1
 =============
 -  fix wrong unit display in widget (`issue #43 <https://github.com/CarliJoy/django-pint/issues/43>`_)
