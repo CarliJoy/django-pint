@@ -16,11 +16,11 @@ from typing import Type, Union
 from quantityfield.fields import (
     BigIntegerQuantityField,
     DecimalQuantityField,
+    DecimalQuantityFormField,
     IntegerQuantityField,
     PositiveIntegerQuantityField,
     QuantityField,
     QuantityFieldMixin,
-    DecimalQuantityFormField,
 )
 from quantityfield.units import ureg
 from tests.dummyapp.models import (
@@ -462,6 +462,7 @@ class TestDecimalFieldSave(FloatLikeFieldSaveTestBase, TestCase):
         self.assertEqual(func("2.1"), expected) # test string
         self.assertEqual(func(Decimal("2.1")), expected) # test Decimal
         self.assertEqual(func(2), Decimal("2")) # test Int
+
 
 class IntLikeFieldSaveTestBase(FieldSaveTestBase):
     DEFAULT_WEIGHT_STR = "100"
