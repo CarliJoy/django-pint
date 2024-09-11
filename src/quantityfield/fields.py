@@ -366,12 +366,13 @@ class PositiveIntegerQuantityField(QuantityFieldMixin, models.PositiveIntegerFie
 
 
 class DecimalQuantityFormField(QuantityFormFieldMixin, forms.DecimalField):
-    to_number_type = Decimal
+
+    def to_number_type(self, x: object) -> Decimal:
+        return Decimal(str(x))
 
 
 class DecimalQuantityField(QuantityFieldMixin, models.DecimalField):
     form_field_class = DecimalQuantityFormField
-    to_number_type = Decimal
 
     def __init__(
         self,
@@ -417,6 +418,9 @@ class DecimalQuantityField(QuantityFieldMixin, models.DecimalField):
             decimal_places=decimal_places,
             **kwargs,
         )
+
+    def to_number_type(self, x: object) -> Decimal:
+        return Decimal(str(x))
 
     def get_db_prep_save(self, value, connection) -> Decimal:
         """
