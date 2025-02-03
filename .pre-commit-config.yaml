@@ -23,12 +23,12 @@ repos:
     - id: autoflake
 
 - repo: https://github.com/PyCQA/isort
-  rev: 5.13.2
+  rev: 6.0.0
   hooks:
   - id: isort
 
 - repo: https://github.com/psf/black
-  rev: 24.10.0
+  rev: 25.1.0
   hooks:
   - id: black
     language_version: python3
@@ -40,12 +40,12 @@ repos:
     args: ['--max-line-length=88']  # default of Black
 
 - repo: https://github.com/PyCQA/bandit.git
-  rev: '1.8.0'
+  rev: '1.8.2'
   hooks:
   -   id: bandit
       exclude: '^tests/'
 
 - repo: https://github.com/crate-ci/typos.git
-  rev: 'v1.28.3'
+  rev: 'typos-dict-v0.12.4'
   hooks:
     - id: typos
