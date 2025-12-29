@@ -105,7 +105,7 @@ You can also use a custom Pint unit registry in your project `settings.py`
     # django-pint will set the DJANGO_PINT_UNIT_REGISTER automatically
     # as application_registry
     DJANGO_PINT_UNIT_REGISTER = UnitRegistry('your_units.txt')
-    DJANGO_PINT_UNIT_REGISTER.define('beer_bootle_weight = 0.8 * kg = beer')
+    DJANGO_PINT_UNIT_REGISTER.define('beer_bottle_weight = 0.8 * kg = beer')
 
     # app/models.py
 
