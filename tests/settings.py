@@ -3,7 +3,7 @@ from pathlib import Path
 from pint import UnitRegistry
 
 # Try to find guess the correct loading string for the dummy app,
-# which dependes on the PYTHON_PATH (that can differ between local
+# which depends on the PYTHON_PATH (that can differ between local
 # testing and a pytest run.
 dummy_app_load_string: str = ""
 try:

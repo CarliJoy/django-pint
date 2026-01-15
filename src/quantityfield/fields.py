@@ -163,6 +163,17 @@ class QuantityFieldMixin(object):
                 "Field '%s' expected a number but got %r." % (self.name, value),
             ) from e
 
+    def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Convert value to database-compatible format.
+        This is called for both save() operations and filter lookups.
+        """
+        if prepared:
+            return value
+
+        # Use get_prep_value to convert Quantity to magnitude
+        return self.get_prep_value(value)
+
     def value_to_string(self, obj) -> str:
         value = self.value_from_object(obj)
         return str(self.get_prep_value(value))
@@ -204,20 +215,6 @@ class QuantityFieldMixin(object):
         self.validate(check_value, model_instance)
         self.run_validators(check_value)
         return value
-
-    # TODO: Add tests, understand, add super call if required
-    """
-    # This code is untested and not documented. It also does not call the super method
-    Therefore it is commented out for the moment (even so it is likely required)
-
-    def get_prep_lookup(self, lookup_type, value):
-
-        if lookup_type in ["lt", "gt", "lte", "gte"]:
-            if isinstance(value, self.ureg.Quantity):
-                v = value.to(self.base_units)
-                return v.magnitude
-            return value
-    """
 
     def formfield(self, **kwargs):
         defaults = {

@@ -10,3 +10,4 @@ Contributors
 * Jonas Haag <jonas@lophus.org>
 * Igor Kozyrenko <igor@ikseek.com>
 * Samuel Jennings <samuel.scott.jennings@gmail.com>
+* Adrian Orzechowski <adiorz90@gmail.com>
