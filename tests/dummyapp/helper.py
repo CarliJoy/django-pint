@@ -1,23 +1,23 @@
 from django.db.models.base import ModelBase
 
-from typing import Dict
-
 from quantityfield.fields import QuantityFieldMixin
 
 from .models import *  # noqa: F401, F403
 
 
-def get_test_models() -> Dict[str, ModelBase]:
+def get_test_models() -> dict[str, ModelBase]:
     """
     Get a list of all Test models
     """
     result = {}
     for name, obj in globals().items():
-        if not name.startswith("_"):
-            if isinstance(obj, ModelBase):
-                if not obj._meta.abstract:
-                    if obj._meta.app_config.name.endswith("dummyapp"):
-                        result[name] = obj
+        if (
+            not name.startswith("_")
+            and isinstance(obj, ModelBase)
+            and not obj._meta.abstract
+            and obj._meta.app_config.name.endswith("dummyapp")
+        ):
+            result[name] = obj
     return result
 
 

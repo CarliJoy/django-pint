@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # This file is execfile()d with the current directory set to its containing dir.
 #
@@ -8,10 +7,10 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
-import os
-import sys
 import inspect
+import os
 import shutil
+import sys
 
 __location__ = os.path.join(
     os.getcwd(), os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -45,10 +44,7 @@ except ImportError:
 
 output_dir = os.path.join(__location__, "api")
 module_dir = os.path.join(__location__, "../src/quantityfield")
-try:
-    shutil.rmtree(output_dir)
-except FileNotFoundError:
-    pass
+shutil.rmtree(output_dir, ignore_errors=True)
 
 try:
     import sphinx
@@ -63,7 +59,7 @@ try:
 
     apidoc.main(args)
 except Exception as e:
-    print("Running `sphinx-apidoc` failed!\n{}".format(e))
+    print(f"Running `sphinx-apidoc` failed!\n{e}")  #
 
 # -- General configuration -----------------------------------------------------
 
@@ -91,13 +87,14 @@ extensions = [
 templates_path = ["_templates"]
 
 # Setup and Activate django so build are not failing
-import django.conf
 import django
+import django.conf
+
 import pint
 
 django.conf.settings.configure(
     DATABASES={"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}},
-    SECRET_KEY="not very secret in tests",
+    SECRET_KEY="not very secret in tests",  # noqa: S106
     USE_I18N=True,
     USE_L10N=True,
     # Use common Middleware

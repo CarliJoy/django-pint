@@ -5,8 +5,6 @@ from django.contrib.admin import ModelAdmin
 from django.db.models import Model
 from django.forms import Field, ModelForm
 
-from typing import Dict
-
 from quantityfield.widgets import QuantityWidget
 from tests.dummyapp import models
 
@@ -39,5 +37,5 @@ def test_admin_widgets(model: Model, field: str):
     """
     admin: ModelAdmin = django.contrib.admin.site._registry[model]
     form: ModelForm = admin.get_form({})()
-    form_fields: Dict[str, Field] = form.fields
+    form_fields: dict[str, Field] = form.fields
     assert type(form_fields[field].widget) == QuantityWidget  # noqa

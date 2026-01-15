@@ -17,33 +17,12 @@ repos:
   - id: mixed-line-ending
     args: ['--fix=auto']
 
-- repo: https://github.com/PyCQA/autoflake.git
-  rev: 'v2.3.1'
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.8.6
   hooks:
-    - id: autoflake
-
-- repo: https://github.com/PyCQA/isort
-  rev: 6.0.0
-  hooks:
-  - id: isort
-
-- repo: https://github.com/psf/black
-  rev: 25.1.0
-  hooks:
-  - id: black
-    language_version: python3
-
-- repo: https://github.com/PyCQA/flake8
-  rev: 7.1.1
-  hooks:
-  - id: flake8
-    args: ['--max-line-length=88']  # default of Black
-
-- repo: https://github.com/PyCQA/bandit.git
-  rev: '1.8.2'
-  hooks:
-  -   id: bandit
-      exclude: '^tests/'
+    - id: ruff
+      args: [--fix]
+    - id: ruff-format
 
 - repo: https://github.com/crate-ci/typos.git
   rev: 'typos-dict-v0.12.4'

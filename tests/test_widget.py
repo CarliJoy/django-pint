@@ -1,10 +1,10 @@
 # flake8: noqa: F841
-import pytest
+
+from decimal import Decimal
 
 from django import forms
 from django.test import TestCase
 
-from decimal import Decimal
 from pint import DimensionalityError, UndefinedUnitError
 
 from quantityfield.fields import IntegerQuantityFormField, QuantityFormField
@@ -27,7 +27,7 @@ class HayBaleForm(forms.ModelForm):
 
     class Meta:
         model = HayBale
-        exclude = ["weight_bigint"]
+        fields = ("weight",)
 
 
 class HayBaleFormDefaultWidgets(forms.ModelForm):
@@ -40,7 +40,7 @@ class HayBaleFormDefaultWidgets(forms.ModelForm):
 
     class Meta:
         model = HayBale
-        exclude = ["weight_bigint"]
+        fields = ("weight",)
 
 
 class UnitChoicesDefinedInModelFieldModelForm(forms.ModelForm):
@@ -170,9 +170,7 @@ class TestWidgets(TestCase):
 
     def test_unit_choices_must_be_valid_units(self):
         with self.assertRaises(UndefinedUnitError):
-            field = QuantityFormField(
-                base_units="mile", unit_choices=["gunzu"]
-            )  # noqa: F841
+            field = QuantityFormField(base_units="mile", unit_choices=["gunzu"])  # noqa: F841
 
     def test_unit_choices_must_match_base_dimensionality(self):
         with self.assertRaises(DimensionalityError):
