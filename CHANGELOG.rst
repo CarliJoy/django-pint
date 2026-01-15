@@ -2,6 +2,12 @@
 Changelog
 =========
 
+Version 1.0.0
+=============
+- start following [SemVer](https://semver.org/spec/v2.0.0.html)
+- Drop support for Python 3.8 and 3.9 and Django 3.2
+- Add support for Python 3.12, 3.13 and 3.14 and Django 6.0
+- Modernize project setup: Use `pyproject.toml` only and `ruff`.
 
 Version 0.7.2
 =============
