@@ -2,6 +2,10 @@
 Changelog
 =========
 
+Version 1.0.2
+=============
+- Fix broken pipeline for PyPI Sigstore uploads. No source code changes.
+
 Version 1.0.1
 =============
 - Fix Problem in Publish Pipeline using old upload-artifact (no source code changes)
