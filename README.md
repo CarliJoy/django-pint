@@ -29,7 +29,7 @@ Requires django >= 5.2, and python 3.10/3.11/3.12/3.13/3.14
 
 Tested with the following combinations:
 * Django 5.2 (Python 3.10, 3.11, 3.12, 3.13, 3.14)
-* Django 6.0 (Python 3.10, 3.11, 3.12, 3.13, 3.14)
+* Django 6.0 (Python 3.12, 3.13, 3.14)
 
 ## Installation
 
