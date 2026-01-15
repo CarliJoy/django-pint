@@ -2,6 +2,11 @@
 Changelog
 =========
 
+Version 1.0.3
+=============
+- Correct minimal Django version to 5.2 in pyproject.toml
+- Fix documentation builds
+
 Version 1.0.2
 =============
 - Fix broken pipeline for PyPI Sigstore uploads. No source code changes.
