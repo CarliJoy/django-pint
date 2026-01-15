@@ -170,7 +170,7 @@ class QuantityFieldMixin(object):
         """
         if prepared:
             return value
-        
+
         # Use get_prep_value to convert Quantity to magnitude
         return self.get_prep_value(value)
 
