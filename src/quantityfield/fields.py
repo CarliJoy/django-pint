@@ -1,3 +1,10 @@
+import datetime
+import typing
+import warnings
+from collections.abc import Callable, Sequence
+from decimal import Decimal
+from typing import Any, Union, cast
+
 from django import forms
 from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
 from django.core.exceptions import ValidationError
@@ -5,27 +12,22 @@ from django.db import models
 from django.utils import formats
 from django.utils.translation import gettext_lazy as _
 
-import datetime
-import typing
-import warnings
-from decimal import Decimal
 from pint import Quantity
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union, cast
 
 from .helper import check_matching_unit_dimension
 from .units import ureg
 from .widgets import QuantityWidget
 
-DJANGO_JSON_SERIALIZABLE_BASE = Union[
+DJANGO_JSON_SERIALIZABLE_BASE = Union[  # noqa: UP007
     None, bool, str, int, float, complex, datetime.datetime
 ]
-DJANGO_JSON_SERIALIZABLE = Union[
-    Sequence[DJANGO_JSON_SERIALIZABLE_BASE], Dict[str, DJANGO_JSON_SERIALIZABLE_BASE]
+DJANGO_JSON_SERIALIZABLE = Union[  # noqa: UP007
+    Sequence[DJANGO_JSON_SERIALIZABLE_BASE], dict[str, DJANGO_JSON_SERIALIZABLE_BASE]
 ]
-NUMBER_TYPE = Union[int, float, Decimal]
+NUMBER_TYPE = Union[int, float, Decimal]  # noqa: UP007
 
 
-class QuantityFieldMixin(object):
+class QuantityFieldMixin:
     to_number_type: Callable[[Any], NUMBER_TYPE]
 
     # TODO: Move these stuff into an Protocol or anything
@@ -41,7 +43,7 @@ class QuantityFieldMixin(object):
         self,
         base_units: str,
         *args,
-        unit_choices: Optional[typing.Iterable[str]] = None,
+        unit_choices: typing.Iterable[str] | None = None,
         **kwargs,
     ):
         """
@@ -64,7 +66,7 @@ class QuantityFieldMixin(object):
         self.base_units = base_units
 
         if unit_choices is None:
-            self.unit_choices: List[str] = [self.base_units]
+            self.unit_choices: list[str] = [self.base_units]
         else:
             self.unit_choices = list(unit_choices)
             # The multi widget expects that the base unit is always present as unit
@@ -80,7 +82,7 @@ class QuantityFieldMixin(object):
         # Check if all unit_choices are valid
         check_matching_unit_dimension(self.ureg, self.base_units, self.unit_choices)
 
-        super(QuantityFieldMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     @property
     def units(self) -> str:
@@ -88,11 +90,11 @@ class QuantityFieldMixin(object):
 
     def deconstruct(
         self,
-    ) -> Tuple[
+    ) -> tuple[
         str,
         str,
         Sequence[DJANGO_JSON_SERIALIZABLE],
-        Dict[str, DJANGO_JSON_SERIALIZABLE],
+        dict[str, DJANGO_JSON_SERIALIZABLE],
     ]:
         """
         Return enough information to recreate the field as a 4-tuple:
@@ -133,6 +135,7 @@ class QuantityFieldMixin(object):
                     "We assume the naming is equal but best use the same register as"
                     " for creating the quantityfield.",
                     RuntimeWarning,
+                    stacklevel=2,
                 )
                 return value.magnitude * self.ureg(str(value.units))
             else:
@@ -140,7 +143,7 @@ class QuantityFieldMixin(object):
         else:
             raise ValueError(f"Value '{value}' ({type(value)} is not a quantity.")
 
-    def get_prep_value(self, value: Any) -> Optional[NUMBER_TYPE]:
+    def get_prep_value(self, value: Any) -> NUMBER_TYPE | None:
         """
         Perform preliminary non-db specific value checks and conversions.
 
@@ -160,7 +163,7 @@ class QuantityFieldMixin(object):
             return self.to_number_type(magnitude)
         except (TypeError, ValueError) as e:
             raise e.__class__(
-                "Field '%s' expected a number but got %r." % (self.name, value),
+                f"Field '{self.name}' expected a number but got {value!r}.",
             ) from e
 
     def get_db_prep_value(self, value, connection, prepared=False):
@@ -178,19 +181,19 @@ class QuantityFieldMixin(object):
         value = self.value_from_object(obj)
         return str(self.get_prep_value(value))
 
-    def from_db_value(self, value: Any, *args, **kwargs) -> Optional[Quantity]:
+    def from_db_value(self, value: Any, *args, **kwargs) -> Quantity | None:
         if value is None:
             return None
         return self.ureg.Quantity(value, getattr(self.ureg, self.base_units))
 
-    def to_python(self, value) -> Optional[Quantity]:
+    def to_python(self, value) -> Quantity | None:
         if isinstance(value, Quantity):
             return self.fix_unit_registry(value)
 
         if value is None:
             return None
 
-        to_number = getattr(super(), "to_python")
+        to_number = super().to_python
         if not callable(to_number):
             raise NotImplementedError(
                 "Mixin not used with a class that has to_python function"
@@ -223,10 +226,10 @@ class QuantityFieldMixin(object):
             "unit_choices": self.unit_choices,
         }
         defaults.update(kwargs)
-        return super(QuantityFieldMixin, self).formfield(**defaults)
+        return super().formfield(**defaults)
 
 
-class QuantityFormFieldMixin(object):
+class QuantityFormFieldMixin:
     """This formfield allows a user to choose which units they
     wish to use to enter a value, but the value is yielded in
     the base_units
@@ -238,7 +241,7 @@ class QuantityFormFieldMixin(object):
     #       better defining a Mixin
     validate: Callable
     run_validators: Callable
-    error_messages: Dict[str, str]
+    error_messages: dict[str, str]
     empty_values: Sequence[Any]
     localize: bool
 
@@ -282,15 +285,15 @@ class QuantityFormFieldMixin(object):
                 ignored_widget["widget"].__name__
                 for ignored_widget in WIDGETS_TO_IGNORE
             ]
-            return getattr(widget, "__name__") in classes_to_ignore
+            return widget.__name__ in classes_to_ignore
 
-        widget = kwargs.get("widget", None)
+        widget = kwargs.get("widget")
         if widget is None or is_special_admin_widget(widget):
             widget = QuantityWidget(
                 base_units=self.base_units, allowed_types=self.units
             )
         kwargs["widget"] = widget
-        super(QuantityFormFieldMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def prepare_value(self, value):
         if isinstance(value, Quantity):
@@ -326,7 +329,9 @@ class QuantityFormFieldMixin(object):
         try:
             val = self.to_number_type(val)
         except (ValueError, TypeError):
-            raise ValidationError(self.error_messages["invalid"], code="invalid")
+            raise ValidationError(
+                self.error_messages["invalid"], code="invalid"
+            ) from None
 
         val = self.ureg.Quantity(val, getattr(self.ureg, units)).to(self.base_units)
         self.validate(val.magnitude)
@@ -363,7 +368,6 @@ class PositiveIntegerQuantityField(QuantityFieldMixin, models.PositiveIntegerFie
 
 
 class DecimalQuantityFormField(QuantityFormFieldMixin, forms.DecimalField):
-
     def to_number_type(self, x: object) -> Decimal:
         return Decimal(str(x))
 
@@ -375,7 +379,7 @@ class DecimalQuantityField(QuantityFieldMixin, models.DecimalField):
         self,
         base_units: str,
         *args,
-        unit_choices: Optional[List[str]] = None,
+        unit_choices: list[str] | None = None,
         verbose_name: str = None,
         name: str = None,
         max_digits: int = None,

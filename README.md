@@ -172,5 +172,5 @@ To reduce the maintenance burden and encourage users to use version still receiv
 Updating these dependencies have to be done in multiple places:
  - `README.md`: Describing it to end users
  - `tox.ini`: For local testing
- - `setup.cfg`: For usage with pip and displaying it in PyPa
+ - `pyproject.toml`: For usage with pip and displaying it in PyPi
  - `.github/workflows/test.yaml`: For the CI/CD Definition

@@ -1,7 +1,8 @@
+from numbers import Number
+
 from django.forms.widgets import MultiWidget, NumberInput, Select
 
 import pint
-from numbers import Number
 
 from .units import ureg
 
@@ -14,7 +15,7 @@ class QuantityWidget(MultiWidget):
         attrs = attrs or {}
         attrs.setdefault("step", "any")
         widgets = (NumberInput(attrs=attrs), Select(attrs=attrs, choices=choices))
-        super(QuantityWidget, self).__init__(widgets, attrs)
+        super().__init__(widgets, attrs)
 
     def get_choices(self, allowed_types=None):
         allowed_types = allowed_types or dir(self.ureg)

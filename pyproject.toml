@@ -1,8 +1,144 @@
 [build-system]
-# AVOID CHANGING REQUIRES: IT WILL BE UPDATED BY PYSCAFFOLD!
 requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5", "wheel"]
 build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "django-pint"
+dynamic = ["version"]
+description = "Quantity Field for Django using pint library for automated unit conversions"
+authors = [
+    {name = "Carli* Freudenberg", email = "kound@posteo.de"},
+    {name = "Ben Harling"},
+]
+maintainers = [
+     {name = "Carli* Freudenberg", email = "kound@posteo.de"},
+]
+license = "MIT"
+license-files = ["LICENSE.txt"]
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Framework :: Django",
+    "Framework :: Django :: 5.2",
+    "Framework :: Django :: 6.0",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "Django>=4.2",
+    "pint>=0.16",
+]
+
+[project.urls]
+Homepage = "https://github.com/CarliJoy/django-pint/"
+Documentation = "https://django-pint.readthedocs.io/en/latest/"
+"Source Code" = "https://github.com/CarliJoy/django-pint/"
+"Bug Tracker" = "https://github.com/CarliJoy/django-pint/issues"
+
+
+[dependency-groups]
+testing = [
+    "pytest>=6.1",
+    "pytest-cov>=2.1",
+    "pytest-django>=0.4",
+    "tox>=3.2",
+]
+build_doc = [
+    "sphinx",
+    "recommonmark>=0.6.0",
+    "m2r2",
+]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+exclude = [".tox", ".venv*", "build", "dist"]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "DJ",  # flake8-django
+    "UP",  # pyupgrade
+    "S",  # flake8-bandit
+    "T20", # flake8-print
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # handled by format
+    "SIM101",  # multiple istinaces are harder to read IMHO
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**.py" = [
+    "S101",  # assert is wanted in tests
+    "T20",  # print is for tests
+    "SIM117",  # no need to combine with statements in tests
+    "DJ008",  # we don't care about __str__ in tests
+    "DJ007",  # we don't care for __all__ use in tests
+]
+"docs/conf.py" = [
+    "T20",  # print is for doc generation
+    "E402",  # late imports for autodoc generation is okay
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["django_pint"]
+section-order = [
+  "future",
+  "standard-library",
+  "test",
+  "django",
+  "third-party",
+  "pandas",
+  "first-party",
+  "local-folder",
+]
+
+# Define your custom sections and their module globs.
+[tool.ruff.lint.isort.sections]
+test = ["pytest"]
+django = ["django"]
+pandas = ["pandas", "numpy"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests"]
 
 [tool.setuptools_scm]
 # See configuration details in https://github.com/pypa/setuptools_scm
 version_scheme = "no-guess-dev"
+
+
+[tool.pytest.ini_options]
+addopts = [
+    "--cov=quantityfield",
+    "--cov-report=xml",
+    "--cov-report=term-missing",
+    "--verbose",
+]
+norecursedirs = [
+    "dist",
+    "build",
+    ".tox",
+]
+testpaths = ["tests"]
+DJANGO_SETTINGS_MODULE = "tests.settings"

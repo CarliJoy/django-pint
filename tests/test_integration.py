@@ -1,9 +1,9 @@
+from decimal import Decimal
+
 import pytest
 
 from django import forms
 from django.test import TestCase
-
-from decimal import Decimal
 
 from tests.dummyapp.forms import (
     DefaultFormBigInt,

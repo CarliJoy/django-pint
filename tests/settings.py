@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+
 from pint import UnitRegistry
 
 # Try to find guess the correct loading string for the dummy app,
@@ -7,15 +8,15 @@ from pint import UnitRegistry
 # testing and a pytest run.
 dummy_app_load_string: str = ""
 try:
-    import tests.dummyapp
+    import tests.dummyapp  # noqa
 except ImportError:
     try:
-        import dummyapp
+        import dummyapp  # noqa
     except ImportError:
         raise ImportError(
             "Neither `tests.dummyapp' nor 'dummyapp' has been "
             " found in the PYTHON_PATH."
-        )
+        ) from None
     else:
         dummy_app_load_string = "dummyapp"
 else:
@@ -60,7 +61,7 @@ DATABASES = {
 }
 
 # not very secret in tests
-SECRET_KEY = "5tb#evac8q447#b7u8w5#yj$yq3%by!a-5t7$4@vrj$al1-u3c"
+SECRET_KEY = "5tb#evac8q447#b7u8w5#yj$yq3%by!a-5t7$4@vrj$al1-u3c"  # noqa: S105
 USE_I18N = True
 USE_L10N = True
 # Use common Middleware

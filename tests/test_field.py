@@ -1,3 +1,7 @@
+import json
+import warnings
+from decimal import Decimal
+
 import pytest
 
 import django.core.exceptions
@@ -7,11 +11,7 @@ from django.db import transaction
 from django.db.models import Field, Model
 from django.test import TestCase
 
-import json
-import warnings
-from decimal import Decimal
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
-from typing import Type, Union
 
 from quantityfield.fields import (
     BigIntegerQuantityField,
@@ -44,7 +44,7 @@ Quantity = ureg.Quantity
 
 class BaseMixinTestFieldCreate:
     # The field that needs to be tested
-    FIELD: Type[Union[Field, QuantityFieldMixin]]
+    FIELD: type[Field | QuantityFieldMixin]
     # Some fields, i.e. the decimal require default kwargs to work properly
     DEFAULT_KWARGS = {}
 
@@ -78,7 +78,7 @@ class BaseMixinTestFieldCreate:
             self.FIELD(
                 base_units="gram",
                 unit_choices=["meter", "ounces"],
-                **self.DEFAULT_KWARGS
+                **self.DEFAULT_KWARGS,
             )
 
 
@@ -186,7 +186,7 @@ class TestCustomUreg(TestCase):
 
 
 class BaseMixinNullAble:
-    EMPTY_MODEL: Type[Model]
+    EMPTY_MODEL: type[Model]
     FLOAT_SET_STR = "707.7"
     FLOAT_SET = float(FLOAT_SET_STR)
     DB_FLOAT_VALUE_EXPECTED = 707.7
@@ -347,8 +347,8 @@ class TestNullableDecimal(BaseMixinNullAble, TestCase):
 
 
 class FieldSaveTestBase:
-    MODEL: Type[FieldSaveModel]
-    EXPECTED_TYPE: Type = float
+    MODEL: type[FieldSaveModel]
+    EXPECTED_TYPE: type = float
     DEFAULT_WEIGHT = 100
     DEFAULT_WEIGHT_STR = "100.0"
     DEFAULT_WEIGHT_QUANTITY_STR = "100.0 gram"
@@ -373,9 +373,8 @@ class FieldSaveTestBase:
         # fixing a unit test problem
         # http://stackoverflow.com/questions/21458387/transactionmanagementerror-you-cant-execute-queries-until-the-end-of-the-atom
         metres = Quantity(100 * ureg.meter)
-        with transaction.atomic():
-            with self.assertRaises(DimensionalityError):
-                self.MODEL.objects.create(weight=metres, name="Should Fail")
+        with transaction.atomic(), self.assertRaises(DimensionalityError):
+            self.MODEL.objects.create(weight=metres, name="Should Fail")
 
     def test_value_stored_as_quantity(self):
         obj = self.MODEL.objects.first()
@@ -528,7 +527,6 @@ class TestOffsetUnitFieldSaveTestBase(FloatLikeFieldSaveTestBase, TestCase):
 
 
 class TestDecimalQuantityFormField(TestCase):
-
     def test_to_number_type_returns_decimal(self):
         field = DecimalQuantityFormField(base_units="gram")
         expected = Decimal("2.1")

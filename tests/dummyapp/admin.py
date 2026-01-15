@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import *  # noqa: F401, F403
+from . import models
 
 
 class ReadOnlyEditing(admin.ModelAdmin):
@@ -10,17 +10,17 @@ class ReadOnlyEditing(admin.ModelAdmin):
         return []
 
 
-admin.site.register(BigIntFieldSaveModel, ReadOnlyEditing)
-admin.site.register(ChoicesDefinedInModel, ReadOnlyEditing)
-admin.site.register(ChoicesDefinedInModelInt, ReadOnlyEditing)
-admin.site.register(CustomUregDecimalHayBale, ReadOnlyEditing)
-admin.site.register(CustomUregHayBale, ReadOnlyEditing)
-admin.site.register(DecimalFieldSaveModel, ReadOnlyEditing)
-admin.site.register(EmptyHayBaleBigInt, ReadOnlyEditing)
-admin.site.register(EmptyHayBaleDecimal, ReadOnlyEditing)
-admin.site.register(EmptyHayBaleFloat, ReadOnlyEditing)
-admin.site.register(EmptyHayBaleInt, ReadOnlyEditing)
-admin.site.register(FloatFieldSaveModel, ReadOnlyEditing)
-admin.site.register(HayBale, ReadOnlyEditing)
-admin.site.register(IntFieldSaveModel, ReadOnlyEditing)
-admin.site.register(OffsetUnitFloatFieldSaveModel, ReadOnlyEditing)
+admin.site.register(models.BigIntFieldSaveModel, ReadOnlyEditing)
+admin.site.register(models.ChoicesDefinedInModel, ReadOnlyEditing)
+admin.site.register(models.ChoicesDefinedInModelInt, ReadOnlyEditing)
+admin.site.register(models.CustomUregDecimalHayBale, ReadOnlyEditing)
+admin.site.register(models.CustomUregHayBale, ReadOnlyEditing)
+admin.site.register(models.DecimalFieldSaveModel, ReadOnlyEditing)
+admin.site.register(models.EmptyHayBaleBigInt, ReadOnlyEditing)
+admin.site.register(models.EmptyHayBaleDecimal, ReadOnlyEditing)
+admin.site.register(models.EmptyHayBaleFloat, ReadOnlyEditing)
+admin.site.register(models.EmptyHayBaleInt, ReadOnlyEditing)
+admin.site.register(models.FloatFieldSaveModel, ReadOnlyEditing)
+admin.site.register(models.HayBale, ReadOnlyEditing)
+admin.site.register(models.IntFieldSaveModel, ReadOnlyEditing)
+admin.site.register(models.OffsetUnitFloatFieldSaveModel, ReadOnlyEditing)
