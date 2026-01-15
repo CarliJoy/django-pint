@@ -1,4 +1,4 @@
-Django>=2.2
+Django>=5.2
 m2r2>=0.2.5
 pint>=0.16
 recommonmark>=0.6.0
