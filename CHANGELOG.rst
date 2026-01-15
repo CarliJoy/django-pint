@@ -2,16 +2,22 @@
 Changelog
 =========
 
+Version 1.0.1
+=============
+- Fix Problem in Publish Pipeline using old upload-artifact (no source code changes)
+
 Version 1.0.0
 =============
-- start following [SemVer](https://semver.org/spec/v2.0.0.html)
+- Start following `SemVer <https://semver.org/spec/v2.0.0.html>`_
+- Convert numeric types to str before calling Decimal `#101 by @mmarra <https://github.com/CarliJoy/django-pint/pull/101>`_
+- Try unit conversion instead of literal dimensionality check `#108  by @SamuelJennings <https://github.com/CarliJoy/django-pint/pull/108>`_
 - Drop support for Python 3.8 and 3.9 and Django 3.2
-- Add support for Python 3.12, 3.13 and 3.14 and Django 6.0
-- Modernize project setup: Use `pyproject.toml` only and `ruff`.
+- Add support for Python 3.12, 3.13 and 3.14 and Django 6.0 `#116 by @Adiorz <https://github.com/CarliJoy/django-pint/pull/117>`_
+- Modernize project setup: Use ``pyproject.toml`` only and ``ruff``.
 
 Version 0.7.2
 =============
-- fix conversion of number input to DecimalField (`issue #106 <https://github.com/CarliJoy/django-pint/issues/106>`)
+- fix conversion of number input to DecimalField (`issue #106 <https://github.com/CarliJoy/django-pint/issues/106>`_)
 
 Version 0.7.1
 =============
