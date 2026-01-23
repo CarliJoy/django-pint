@@ -8,10 +8,10 @@ from django.test import TestCase
 from quantityfield.units import ureg
 from tests.dummyapp.models import (
     BigIntFieldSaveModel,
+    DecimalFieldSaveModel,
     EmptyHayBalePositiveInt,
     FloatFieldSaveModel,
     IntFieldSaveModel,
-    DecimalFieldSaveModel,
 )
 
 Quantity = ureg.Quantity
@@ -19,6 +19,7 @@ Quantity = ureg.Quantity
 
 class BaseMixinQuantityFieldORM:
     """Base mixin for ORM tests for QuantityField types."""
+
     MODEL: type
     FIELD_NAME: str = "weight"
     CREATE_KWARGS_LIGHT: dict = {"name": "light", FIELD_NAME: 100}
@@ -42,8 +43,14 @@ class BaseMixinQuantityFieldORM:
         self.light.refresh_from_db()
         self.heavy.refresh_from_db()
 
-        self.assertEqual(Quantity(self.EXPECTED_TYPE(100) * ureg.gram), getattr(self.light, self.FIELD_NAME))
-        self.assertEqual(Quantity(self.EXPECTED_TYPE(100) * ureg.gram), getattr(self.heavy, self.FIELD_NAME))
+        self.assertEqual(
+            Quantity(self.EXPECTED_TYPE(100) * ureg.gram),
+            getattr(self.light, self.FIELD_NAME),
+        )
+        self.assertEqual(
+            Quantity(self.EXPECTED_TYPE(100) * ureg.gram),
+            getattr(self.heavy, self.FIELD_NAME),
+        )
 
 
 @pytest.mark.django_db
