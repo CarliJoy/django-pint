@@ -9,6 +9,7 @@ from django import forms
 from django.contrib.admin.options import FORMFIELD_FOR_DBFIELD_DEFAULTS
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.expressions import BaseExpression
 from django.utils import formats
 from django.utils.translation import gettext_lazy as _
 
@@ -427,6 +428,9 @@ class DecimalQuantityField(QuantityFieldMixin, models.DecimalField):
         """
         Get Value that shall be saved to database, make sure it is transformed
         """
+        if isinstance(value, BaseExpression):
+            return value
+
         converted = self.to_python(value)
         magnitude = self.get_prep_value(converted)
         return connection.ops.adapt_decimalfield_value(

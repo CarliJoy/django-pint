@@ -2,6 +2,10 @@
 Changelog
 =========
 
+Version 1.0.4
+=============
+- Fix support for expressions (subqueries) in bulk updates (`by @Adiorz, issue #119 <https://github.com/CarliJoy/django-pint/issues/119>`_)
+
 Version 1.0.3
 =============
 - Correct minimal Django version to 5.2 in pyproject.toml
