@@ -2,6 +2,10 @@
 Changelog
 =========
 
+Version 1.0.4
+============
+- Fix support for expressions (subqueries) in bulk updates
+
 Version 1.0.3
 =============
 - Correct minimal Django version to 5.2 in pyproject.toml
