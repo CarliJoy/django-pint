@@ -9,7 +9,8 @@ import django.core.validators
 from django.core.serializers import deserialize, serialize
 from django.db import transaction
 from django.db.models import Field, Model
-from django.test import TestCase
+from django.test import TestCase, override_settings
+from django.utils.translation import override as translation_override
 
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
 
@@ -18,9 +19,11 @@ from quantityfield.fields import (
     DecimalQuantityField,
     DecimalQuantityFormField,
     IntegerQuantityField,
+    IntegerQuantityFormField,
     PositiveIntegerQuantityField,
     QuantityField,
     QuantityFieldMixin,
+    QuantityFormField,
 )
 from quantityfield.units import ureg
 from tests.dummyapp.models import (
@@ -544,3 +547,83 @@ class TestDecimalQuantityFormField(TestCase):
         self.assertEqual(field.clean("2.1").magnitude, expected)  # test string
         self.assertEqual(field.clean(expected).magnitude, expected)  # test Decimal
         self.assertEqual(field.clean(2).magnitude, Decimal("2"))  # test Int
+
+
+@override_settings(USE_L10N=True, USE_THOUSAND_SEPARATOR=True)
+class TestLocalization(TestCase):
+    """Tests for localization support in form fields (localize=True).
+
+    German locale uses comma as decimal separator and period as thousands
+    separator, e.g. "1.234,56" means 1234.56 in English notation.
+    """
+
+    def test_float_form_field_localized_decimal_separator(self):
+        """QuantityFormField with localize=True handles locale decimal separators."""
+        field = QuantityFormField(base_units="gram", localize=True)
+        with translation_override("de"):
+            result = field.clean("1,5")
+            self.assertAlmostEqual(result.magnitude, 1.5)
+
+    def test_float_form_field_localized_thousands_separator(self):
+        """QuantityFormField with localize=True strips locale thousands separators."""
+        field = QuantityFormField(base_units="gram", localize=True)
+        with translation_override("de"):
+            # In German locale, period is the thousands separator
+            result = field.clean("1.500")
+            self.assertAlmostEqual(result.magnitude, 1500.0)
+
+    def test_float_form_field_localized_decimal_and_thousands(self):
+        """QuantityFormField with localize=True handles both separators."""
+        field = QuantityFormField(base_units="gram", localize=True)
+        with translation_override("de"):
+            result = field.clean("1.234,56")
+            self.assertAlmostEqual(result.magnitude, 1234.56)
+
+    def test_decimal_form_field_localized_decimal_separator(self):
+        """DecimalQuantityFormField with localize=True handles locale decimal separators."""
+        field = DecimalQuantityFormField(base_units="gram", localize=True)
+        with translation_override("de"):
+            result = field.clean("1,5")
+            self.assertEqual(result.magnitude, Decimal("1.5"))
+
+    def test_decimal_form_field_localized_decimal_and_thousands(self):
+        """DecimalQuantityFormField with localize=True handles both separators."""
+        field = DecimalQuantityFormField(base_units="gram", localize=True)
+        with translation_override("de"):
+            result = field.clean("1.234,56")
+            self.assertEqual(result.magnitude, Decimal("1234.56"))
+
+    def test_integer_form_field_localized_thousands_separator(self):
+        """IntegerQuantityFormField with localize=True strips locale thousands separators."""
+        field = IntegerQuantityFormField(base_units="gram", localize=True)
+        with translation_override("de"):
+            # In German locale, period is the thousands separator
+            result = field.clean("1.000")
+            self.assertEqual(result.magnitude, 1000)
+
+    def test_float_form_field_localized_with_multiwidget_input(self):
+        """QuantityFormField with localize=True handles multi-widget list input."""
+        field = QuantityFormField(
+            base_units="gram", unit_choices=["gram", "kilogram"], localize=True
+        )
+        with translation_override("de"):
+            # Multi-widget provides [value, unit] as a list
+            result = field.clean(["1,5", "gram"])
+            self.assertAlmostEqual(result.magnitude, 1.5)
+
+    def test_decimal_form_field_localized_with_multiwidget_input(self):
+        """DecimalQuantityFormField with localize=True handles multi-widget list input."""
+        field = DecimalQuantityFormField(
+            base_units="gram", unit_choices=["gram", "kilogram"], localize=True
+        )
+        with translation_override("de"):
+            result = field.clean(["1,5", "gram"])
+            self.assertEqual(result.magnitude, Decimal("1.5"))
+
+    def test_localize_false_does_not_sanitize(self):
+        """Without localize=True, locale separators are not sanitized."""
+        field = QuantityFormField(base_units="gram", localize=False)
+        with translation_override("de"):
+            # Standard dot decimal separator should still work without localization
+            result = field.clean("1.5")
+            self.assertAlmostEqual(result.magnitude, 1.5)
