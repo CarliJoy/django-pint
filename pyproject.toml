@@ -61,6 +61,14 @@ dev = [
     "nox>=2024.10.9",
     "pre-commit>=3.0",
 ]
+build_doc = [
+    "Django>=5.2",
+    "pint>=0.16",
+    "sphinx",
+    "sphinx-rtd-theme>=0.5.0",
+    "m2r2>=0.2.5",
+    "recommonmark>=0.6.0",
+]
 
 [tool.ruff]
 line-length = 88

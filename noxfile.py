@@ -41,9 +41,9 @@ def docs_doctest(session: nox.Session) -> None:
         "Django>=5.2",
         "pint>=0.16",
         "sphinx",
-        "sphinx-rtd-theme",
-        "m2r2",
-        "recommonmark",
+        "sphinx-rtd-theme>=0.5.0",
+        "m2r2>=0.2.5",
+        "recommonmark>=0.6.0",
         "-e",
         ".",
     )
