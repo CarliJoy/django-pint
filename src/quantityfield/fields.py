@@ -290,9 +290,7 @@ class QuantityFormFieldMixin:
 
         widget = kwargs.get("widget")
         if widget is None or is_special_admin_widget(widget):
-            widget = QuantityWidget(
-                base_units=self.base_units, allowed_types=self.units
-            )
+            widget = QuantityWidget(base_units=self.base_units, unit_choices=self.units)
         kwargs["widget"] = widget
         super().__init__(*args, **kwargs)
 
