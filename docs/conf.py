@@ -118,6 +118,34 @@ django.conf.settings.configure(
 
 django.setup()
 
+# -- Sphinx doctest configuration -----------------------------------------------
+# Global setup for doctest: create the HayBale model and its database table so
+# that the interactive examples in docs/usage.rst can run against SQLite.
+doctest_global_setup = """
+from django.apps import apps
+from django.db import connection, models
+from quantityfield.fields import QuantityField
+from quantityfield.units import ureg
+
+# Retrieve or create the HayBale model used in doctest examples.
+# Each doctest group re-executes this global setup, so we reuse the already
+# registered model when it exists to avoid "Model was already registered" warnings.
+if apps.all_models['quantityfield'].get('haybale'):
+    HayBale = apps.get_model('quantityfield', 'HayBale')
+else:
+    class HayBale(models.Model):
+        weight = QuantityField('tonne')
+
+        class Meta:
+            app_label = 'quantityfield'
+
+try:
+    with connection.schema_editor() as schema_editor:
+        schema_editor.create_model(HayBale)
+except Exception:
+    pass  # table already exists from a previous doctest group
+"""
+
 
 # To configure AutoStructify
 def setup(app):
