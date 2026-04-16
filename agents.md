@@ -24,7 +24,7 @@ This file provides instructions and conventions for AI coding agents working in 
 
 ## Testing
 
-- Run tests with `tox` or `pytest` (see `tox.ini` and `pyproject.toml` for configuration).
+- Run tests with `nox` or `pytest` (see `noxfile.py` and `pyproject.toml` for configuration).
 - Add or update tests for every bug fix or new feature.
 
 ## Project Structure

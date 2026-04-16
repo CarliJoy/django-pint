@@ -1,6 +1,6 @@
 [build-system]
-requires = ["setuptools>=46.1.0", "setuptools_scm[toml]>=5", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 
 [project]
@@ -52,20 +52,21 @@ Documentation = "https://django-pint.readthedocs.io/en/latest/"
 testing = [
     "pytest>=6.1",
     "pytest-cov>=2.1",
-    "pytest-django>=0.4",
-    "tox>=3.2",
+    "pytest-django>=4.0",
+    "testcontainers[postgres]>=4.0",
+    "psycopg2-binary",
 ]
-build_doc = [
-    "sphinx",
-    "recommonmark>=0.6.0",
-    "m2r2",
+dev = [
+    {include-group = "testing"},
+    "nox>=2024.10.9",
+    "pre-commit>=3.0",
 ]
 
 [tool.ruff]
 line-length = 88
 
 [tool.ruff.lint]
-exclude = [".tox", ".venv*", "build", "dist"]
+exclude = [".venv*", "build", "dist"]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
@@ -116,16 +117,22 @@ test = ["pytest"]
 django = ["django"]
 pandas = ["pandas", "numpy"]
 
-[tool.setuptools]
-package-dir = {"" = "src"}
+[tool.hatch.version]
+source = "vcs"
+raw-options = {version_scheme = "no-guess-dev"}
 
-[tool.setuptools.packages.find]
-where = ["src"]
-exclude = ["tests"]
+[tool.hatch.build.targets.wheel]
+packages = ["src/quantityfield"]
 
-[tool.setuptools_scm]
-# See configuration details in https://github.com/pypa/setuptools_scm
-version_scheme = "no-guess-dev"
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/",
+    "tests/",
+    "docs/",
+    "README.md",
+    "LICENSE.txt",
+    "CHANGELOG.rst",
+]
 
 
 [tool.pytest.ini_options]
@@ -138,7 +145,31 @@ addopts = [
 norecursedirs = [
     "dist",
     "build",
-    ".tox",
+    ".nox",
 ]
 testpaths = ["tests"]
 DJANGO_SETTINGS_MODULE = "tests.settings"
+
+[tool.coverage.run]
+branch = true
+source = ["quantityfield"]
+
+[tool.coverage.paths]
+source = [
+    "src/",
+    "*/site-packages/",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self\\.debug",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+]
+
+[tool.coverage.html]
+show_contexts = true
