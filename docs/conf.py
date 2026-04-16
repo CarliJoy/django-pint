@@ -9,6 +9,7 @@
 
 import inspect
 import os
+import re
 import shutil
 import sys
 
@@ -18,9 +19,42 @@ __location__ = os.path.join(
 
 import m2r2
 
+# -- Sphinx doctest: promote interactive README examples to doctest blocks ------
+# m2r2 converts fenced ```python blocks to ``.. code-block:: python`` directives.
+# The Sphinx doctest builder ignores those. This function converts any
+# ``.. code-block:: python`` block that contains interactive prompts (``>>> ``)
+# into a named ``.. doctest::`` group preceded by a ``.. testsetup::`` that
+# clears the HayBale table, so every example runs in a clean database state.
+# README.md is therefore the single source of truth for all usage examples.
+
+_interactive_block_re = re.compile(
+    r"\.\. code-block:: python\n\n((?:[ \t]+[^\n]*(?:\n|$))*)",
+    re.MULTILINE,
+)
+
+
+def _convert_interactive_blocks_to_doctests(rst_content):
+    counter = [0]
+
+    def _replacer(match):
+        body = match.group(1)
+        if ">>> " not in body:
+            return match.group(0)
+        counter[0] += 1
+        group = f"readme-example-{counter[0]}"
+        testsetup = (
+            f".. testsetup:: {group}\n\n"
+            f"   HayBale.objects.all().delete()\n\n"
+        )
+        return testsetup + f".. doctest:: {group}\n\n{body}"
+
+    return _interactive_block_re.sub(_replacer, rst_content)
+
+
 # Manually convert documentation
 
 readme_rst_content = m2r2.parse_from_file(os.path.join(__location__, "..", "README.md"))
+readme_rst_content = _convert_interactive_blocks_to_doctests(readme_rst_content)
 with open(os.path.join(__location__, "README.rst"), "w") as f:
     f.write(readme_rst_content)
 
@@ -117,6 +151,36 @@ django.conf.settings.configure(
 )
 
 django.setup()
+
+# -- Sphinx doctest configuration -----------------------------------------------
+# Global setup for doctest: create the HayBale model and its database table so
+# that the interactive examples in README.md can run against SQLite.
+# The per-group testsetup blocks (injected by _convert_interactive_blocks_to_doctests
+# above) handle table cleanup between examples.
+doctest_global_setup = """
+from django.apps import apps
+from django.db import connection, models
+from quantityfield.fields import QuantityField
+from quantityfield.units import ureg
+
+# Retrieve or create the HayBale model used in doctest examples.
+# Each doctest group re-executes this global setup, so we reuse the already
+# registered model when it exists to avoid "Model was already registered" warnings.
+if apps.all_models['quantityfield'].get('haybale'):
+    HayBale = apps.get_model('quantityfield', 'HayBale')
+else:
+    class HayBale(models.Model):
+        weight = QuantityField('tonne')
+
+        class Meta:
+            app_label = 'quantityfield'
+
+try:
+    with connection.schema_editor() as schema_editor:
+        schema_editor.create_model(HayBale)
+except Exception:
+    pass  # table already exists from a previous doctest group
+"""
 
 
 # To configure AutoStructify

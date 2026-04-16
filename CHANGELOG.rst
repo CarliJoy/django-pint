@@ -4,8 +4,9 @@ Changelog
 
 Unreleased
 ==========
-- Fix bug in ``QuantityFormFieldMixin.clean()`` where ``localize=True`` with a multi-widget list input called ``sanitize_separators`` on the full list instead of the extracted numeric string (`#125 <https://github.com/CarliJoy/django-pint/pull/125>`_)
-- Deprecate ``QuantityWidget.allowed_types`` in favour of ``unit_choices`` for consistency with ``QuantityField``; passing both raises ``TypeError`` (`#126 <https://github.com/CarliJoy/django-pint/pull/126>`_)
+- Fix bug in ``QuantityFormFieldMixin.clean()`` where ``localize=True`` with a multi-widget list input called ``sanitize_separators`` on the full list instead of the extracted numeric string (`issue #24 <https://github.com/CarliJoy/django-pint/issues/24>`_, `#125 <https://github.com/CarliJoy/django-pint/pull/125>`_)
+- Deprecate ``QuantityWidget.allowed_types`` in favour of ``unit_choices`` for consistency with ``QuantityField``; passing both raises ``TypeError`` (`issue #103 <https://github.com/CarliJoy/django-pint/issues/103>`_, `#126 <https://github.com/CarliJoy/django-pint/pull/126>`_)
+- Add Sphinx doctest validation for README usage examples; ``README.md`` is now the single source of truth for interactive code examples (`issue #20 <https://github.com/CarliJoy/django-pint/issues/20>`_, `#124 <https://github.com/CarliJoy/django-pint/pull/124>`_)
 
 Version 1.0.4
 =============
