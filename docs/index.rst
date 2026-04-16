@@ -10,7 +10,6 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   Usage Examples <usage>
    License <license>
    Authors <authors>
    Changelog <changelog>
