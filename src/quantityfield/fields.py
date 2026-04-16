@@ -325,7 +325,7 @@ class QuantityFormFieldMixin:
             raise ValidationError(_("%(units)s is not a valid choice") % locals())
 
         if self.localize:
-            val = formats.sanitize_separators(value)
+            val = formats.sanitize_separators(val)
 
         try:
             val = self.to_number_type(val)
