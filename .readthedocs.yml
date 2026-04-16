@@ -8,7 +8,3 @@ build:
     - pip install uv
     - uv pip install --system --group build_doc -e .
     - sphinx-build -b html docs $READTHEDOCS_OUTPUT/html
-
-sphinx:
-  configuration: docs/conf.py
-  fail_on_warning: false  # we don't care atm

@@ -33,7 +33,6 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
-          allow-prereleases: true
       - name: Install nox
         run: uv tool install nox
       - name: Run test suite

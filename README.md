@@ -160,7 +160,7 @@ No separate database installation is required.
 1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
 2. Fork `django-pint` and clone your fork (see [Tutorial](https://docs.github.com/get-started/quickstart/contributing-to-projects))
 3. Change into the repo: `cd django-pint`
-4. Install all development dependencies: `uv sync --group dev`
+4. Install all development dependencies: `uv sync`
 5. Activate pre-commit hooks: `uv run pre-commit install`
 6. Check that all linters pass: `uv run pre-commit run --all-files`
 7. Run the full test suite: `nox`
