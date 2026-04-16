@@ -581,16 +581,14 @@ class TestLocalization(TestCase):
 
     def test_decimal_form_field_localized_decimal_separator(self):
         """DecimalQuantityFormField with localize=True handles locale decimal separators."""
-        field = DecimalQuantityFormField(base_units="gram")
-        field.localize = True
+        field = DecimalQuantityFormField(base_units="gram", localize=True)
         with translation_override("de"):
             result = field.clean("1,5")
             self.assertEqual(result.magnitude, Decimal("1.5"))
 
     def test_decimal_form_field_localized_decimal_and_thousands(self):
         """DecimalQuantityFormField with localize=True handles both separators."""
-        field = DecimalQuantityFormField(base_units="gram")
-        field.localize = True
+        field = DecimalQuantityFormField(base_units="gram", localize=True)
         with translation_override("de"):
             result = field.clean("1.234,56")
             self.assertEqual(result.magnitude, Decimal("1234.56"))
@@ -616,9 +614,8 @@ class TestLocalization(TestCase):
     def test_decimal_form_field_localized_with_multiwidget_input(self):
         """DecimalQuantityFormField with localize=True handles multi-widget list input."""
         field = DecimalQuantityFormField(
-            base_units="gram", unit_choices=["gram", "kilogram"]
+            base_units="gram", unit_choices=["gram", "kilogram"], localize=True
         )
-        field.localize = True
         with translation_override("de"):
             result = field.clean(["1,5", "gram"])
             self.assertEqual(result.magnitude, Decimal("1.5"))
