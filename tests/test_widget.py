@@ -3,7 +3,7 @@
 from decimal import Decimal
 
 from django import forms
-from django.test import TestCase
+from django.test import SimpleTestCase, TestCase
 
 from pint import DimensionalityError, UndefinedUnitError
 
@@ -238,6 +238,35 @@ class TestWidgets(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertTrue(form.has_error("weight_int"))
+
+
+class TestQuantityWidgetSignature(SimpleTestCase):
+    def test_unit_choices_accepted(self):
+        widget = QuantityWidget(
+            base_units="gram", unit_choices=["gram", "ounce", "kilogram"]
+        )
+        self.assertEqual(
+            widget.widgets[1].choices,
+            [("gram", "gram"), ("ounce", "ounce"), ("kilogram", "kilogram")],
+        )
+
+    def test_allowed_types_deprecated(self):
+        with self.assertWarns(DeprecationWarning):
+            widget = QuantityWidget(
+                base_units="gram", allowed_types=["gram", "ounce", "kilogram"]
+            )
+        self.assertEqual(
+            widget.widgets[1].choices,
+            [("gram", "gram"), ("ounce", "ounce"), ("kilogram", "kilogram")],
+        )
+
+    def test_both_unit_choices_and_allowed_types_raises(self):
+        with self.assertRaises(TypeError):
+            QuantityWidget(
+                base_units="gram",
+                unit_choices=["gram", "ounce"],
+                allowed_types=["gram", "kilogram"],
+            )
 
 
 class TestWidgetRenderingBase(TestCase):
