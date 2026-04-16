@@ -2,6 +2,11 @@
 Changelog
 =========
 
+Unreleased
+==========
+- Fix bug in ``QuantityFormFieldMixin.clean()`` where ``localize=True`` with a multi-widget list input called ``sanitize_separators`` on the full list instead of the extracted numeric string (`#125 <https://github.com/CarliJoy/django-pint/pull/125>`_)
+- Deprecate ``QuantityWidget.allowed_types`` in favour of ``unit_choices`` for consistency with ``QuantityField``; passing both raises ``TypeError`` (`#126 <https://github.com/CarliJoy/django-pint/pull/126>`_)
+
 Version 1.0.4
 =============
 - Fix support for expressions (subqueries) in bulk updates (`by @Adiorz, issue #119 <https://github.com/CarliJoy/django-pint/issues/119>`_)
