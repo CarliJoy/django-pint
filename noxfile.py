@@ -1,3 +1,5 @@
+import pathlib
+
 import nox
 
 # Use uv as the venv backend
@@ -8,9 +10,18 @@ DJANGO_52_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13"]
 DJANGO_60_PYTHON_VERSIONS = ["3.12", "3.13", "3.14"]
 
 
+def _build_wheel(session: nox.Session) -> str:
+    """Build the project wheel and return the path to the .whl file."""
+    dist_dir = session.create_tmp()
+    session.run("uv", "build", "--wheel", "--out-dir", dist_dir, external=True)
+    (wheel,) = pathlib.Path(dist_dir).glob("*.whl")
+    return str(wheel)
+
+
 def _run_tests(session: nox.Session, django_constraint: str) -> None:
-    """Install dependencies and run the test suite."""
-    session.install("--group", "testing", django_constraint, "-e", ".")
+    """Build the wheel and run the test suite against it."""
+    wheel = _build_wheel(session)
+    session.install("--group", "testing", django_constraint, wheel)
     session.run("pytest", *session.posargs)
 
 
@@ -29,5 +40,6 @@ def tests_django60(session: nox.Session) -> None:
 @nox.session(python="3.12")
 def docs_doctest(session: nox.Session) -> None:
     """Run Sphinx doctest on usage examples in docs/."""
-    session.install("--group", "build_doc", "-e", ".")
+    wheel = _build_wheel(session)
+    session.install("--group", "build_doc", wheel)
     session.run("sphinx-build", "-b", "doctest", "docs", "docs/_build/doctest")
