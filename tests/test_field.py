@@ -14,7 +14,7 @@ from django.utils.translation import override as translation_override
 
 from pint import DimensionalityError, UndefinedUnitError, UnitRegistry
 
-from quantityfield.fields import (
+from django_pint.fields import (
     BigIntegerQuantityField,
     DecimalQuantityField,
     DecimalQuantityFormField,
@@ -25,7 +25,7 @@ from quantityfield.fields import (
     QuantityFieldMixin,
     QuantityFormField,
 )
-from quantityfield.units import ureg
+from django_pint.units import ureg
 from tests.dummyapp.models import (
     BigIntFieldSaveModel,
     CustomUregDecimalHayBale,

@@ -1,4 +1,3 @@
-from .settings import DJANGO_PINT_UNIT_REGISTER
+from django_pint.units import ureg  # noqa: F401
 
-# The unit register that was defined in the settings (shortcut)
-ureg = DJANGO_PINT_UNIT_REGISTER
+__all__ = ["ureg"]

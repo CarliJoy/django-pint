@@ -4,6 +4,7 @@ Changelog
 
 Unreleased
 ==========
+- Move primary module from ``quantityfield`` to ``django_pint`` to match the package name; ``quantityfield`` is now a deprecated compatibility shim that re-exports all symbols from ``django_pint`` and emits ``DeprecationWarning`` on import (`issue #9 <https://github.com/CarliJoy/django-pint/issues/9>`_)
 - Migrate project tooling to ``uv``, ``nox``, ``hatchling``, and ``testcontainers``; remove ``tox``, ``tox-docker``, ``setuptools``, and separate Docker/Compose setup files (`issue #127 <https://github.com/CarliJoy/django-pint/issues/127>`_)
 - Fix bug in ``QuantityFormFieldMixin.clean()`` where ``localize=True`` with a multi-widget list input called ``sanitize_separators`` on the full list instead of the extracted numeric string (`issue #24 <https://github.com/CarliJoy/django-pint/issues/24>`_, `#125 <https://github.com/CarliJoy/django-pint/pull/125>`_)
 - Deprecate ``QuantityWidget.allowed_types`` in favour of ``unit_choices`` for consistency with ``QuantityField``; passing both raises ``TypeError`` (`issue #103 <https://github.com/CarliJoy/django-pint/issues/103>`_, `#126 <https://github.com/CarliJoy/django-pint/pull/126>`_)

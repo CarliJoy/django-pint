@@ -7,9 +7,9 @@ from django.test import SimpleTestCase, TestCase
 
 from pint import DimensionalityError, UndefinedUnitError
 
-from quantityfield.fields import IntegerQuantityFormField, QuantityFormField
-from quantityfield.units import ureg
-from quantityfield.widgets import QuantityWidget
+from django_pint.fields import IntegerQuantityFormField, QuantityFormField
+from django_pint.units import ureg
+from django_pint.widgets import QuantityWidget
 from tests.dummyapp.models import (
     ChoicesDefinedInModel,
     ChoicesDefinedInModelInt,

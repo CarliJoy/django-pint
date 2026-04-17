@@ -45,7 +45,7 @@ Best way to illustrate is with an example
 # app/models.py
 
 from django.db import models
-from quantityfield.fields import QuantityField
+from django_pint.fields import QuantityField
 
 class HayBale(models.Model):
     weight = QuantityField('tonne')
@@ -76,7 +76,7 @@ You can also pass Quantity objects to be stored in models. These are automatical
 ( but can be converted to something else when retrieved of course ).
 
 ```python
->>> from quantityfield.units import ureg
+>>> from django_pint.units import ureg
 >>> Quantity = ureg.Quantity
 >>> pounds = Quantity(500 * ureg.pound)
 >>> bale = HayBale.objects.create(weight=pounds)
@@ -88,7 +88,7 @@ You can also pass Quantity objects to be stored in models. These are automatical
 Use the inbuilt form field and widget to allow input of quantity values in different units
 
 ```python
-from quantityfield.fields import QuantityFormField
+from django_pint.fields import QuantityFormField
 
 class HayBaleForm(forms.Form):
     weight = QuantityFormField(base_units='gram', unit_choices=['gram', 'ounce', 'milligram'])
@@ -102,7 +102,7 @@ correctly.
 
 ```python
 >>> from django import forms
->>> from quantityfield.fields import QuantityFormField
+>>> from django_pint.fields import QuantityFormField
 >>> class HayBaleForm(forms.Form):
 ...     weight = QuantityFormField(base_units='gram', unit_choices=['gram', 'ounce', 'milligram'])
 >>> form = HayBaleForm(data={'weight_0': '100', 'weight_1': 'gram'})
@@ -116,7 +116,7 @@ For comparative lookups, query values will be coerced into the correct units whe
 this means that comparing 1 ounce to 1 tonne should yield the correct results.
 
 ```python
->>> from quantityfield.units import ureg
+>>> from django_pint.units import ureg
 >>> Quantity = ureg.Quantity
 >>> bale = HayBale.objects.create(weight=0.3)
 >>> HayBale.objects.filter(weight__lt=Quantity(2000 * ureg.pound)).count()

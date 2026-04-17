@@ -5,7 +5,7 @@ import pytest
 from django.db.models import Min, Subquery
 from django.test import TestCase
 
-from quantityfield.units import ureg
+from django_pint.units import ureg
 from tests.dummyapp.models import (
     BigIntFieldSaveModel,
     DecimalFieldSaveModel,

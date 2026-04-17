@@ -77,7 +77,7 @@ except ImportError:
     from sphinx import apidoc
 
 output_dir = os.path.join(__location__, "api")
-module_dir = os.path.join(__location__, "../src/quantityfield")
+module_dir = os.path.join(__location__, "../src/django_pint")
 shutil.rmtree(output_dir, ignore_errors=True)
 
 try:
@@ -145,7 +145,7 @@ django.conf.settings.configure(
         "django.contrib.sessions",
         "django.contrib.sites",
         "django.contrib.flatpages",
-        "quantityfield",
+        "django_pint",
     ],
     DJANGO_PINT_UNIT_REGISTER=pint.UnitRegistry(),
 )
@@ -160,20 +160,20 @@ django.setup()
 doctest_global_setup = """
 from django.apps import apps
 from django.db import connection, models
-from quantityfield.fields import QuantityField
-from quantityfield.units import ureg
+from django_pint.fields import QuantityField
+from django_pint.units import ureg
 
 # Retrieve or create the HayBale model used in doctest examples.
 # Each doctest group re-executes this global setup, so we reuse the already
 # registered model when it exists to avoid "Model was already registered" warnings.
-if apps.all_models['quantityfield'].get('haybale'):
-    HayBale = apps.get_model('quantityfield', 'HayBale')
+if apps.all_models['django_pint'].get('haybale'):
+    HayBale = apps.get_model('django_pint', 'HayBale')
 else:
     class HayBale(models.Model):
         weight = QuantityField('tonne')
 
         class Meta:
-            app_label = 'quantityfield'
+            app_label = 'django_pint'
 
 try:
     with connection.schema_editor() as schema_editor:
