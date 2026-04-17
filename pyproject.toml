@@ -130,7 +130,7 @@ source = "vcs"
 raw-options = {version_scheme = "no-guess-dev"}
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/quantityfield"]
+packages = ["src/quantityfield", "src/django_pint"]
 
 [tool.hatch.build.targets.sdist]
 include = [
