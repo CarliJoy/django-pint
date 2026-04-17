@@ -94,6 +94,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
+"noxfile.py" = ["S603", "S607"]  # subprocess with hardcoded args is intentional
 "tests/**.py" = [
     "S101",  # assert is wanted in tests
     "T20",  # print is for tests
