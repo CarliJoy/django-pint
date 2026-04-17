@@ -1,4 +1,5 @@
 import pathlib
+import tempfile
 
 import nox
 
@@ -9,19 +10,24 @@ nox.options.default_venv_backend = "uv"
 DJANGO_52_PYTHON_VERSIONS = ["3.10", "3.11", "3.12", "3.13"]
 DJANGO_60_PYTHON_VERSIONS = ["3.12", "3.13", "3.14"]
 
+# Cache the built wheel across all sessions within a single nox invocation.
+_wheel: pathlib.Path | None = None
 
-def _build_wheel(session: nox.Session) -> str:
-    """Build the project wheel and return the path to the .whl file."""
-    dist_dir = session.create_tmp()
-    session.run("uv", "build", "--wheel", "--out-dir", dist_dir, external=True)
-    (wheel,) = pathlib.Path(dist_dir).glob("*.whl")
-    return str(wheel)
+
+def _build_wheel(session: nox.Session) -> pathlib.Path:
+    """Build the project wheel once and return its Path, reusing on subsequent calls."""
+    global _wheel
+    if _wheel is None:
+        dist_dir = pathlib.Path(tempfile.mkdtemp(prefix="nox-wheel-"))
+        session.run("uv", "build", "--wheel", "--out-dir", str(dist_dir), external=True)
+        (_wheel,) = dist_dir.glob("*.whl")
+    return _wheel
 
 
 def _run_tests(session: nox.Session, django_constraint: str) -> None:
-    """Build the wheel and run the test suite against it."""
+    """Build the wheel (once) and run the test suite against it."""
     wheel = _build_wheel(session)
-    session.install("--group", "testing", django_constraint, wheel)
+    session.install("--group", "testing", django_constraint, str(wheel))
     session.run("pytest", *session.posargs)
 
 
@@ -41,5 +47,5 @@ def tests_django60(session: nox.Session) -> None:
 def docs_doctest(session: nox.Session) -> None:
     """Run Sphinx doctest on usage examples in docs/."""
     wheel = _build_wheel(session)
-    session.install("--group", "docs", wheel)
+    session.install("--group", "docs", str(wheel))
     session.run("sphinx-build", "-b", "doctest", "docs", "docs/_build/doctest")
