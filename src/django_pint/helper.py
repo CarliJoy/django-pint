@@ -15,7 +15,7 @@ def check_matching_unit_dimension(
 
     for unit_string in units_to_check:
         unit = getattr(ureg, unit_string)
-        # try to convert base qunatity to new unit, this also work for ureg.context
+        # try to convert base quantity to new unit, this also work for ureg.context
         try:
             base_quant.to(unit)
         except DimensionalityError as e:
