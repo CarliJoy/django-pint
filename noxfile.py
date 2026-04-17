@@ -41,5 +41,5 @@ def tests_django60(session: nox.Session) -> None:
 def docs_doctest(session: nox.Session) -> None:
     """Run Sphinx doctest on usage examples in docs/."""
     wheel = _build_wheel(session)
-    session.install("--group", "build_doc", wheel)
+    session.install("--group", "docs", wheel)
     session.run("sphinx-build", "-b", "doctest", "docs", "docs/_build/doctest")

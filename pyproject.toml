@@ -61,7 +61,7 @@ dev = [
     "nox>=2024.10.9",
     "pre-commit>=3.0",
 ]
-build_doc = [
+docs = [
     "Django>=5.2",
     "pint>=0.16",
     "sphinx",
