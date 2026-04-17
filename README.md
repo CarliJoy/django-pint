@@ -153,53 +153,31 @@ Still only adding units should be okay.
 
 ### Preparation
 
-You need to install all Python Version that django-pint is compatible with.
-In a *nix environment you best could use [pyenv](https://github.com/pyenv/pyenv) to do so.
+You need [Docker](https://docs.docker.com/get-docker/) — the tests spin up a PostgreSQL container
+automatically via [testcontainers](https://testcontainers.com/guides/getting-started-with-testcontainers-for-python/).
+No separate database installation is required.
 
-Furthermore, you need to install [tox](https://tox.wiki/en/latest/) and [pre-commit](https://pre-commit.com/) to lint and test.
+1. Install [uv](https://docs.astral.sh/uv/getting-started/installation/)
+2. Fork `django-pint` and clone your fork (see [Tutorial](https://docs.github.com/get-started/quickstart/contributing-to-projects))
+3. Change into the repo: `cd django-pint`
+4. Install all development dependencies: `uv sync`
+5. Activate pre-commit hooks: `uv run pre-commit install`
+6. Check that all linters pass: `uv run pre-commit run --all-files`
+7. Run the full test suite: `nox`
 
-You also need docker as our tests require a postgres database to run.
-We don't use SQL lite as some bugs only occurred using a proper database.
+**Congratulations!** You have successfully set up and tested the upstream version of `django-pint`.
 
-I recommend using [pipx](https://pypa.github.io/pipx/) to install them.
-
-1. Install `pipx` (see pipx documentation), i.e. with `python3 -m pip install --user pipx && python3 -m pipx ensurepath`
-2. Install `pre-commit` running `pipx install pre-commit`
-3. Install `tox`  running `pipx install tox`
-4. Install the `tox-docker` plugin `pipx inject tox tox-docker`
-5. Fork `django-pint` and clone your fork (see [Tutorial](https://docs.github.com/get-started/quickstart/contributing-to-projects))
-6. Change into the repo `cd django-pint`
-7. Activate `pre-commit` for the repo running `pre-commit install`
-8. Check that all linter run fine with the cloned version by running `pre-commit run --all-files`
-9. Check that all tests succeed by running `tox`
-
-**Congratulation** you successfully cloned and tested the upstream version of `django-pint`.
-
-Now you can work on your feature branch and test your changes using `tox`.
-Your code will be automatically linted and formatted by `pre-commit` if you commit your changes.
-If it fails, simply add all changes and try again.
-If this doesn't help look at the output of your `git commit` command.
+Now you can work on your feature branch and test your changes with `nox`.
+Your code will be automatically linted and formatted by `pre-commit` when you commit.
+If it fails, add the formatted changes and commit again.
 
 Once you are done, [create a pull request](https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request-from-a-fork).
-
-### Local development environment with Docker
-
-To run a local development environment with Docker you need to run the following steps:
-This is helpful if you have troubles installing `postgresql` or `psycopg2-binary`.
-
-1. `git clone` your fork
-2. run `cp .env.example .env`
-3. edit `.env` file and change it with your credentials ( the postgres host should match the service name in docker-file so you can use "postgres" )
-4. run `cp tests/local.py.docker-example tests/local.py`
-5. run `docker-compose up` in the root folder, this should build and start 2 containers, one for postgres and the other one python dependencies. Note you have to be in the [docker](https://stackoverflow.com/a/47078951/3813064) group for this to work.
-6. open a new terminal and run `docker-compose exec app bash`, this should open a ssh console in the docker container
-7. you can run `pytest` inside the container to see the result of the tests.
 
 ### Updating the package
 [Python](https://endoflife.date/python) and [Django](https://endoflife.date/django) major versions have defined EOL.
 To reduce the maintenance burden and encourage users to use version still receiving security updates any `django-pint` update should match all and only these version of Python and Django that are supported.
 Updating these dependencies have to be done in multiple places:
  - `README.md`: Describing it to end users
- - `tox.ini`: For local testing
+ - `noxfile.py`: For local testing
  - `pyproject.toml`: For usage with pip and displaying it in PyPi
  - `.github/workflows/test.yaml`: For the CI/CD Definition

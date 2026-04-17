@@ -50,13 +50,8 @@ DATABASES = {
         "USER": os.environ.get("POSTGRES_USER", "django_pint"),
         "NAME": os.environ.get("POSTGRES_DB", "django_pint"),
         "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
-        "PORT": os.environ.get(
-            "POSTGRES_PORT", os.environ.get("POSTGRES_5432_TCP_PORT", "")
-        ),
+        "PORT": os.environ.get("POSTGRES_PORT", "5432"),
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD", "not_secure_in_testing"),
-        "TEST": {
-            "NAME": os.environ.get("TEST_DB", "mytestdatabase"),
-        },
     },
 }
 

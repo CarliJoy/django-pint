@@ -36,6 +36,7 @@ tags
 htmlcov/*
 .coverage
 .tox
+.nox
 junit.xml
 coverage.xml
 .pytest_cache/
