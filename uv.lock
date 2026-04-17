@@ -394,7 +394,16 @@ dependencies = [
 ]
 
 [package.dev-dependencies]
-build-doc = [
+dev = [
+    { name = "nox" },
+    { name = "pre-commit" },
+    { name = "psycopg2-binary" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
+    { name = "pytest-django" },
+    { name = "testcontainers" },
+]
+docs = [
     { name = "django", version = "5.2.13", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
     { name = "django", version = "6.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "m2r2" },
@@ -405,15 +414,6 @@ build-doc = [
     { name = "sphinx", version = "9.0.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
     { name = "sphinx", version = "9.1.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "sphinx-rtd-theme" },
-]
-dev = [
-    { name = "nox" },
-    { name = "pre-commit" },
-    { name = "psycopg2-binary" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
-    { name = "pytest-django" },
-    { name = "testcontainers" },
 ]
 testing = [
     { name = "psycopg2-binary" },
@@ -430,14 +430,6 @@ requires-dist = [
 ]
 
 [package.metadata.requires-dev]
-build-doc = [
-    { name = "django", specifier = ">=5.2" },
-    { name = "m2r2", specifier = ">=0.2.5" },
-    { name = "pint", specifier = ">=0.16" },
-    { name = "recommonmark", specifier = ">=0.6.0" },
-    { name = "sphinx" },
-    { name = "sphinx-rtd-theme", specifier = ">=0.5.0" },
-]
 dev = [
     { name = "nox", specifier = ">=2024.10.9" },
     { name = "pre-commit", specifier = ">=3.0" },
@@ -446,6 +438,14 @@ dev = [
     { name = "pytest-cov", specifier = ">=2.1" },
     { name = "pytest-django", specifier = ">=4.0" },
     { name = "testcontainers", extras = ["postgres"], specifier = ">=4.0" },
+]
+docs = [
+    { name = "django", specifier = ">=5.2" },
+    { name = "m2r2", specifier = ">=0.2.5" },
+    { name = "pint", specifier = ">=0.16" },
+    { name = "recommonmark", specifier = ">=0.6.0" },
+    { name = "sphinx" },
+    { name = "sphinx-rtd-theme", specifier = ">=0.5.0" },
 ]
 testing = [
     { name = "psycopg2-binary" },

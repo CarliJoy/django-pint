@@ -1,6 +1,6 @@
 from django import forms
 
-from quantityfield.fields import (
+from django_pint.fields import (
     DecimalQuantityFormField,
     IntegerQuantityFormField,
     QuantityFormField,

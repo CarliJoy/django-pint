@@ -9,6 +9,6 @@ except PackageNotFoundError:  # pragma: no cover
 finally:
     del version, PackageNotFoundError
 
-from quantityfield import fields, helper, settings, units, widgets
+from django_pint import fields, helper, settings, units, widgets
 
 __all__ = ["fields", "helper", "settings", "units", "widgets"]

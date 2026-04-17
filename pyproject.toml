@@ -146,6 +146,7 @@ include = [
 
 [tool.pytest.ini_options]
 addopts = [
+    "--cov=django_pint",
     "--cov=quantityfield",
     "--cov-report=xml",
     "--cov-report=term-missing",
@@ -161,7 +162,7 @@ DJANGO_SETTINGS_MODULE = "tests.settings"
 
 [tool.coverage.run]
 branch = true
-source = ["quantityfield"]
+source = ["django_pint", "quantityfield"]
 
 [tool.coverage.paths]
 source = [
