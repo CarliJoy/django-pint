@@ -76,7 +76,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "quantityfield",
+    "django_pint",
     dummy_app_load_string,
 ]
 ROOT_URLCONF = f"{dummy_app_load_string}.urls"

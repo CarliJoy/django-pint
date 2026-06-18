@@ -2,9 +2,9 @@ from django.test import TestCase
 
 from pint import Context, DimensionalityError
 
-import quantityfield.fields as fields
-import quantityfield.helper as helper
-from quantityfield.units import ureg
+import django_pint.fields as fields
+import django_pint.helper as helper
+from django_pint.units import ureg
 
 
 class TestMatchingUnitDimensionsHelper(TestCase):

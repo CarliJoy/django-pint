@@ -1,6 +1,6 @@
 from django.db.models.base import ModelBase
 
-from quantityfield.fields import QuantityFieldMixin
+from django_pint.fields import QuantityFieldMixin
 
 from .models import *  # noqa: F401, F403
 

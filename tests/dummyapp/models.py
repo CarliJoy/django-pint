@@ -1,8 +1,8 @@
 from django.db import models
 from django.db.models import DecimalField
 
-import quantityfield.fields
-from quantityfield.fields import (
+import django_pint.fields
+from django_pint.fields import (
     BigIntegerQuantityField,
     DecimalQuantityField,
     IntegerQuantityField,
@@ -53,7 +53,7 @@ class EmptyHayBaleInt(models.Model):
 
 class EmptyHayBalePositiveInt(models.Model):
     name = models.CharField(max_length=20)
-    weight = quantityfield.fields.PositiveIntegerQuantityField("gram", null=True)
+    weight = django_pint.fields.PositiveIntegerQuantityField("gram", null=True)
 
 
 class EmptyHayBaleBigInt(models.Model):

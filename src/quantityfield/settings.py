@@ -1,11 +1,3 @@
-__version__ = "0.4"
-from django.conf import settings
+from django_pint.settings import DJANGO_PINT_UNIT_REGISTER  # noqa: F401
 
-from pint import UnitRegistry, set_application_registry
-
-# Define default unit register
-DJANGO_PINT_UNIT_REGISTER = getattr(
-    settings, "DJANGO_PINT_UNIT_REGISTER", UnitRegistry()
-)
-# Set as default application registry for i.e. for pickle
-set_application_registry(DJANGO_PINT_UNIT_REGISTER)
+__all__ = ["DJANGO_PINT_UNIT_REGISTER"]

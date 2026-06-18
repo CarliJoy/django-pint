@@ -5,7 +5,7 @@ from django.contrib.admin import ModelAdmin
 from django.db.models import Model
 from django.forms import Field, ModelForm
 
-from quantityfield.widgets import QuantityWidget
+from django_pint.widgets import QuantityWidget
 from tests.dummyapp import models
 
 
