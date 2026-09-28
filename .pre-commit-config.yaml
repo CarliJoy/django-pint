@@ -18,13 +18,13 @@ repos:
     args: ['--fix=auto']
 
 - repo: https://github.com/astral-sh/ruff-pre-commit
-  rev: v0.15.13
+  rev: v0.16.9
   hooks:
     - id: ruff
       args: [--fix]
     - id: ruff-format
 
 - repo: https://github.com/crate-ci/typos.git
-  rev: 'v1'
+  rev: 'v1.50.3'
   hooks:
     - id: typos
