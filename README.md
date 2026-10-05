@@ -47,8 +47,9 @@ Best way to illustrate is with an example
 from django.db import models
 from quantityfield.fields import QuantityField
 
+
 class HayBale(models.Model):
-    weight = QuantityField('tonne')
+    weight = QuantityField("tonne")
 ```
 
 Quantities are stored as float (Django FloatField) and retrieved like any other field
@@ -90,8 +91,11 @@ Use the inbuilt form field and widget to allow input of quantity values in diffe
 ```python
 from quantityfield.fields import QuantityFormField
 
+
 class HayBaleForm(forms.Form):
-    weight = QuantityFormField(base_units='gram', unit_choices=['gram', 'ounce', 'milligram'])
+    weight = QuantityFormField(
+        base_units="gram", unit_choices=["gram", "ounce", "milligram"]
+    )
 ```
 
 The form will render a float input and a select widget to choose the units.
@@ -132,14 +136,15 @@ from pint import UnitRegistry
 
 # django-pint will set the DJANGO_PINT_UNIT_REGISTER automatically
 # as application_registry
-DJANGO_PINT_UNIT_REGISTER = UnitRegistry('your_units.txt')
-DJANGO_PINT_UNIT_REGISTER.define('beer_bottle_weight = 0.8 * kg = beer')
+DJANGO_PINT_UNIT_REGISTER = UnitRegistry("your_units.txt")
+DJANGO_PINT_UNIT_REGISTER.define("beer_bottle_weight = 0.8 * kg = beer")
 
 # app/models.py
 
+
 class HayBale(models.Model):
     # now you can use your custom units in your models
-    custom_unit = QuantityField('beer')
+    custom_unit = QuantityField("beer")
 ```
 
 Note: As the [documentation from pint](https://pint.readthedocs.io/en/latest/tutorial.html#using-pint-in-your-projects)
