@@ -305,7 +305,11 @@ class QuantityFormFieldMixin:
         General idea, first try to extract the correct number like done in the other
         classes and then follow the same procedure as in the django default field
         """
-        if isinstance(value, list) or isinstance(value, tuple):
+        if isinstance(value, Quantity):
+            # A disabled field is cleaned with its initial value (issue #141)
+            val = value.to(self.base_units).magnitude
+            units = self.base_units
+        elif isinstance(value, list) or isinstance(value, tuple):
             val = value[0]
             units = value[1]
         else:

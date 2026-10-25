@@ -6,6 +6,7 @@ import pytest
 
 import django.core.exceptions
 import django.core.validators
+from django import forms
 from django.core.serializers import deserialize, serialize
 from django.db import transaction
 from django.db.models import Field, Model
@@ -547,6 +548,64 @@ class TestDecimalQuantityFormField(TestCase):
         self.assertEqual(field.clean("2.1").magnitude, expected)  # test string
         self.assertEqual(field.clean(expected).magnitude, expected)  # test Decimal
         self.assertEqual(field.clean(2).magnitude, Decimal("2"))  # test Int
+
+
+class TestDisabledFormField(TestCase):
+    """Tests for disabled form fields, which Django cleans with their initial
+    value. That value can be a Quantity (issue #141).
+    """
+
+    def test_form_with_quantity_initial_is_valid(self):
+        """A disabled field with a Quantity as initial value validates."""
+
+        class WeightForm(forms.Form):
+            weight = QuantityFormField(
+                base_units="kilogram",
+                disabled=True,
+                initial=Quantity(0.35, "kilogram"),
+            )
+
+        form = WeightForm(data={})
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["weight"], Quantity(0.35, "kilogram"))
+
+    def test_model_form_for_existing_instance_is_valid(self):
+        """A disabled field in a ModelForm validates with the instance's value."""
+
+        class WeightForm(forms.ModelForm):
+            class Meta:
+                model = FloatFieldSaveModel
+                fields = ["name", "weight"]
+
+            def __init__(self, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                self.fields["weight"].disabled = True
+
+        instance = FloatFieldSaveModel(name="bale", weight=Quantity(350, "gram"))
+        form = WeightForm(data={"name": "bale"}, instance=instance)
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data["weight"], Quantity(350, "gram"))
+
+    def test_quantity_is_converted_to_base_units(self):
+        field = QuantityFormField(base_units="kilogram", unit_choices=["gram"])
+        result = field.clean(Quantity(350, "gram"))
+        self.assertEqual(result.units, ureg.kilogram)
+        self.assertAlmostEqual(result.magnitude, 0.35)
+
+    def test_integer_form_field_cleans_quantity(self):
+        field = IntegerQuantityFormField(base_units="gram")
+        self.assertEqual(field.clean(Quantity(2, "kilogram")), Quantity(2000, "gram"))
+
+    def test_decimal_form_field_cleans_quantity(self):
+        field = DecimalQuantityFormField(base_units="gram")
+        result = field.clean(Quantity(Decimal("2.1"), "gram"))
+        self.assertEqual(result.magnitude, Decimal("2.1"))
+
+    def test_validators_run_on_quantity(self):
+        field = QuantityFormField(base_units="gram", max_value=100)
+        with self.assertRaises(django.core.exceptions.ValidationError) as cm:
+            field.clean(Quantity(1, "kilogram"))
+        self.assertEqual(cm.exception.error_list[0].code, "max_value")
 
 
 @override_settings(USE_L10N=True, USE_THOUSAND_SEPARATOR=True)
