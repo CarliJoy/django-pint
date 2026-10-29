@@ -592,6 +592,13 @@ class TestDisabledFormField(TestCase):
         self.assertEqual(result.units, ureg.kilogram)
         self.assertAlmostEqual(result.magnitude, 0.35)
 
+    def test_quantity_in_multi_widget_value_is_converted(self):
+        """A Quantity paired with a unit, as a multi widget value, is cleaned."""
+        field = QuantityFormField(base_units="kilogram", unit_choices=["gram"])
+        result = field.clean([Quantity(0.35, "kilogram"), "gram"])
+        self.assertEqual(result.units, ureg.kilogram)
+        self.assertAlmostEqual(result.magnitude, 0.35)
+
     def test_integer_form_field_cleans_quantity(self):
         field = IntegerQuantityFormField(base_units="gram")
         self.assertEqual(field.clean(Quantity(2, "kilogram")), Quantity(2000, "gram"))
