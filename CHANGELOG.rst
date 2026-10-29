@@ -2,8 +2,8 @@
 Changelog
 =========
 
-Unreleased
-==========
+Version 1.1.0
+=============
 - Fix ``QuantityFormFieldMixin.clean()`` rejecting a ``Quantity`` value with "Enter a number.", which made a disabled field with a ``Quantity`` as its initial value always fail validation (`issue #141 <https://github.com/CarliJoy/django-pint/issues/141>`_)
 - Migrate project tooling to ``uv``, ``nox``, ``hatchling``, and ``testcontainers``; remove ``tox``, ``tox-docker``, ``setuptools``, and separate Docker/Compose setup files (`issue #127 <https://github.com/CarliJoy/django-pint/issues/127>`_)
 - Fix bug in ``QuantityFormFieldMixin.clean()`` where ``localize=True`` with a multi-widget list input called ``sanitize_separators`` on the full list instead of the extracted numeric string (`issue #24 <https://github.com/CarliJoy/django-pint/issues/24>`_, `#125 <https://github.com/CarliJoy/django-pint/pull/125>`_)
