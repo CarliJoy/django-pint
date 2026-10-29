@@ -313,6 +313,10 @@ class QuantityFormFieldMixin:
             val = value
             units = self.base_units
 
+        if isinstance(val, Quantity):
+            # A disabled field is cleaned with its initial value (issue #141)
+            val = val.to(units).magnitude
+
         if val in self.empty_values:
             # Make sure the correct functions are called also in case of empty values
             self.validate(None)
