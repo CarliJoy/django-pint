@@ -57,15 +57,15 @@ Quantities are stored as float (Django FloatField) and retrieved like any other 
 >>> bale = HayBale.objects.create(weight=1.2)
 >>> bale = HayBale.objects.first()
 >>> bale.weight
-<Quantity(1.2, 'metric_ton')>
+Quantity(1.2, "metric_ton")
 >>> bale.weight.magnitude
 1.2
 >>> bale.weight.units
-<Unit('metric_ton')>
+Unit("metric_ton")
 >>> bale.weight.to('kilogram')
-<Quantity(1200.0, 'kilogram')>
+Quantity(1200.0, "kilogram")
 >>> bale.weight.to('pound')  # doctest: +ELLIPSIS
-<Quantity(2645.5..., 'pound')>
+Quantity(2645.5..., "pound")
 ```
 
 If your base unit is atomic (i.e. can be represented by an integer), you may also use `IntegerQuantityField` and `BigIntegerQuantityField`.
@@ -82,7 +82,7 @@ You can also pass Quantity objects to be stored in models. These are automatical
 >>> bale = HayBale.objects.create(weight=pounds)
 >>> bale = HayBale.objects.last()
 >>> bale.weight  # doctest: +ELLIPSIS
-<Quantity(0.2267..., 'metric_ton')>
+Quantity(0.2267..., "metric_ton")
 ```
 
 Use the inbuilt form field and widget to allow input of quantity values in different units
@@ -109,7 +109,7 @@ correctly.
 >>> form.is_valid()
 True
 >>> form.cleaned_data['weight']
-<Quantity(100.0, 'gram')>
+Quantity(100.0, "gram")
 ```
 
 For comparative lookups, query values will be coerced into the correct units when comparing values,
